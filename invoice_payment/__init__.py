@@ -1,0 +1,1 @@
+default_app_config = 'invoice_payment.apps.InvoicePaymentConfig'
