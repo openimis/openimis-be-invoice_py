@@ -96,7 +96,7 @@ class InvoiceLineItem(HistoryBusinessModel):
         db_table = 'tblInvoiceLineItem'
 
 
-class InvoicePayment(HistoryBusinessModel):
+class InvoicePayment(HistoryModel):
     class InvoicePaymentStatus(models.IntegerChoices):
         ACCEPTED = 0
         REJECTED = 1
