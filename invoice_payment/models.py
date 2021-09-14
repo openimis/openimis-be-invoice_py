@@ -10,6 +10,8 @@ from jsonfallback.fields import FallbackJSONField
 from invoice_payment.apps import InvoicePaymentConfig
 # Create your models here.
 
+def get_default_currency():
+    return InvoicePaymentConfig.default_currency_code
 
 class Invoice(HistoryBusinessModel):
     class InvoiceStatus(models.IntegerChoices):
@@ -51,9 +53,9 @@ class Invoice(HistoryBusinessModel):
         db_column='Status', null=False, choices=InvoiceStatus.choices, default=InvoiceStatus.DRAFT)
 
     currency_rcp_code = models.CharField(
-        db_column='CurrencyRcpCode', null=False, max_length=255, default=InvoicePaymentConfig.default_currency_code)
+        db_column='CurrencyRcpCode', null=False, max_length=255, default=get_default_currency)
     currency_code = models.CharField(
-        db_column='CurrencyCode', null=False, max_length=255, default=InvoicePaymentConfig.default_currency_code)
+        db_column='CurrencyCode', null=False, max_length=255, default=get_default_currency)
 
     note = models.TextField(db_column='Note', blank=True, null=True)
     terms = models.TextField(db_column='Terms', blank=True, null=True)

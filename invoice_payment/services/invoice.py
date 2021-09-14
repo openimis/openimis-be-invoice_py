@@ -1,7 +1,9 @@
 import json
 
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.contenttypes.models import ContentType
 from django.core.serializers.json import DjangoJSONEncoder
+from django.db import transaction
 
 from invoice_payment.models import Invoice
 from invoice_payment.validation.invoice import InvoiceModelValidation
@@ -56,28 +58,35 @@ class InvoiceService:
     @check_authentication
     def create(self, invoice_data):
         try:
-            self.validation_class.validate_create(self.user, **invoice_data)
-            invoice = Invoice(**invoice_data)
-            return self.save_instance(invoice)
+            with transaction.atomic():
+                invoice_data = self._evaluate_generic_types(invoice_data)
+
+                self.validation_class.validate_create(self.user, **invoice_data)
+                invoice = Invoice(**invoice_data)
+                return self.save_instance(invoice)
         except Exception as exc:
             return _output_exception(model_name="Invoice", method="create", exception=exc)
 
     @check_authentication
     def update(self, invoice_data):
         try:
-            self.validation_class.validate_update(self.user, **invoice_data)
-            invoice = Invoice.objects.filter(id=invoice_data['id']).first()
-            [setattr(invoice, key, invoice_data[key]) for key in invoice_data]
-            return self.save_instance(invoice)
+            with transaction.atomic():
+                invoice_data = self._evaluate_generic_types(invoice_data)
+
+                self.validation_class.validate_update(self.user, **invoice_data)
+                invoice = Invoice.objects.filter(id=invoice_data['id']).first()
+                [setattr(invoice, key, invoice_data[key]) for key in invoice_data]
+                return self.save_instance(invoice)
         except Exception as exc:
             return _output_exception(model_name="Invoice", method="update", exception=exc)
 
     @check_authentication
     def delete(self, invoice_data):
         try:
-            self.validation_class.validate_delete(self.user, **invoice_data)
-            invoice = Invoice.objects.filter(id=invoice_data['id']).first()
-            return self.delete_instance(invoice)
+            with transaction.atomic():
+                self.validation_class.validate_delete(self.user, **invoice_data)
+                invoice = Invoice.objects.filter(id=invoice_data['id']).first()
+                return self.delete_instance(invoice)
         except Exception as exc:
             return _output_exception(model_name="Invoice", method="delete", exception=exc)
 
@@ -93,3 +102,11 @@ class InvoiceService:
             "message": "Ok",
             "detail": "",
         }
+
+    def _evaluate_generic_types(self, invoice_data):
+        if 'subject_type' in invoice_data.keys():
+            invoice_data['subject_type'] = ContentType.objects.get(model=invoice_data['subject_type'].lower())
+
+        if 'recipient_type' in invoice_data.keys():
+            invoice_data['recipient_type'] = ContentType.objects.get(model=invoice_data['recipient_type'].lower())
+        return invoice_data

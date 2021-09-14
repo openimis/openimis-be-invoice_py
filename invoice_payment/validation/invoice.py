@@ -7,12 +7,16 @@ from invoice_payment.models import Invoice
 class InvoiceModelValidation:
     CODE_DUPLICATE_MSG = _("Invoice code %(code)s  is not unique.")
     INVALID_UPDATE_ID_MSG = _("Invoice for id  %(id)s does not exists")
+    INVALID_TAX_ANALYSIS_JSON_FORMAT = _("Invalid tax_analysis format %(tax)s.")
 
     @classmethod
     def validate_create(cls, user, **data):
         code = data.get('code', None)
+        tax = data.get('tax_analysis', None)
         if not cls.__unique_display_name(code):
             raise ValidationError(cls.CODE_DUPLICATE_MSG % {'code': code})
+        if tax and not cls.__valid_tax_analysis_format(tax):
+            raise ValidationError(cls.INVALID_TAX_ANALYSIS_JSON_FORMAT % {'tax': tax})
 
     @classmethod
     def validate_update(cls, user, **data):
@@ -35,3 +39,9 @@ class InvoiceModelValidation:
     @classmethod
     def __unique_display_name(cls, code):
         return not Invoice.objects.filter(code=code).exists()
+
+    @classmethod
+    def __valid_tax_analysis_format(cls, tax: dict):
+        keys = tax.keys()
+        expected_keys = ['lines', 'total']
+        return all([(expected_keys.count(k) > 0) for k in keys])
