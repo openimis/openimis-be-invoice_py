@@ -28,7 +28,7 @@ class ServiceTestPolicyHolder(TestCase):
             'date_payed':  date(2021, 9, 12),
             'amount_discount': 20.1,
             'amount_net': 20.1,
-            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': 'b', 'amount': 'a'}], 'total': '10'},
+            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
             'amount_total': 20.1,
             'status': 0,  # Draft
             'note': 'NOTE',
@@ -48,7 +48,7 @@ class ServiceTestPolicyHolder(TestCase):
         'date_payed': date(2021, 10, 12),
         'amount_discount': 22.1,
         'amount_net': 22.1,
-        'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': 'b', 'amount': 'a'}], 'total': '10'},
+        'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.10', 'amount': '2.21'}], 'total': '2.21'},
         'amount_total': 22.1,
         'status': 1,  # Draft
         'note': 'NOTE_2',
@@ -73,7 +73,7 @@ class ServiceTestPolicyHolder(TestCase):
             'date_payed':  '2021-09-12',
             'amount_discount': 20.1,
             'amount_net': 20.1,
-            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': 'b', 'amount': 'a'}], 'total': '10'},
+            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
             'amount_total': 20.1,
             'status': 0,  # Draft
             'note': 'NOTE',
@@ -98,7 +98,7 @@ class ServiceTestPolicyHolder(TestCase):
             'date_payed':  '2021-10-12',
             'amount_discount': 22.1,
             'amount_net': 22.1,
-            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': 'b', 'amount': 'a'}], 'total': '10'},
+            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.21'}], 'total': '2.21'},
             'amount_total': 22.1,
             'status': 1,  # Draft
             'note': 'NOTE_2',
