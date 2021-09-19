@@ -2,9 +2,10 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 
 from invoice_payment.models import Invoice
+from invoice_payment.validation.base import BaseModelValidation
 
 
-class InvoiceModelValidation:
+class InvoiceModelValidation(BaseModelValidation):
     CODE_DUPLICATE_MSG = _("Invoice code %(code)s  is not unique.")
     INVALID_UPDATE_ID_MSG = _("Invoice for id  %(id)s does not exists")
     INVALID_TAX_ANALYSIS_JSON_FORMAT = _("Invalid tax_analysis format %(tax)s.")

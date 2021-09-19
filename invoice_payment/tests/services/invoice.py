@@ -13,6 +13,8 @@ from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
 from datetime import date
 
+from invoice_payment.tests.helpers import create_test_invoice
+
 
 class ServiceTestPolicyHolder(TestCase):
     BASE_TEST_INVOICE_PAYLOAD = {
@@ -111,19 +113,21 @@ class ServiceTestPolicyHolder(TestCase):
     def setUpClass(cls):
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+
         Invoice.objects.filter(code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
 
         cls.policy_holder = create_test_policy_holder()
         cls.contract = create_test_contract(cls.policy_holder)
-        cls.user = User.objects.filter(username='admin').first()
+        cls.user = User.objects.filter(username='admin_invoice').first()
         cls.insuree = create_test_insuree(with_family=False)
         cls.insuree_service = InvoiceService(cls.user)
 
-        cls.BASE_TEST_INVOICE_PAYLOAD['subject_id'] = cls.contract.uuid
-        cls.BASE_TEST_INVOICE_PAYLOAD['recipient_id'] = cls.insuree.uuid
+        cls.BASE_TEST_INVOICE_PAYLOAD['subject'] = cls.contract
+        cls.BASE_TEST_INVOICE_PAYLOAD['recipient'] = cls.insuree
 
-        cls.BASE_EXPECTED_CREATE_RESPONSE['data']['subject_id'] = str(cls.contract.uuid)
-        cls.BASE_EXPECTED_CREATE_RESPONSE['data']['recipient_id'] = str(cls.insuree.uuid)
+        # Business model use PK of uuid type
+        cls.BASE_EXPECTED_CREATE_RESPONSE['data']['subject_id'] = str(cls.contract.pk)
+        cls.BASE_EXPECTED_CREATE_RESPONSE['data']['recipient_id'] = cls.insuree.pk
         super().setUpClass()
 
     @classmethod
@@ -149,28 +153,6 @@ class ServiceTestPolicyHolder(TestCase):
             self.assertDictEqual(expected_response, response)
             Invoice.objects.filter(code=payload['code']).delete()
 
-    def test_policy_holder_update(self):
-        with transaction.atomic():
-            create_payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
-            update_payload = self.BASE_TEST_UPDATE_INVOICE_PAYLOAD.copy()
-            expected_response = self.BASE_EXPECTED_UPDATE_RESPONSE.copy()
-
-            self.insuree_service.create(create_payload)
-            update_payload['id'] = \
-                Invoice.objects.filter(code=create_payload['code']).first().id
-
-            response = self.insuree_service.update(update_payload)
-
-            truncated_output = response
-            truncated_output['data'] = {k: v for k, v in truncated_output['data'].items()
-                                        if k in expected_response['data'].keys()}
-
-            invoice = Invoice.objects.filter(code=update_payload['code']).first()
-
-            expected_response['data']['recipient_type'] = invoice.recipient_type.id
-            self.assertDictEqual(expected_response, response)
-
-            Invoice.objects.filter(code=update_payload['code']).delete()
     def test_policy_holder_update(self):
         with transaction.atomic():
             create_payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
