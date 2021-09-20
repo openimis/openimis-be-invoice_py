@@ -50,6 +50,14 @@ def _output_result_success(dict_representation):
     }
 
 
+def _build_delete_instance_payload():
+    return {
+        "success": True,
+        "message": "Ok",
+        "detail": "",
+    }
+
+
 def _get_generic_type(generic_type: Union[str, ContentType]):
     if isinstance(generic_type, ContentType):
         return generic_type

@@ -75,12 +75,3 @@ class InvoiceLineItemService(BaseService):
             return 0
         else:
             return float(tax_data['total'])
-
-
-
-
-
-
-
-
-

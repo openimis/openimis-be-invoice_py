@@ -6,7 +6,7 @@ from django.db import transaction
 from typing import Type
 
 from invoice_payment.services.service_utils import _check_authentication as check_authentication, _output_exception, \
-    _model_representation, _output_result_success, _get_generic_type
+    _model_representation, _output_result_success, _get_generic_type, _build_delete_instance_payload
 from invoice_payment.validation.base import BaseModelValidation
 
 
@@ -63,7 +63,7 @@ class BaseService(ABC):
 
     def delete_instance(self, obj_):
         obj_.delete(username=self.user.username)
-        return self._build_delete_instance_payload(obj_)
+        return _build_delete_instance_payload()
 
     def _adjust_create_payload(self, payload_data):
         return self._base_payload_adjust(payload_data)
@@ -73,10 +73,3 @@ class BaseService(ABC):
 
     def _base_payload_adjust(self, obj_data):
         return obj_data
-
-    def _build_delete_instance_payload(self, obj_):
-        return {
-            "success": True,
-            "message": "Ok",
-            "detail": "",
-        }
