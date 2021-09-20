@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from policyholder.models import PolicyHolder
@@ -14,9 +16,10 @@ from insuree.test_helpers import create_test_insuree
 from datetime import date
 
 from invoice_payment.tests.helpers import create_test_invoice
+from invoice_payment.validation.base import TaxAnalysisFormatValidationMixin
 
 
-class ServiceTestPolicyHolder(TestCase):
+class ServiceTestInvoice(TestCase):
     BASE_TEST_INVOICE_PAYLOAD = {
             'subject_type': 'contract',
             'subject_id': None,
@@ -137,7 +140,7 @@ class ServiceTestPolicyHolder(TestCase):
         cls.insuree.delete()
         super().tearDownClass()
 
-    def test_policy_holder_create(self):
+    def test_invoice_create(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
             expected_response = self.BASE_EXPECTED_CREATE_RESPONSE.copy()
@@ -153,7 +156,7 @@ class ServiceTestPolicyHolder(TestCase):
             self.assertDictEqual(expected_response, response)
             Invoice.objects.filter(code=payload['code']).delete()
 
-    def test_policy_holder_update(self):
+    def test_invoice_update(self):
         with transaction.atomic():
             create_payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
             update_payload = self.BASE_TEST_UPDATE_INVOICE_PAYLOAD.copy()
@@ -176,7 +179,7 @@ class ServiceTestPolicyHolder(TestCase):
 
             Invoice.objects.filter(code=update_payload['code']).delete()
 
-    def test_policy_holder_delete(self):
+    def test_invoice_delete(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
             expected_response = {
@@ -187,5 +190,33 @@ class ServiceTestPolicyHolder(TestCase):
 
             response = self.insuree_service.create(payload)
             response = self.insuree_service.delete(response['data'])
+            self.assertDictEqual(expected_response, response)
+            Invoice.objects.filter(code=payload['code']).delete()
+
+    def test_invoice_code_duplicate(self):
+        with transaction.atomic():
+            payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
+            _ = self.insuree_service.create(payload)
+            response = self.insuree_service.create(payload)
+            expected_response = {
+                "success": False,
+                "message": "Failed to create Invoice",
+                "detail": "['Object code INVOICE_CODE is not unique.']",
+                "data": ''
+            }
+            self.assertDictEqual(expected_response, response)
+            Invoice.objects.filter(code=payload['code']).delete()
+
+    def test_invoice_invalid_tax_analysis_format(self):
+        with transaction.atomic():
+            payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
+            payload['tax_analysis'] = {'total': '2.01'}
+            response = self.insuree_service.create(payload)
+            expected_response = {
+                "success": False,
+                "message": "Failed to create Invoice",
+                "detail": json.dumps([TaxAnalysisFormatValidationMixin.INVALID_TAX_ANALYSIS_JSON_FORMAT_NO_KEYS]),
+                "data": ''
+            }
             self.assertDictEqual(expected_response, response)
             Invoice.objects.filter(code=payload['code']).delete()

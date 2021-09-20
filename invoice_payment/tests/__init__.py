@@ -1,1 +1,1 @@
-from invoice_payment.services import *
+from .services import *
