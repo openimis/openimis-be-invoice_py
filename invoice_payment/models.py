@@ -10,8 +10,10 @@ from jsonfallback.fields import FallbackJSONField
 from invoice_payment.apps import InvoicePaymentConfig
 # Create your models here.
 
+
 def get_default_currency():
     return InvoicePaymentConfig.default_currency_code
+
 
 class Invoice(HistoryBusinessModel):
     class InvoiceStatus(models.IntegerChoices):
@@ -41,11 +43,11 @@ class Invoice(HistoryBusinessModel):
     date_payed = DateField(db_column='DatePayed', null=True)
 
     amount_discount = models.DecimalField(
-        db_column='AmountDiscount', max_digits=18, decimal_places=2, null=True, default=0)
+        db_column='AmountDiscount', max_digits=18, decimal_places=2, null=True, default=0.0)
     amount_net = models.DecimalField(
-        db_column='AmountNet', max_digits=18, decimal_places=2, null=False)
+        db_column='AmountNet', max_digits=18, decimal_places=2, default=0.0)
     amount_total = models.DecimalField(
-        db_column='AmountTotal', max_digits=18, decimal_places=2, null=True)
+        db_column='AmountTotal', max_digits=18, decimal_places=2, default=0.0)
 
     tax_analysis = FallbackJSONField(db_column='TaxAnalysis', null=True)
 
@@ -82,16 +84,16 @@ class InvoiceLineItem(HistoryBusinessModel):
 
     ledger_account = models.CharField(db_column='LedgerAccount', max_length=255, null=True)
 
-    quantity = models.IntegerField(db_column='Quantity', null=True)
-    unit_price = models.DecimalField(db_column='UnitPrice', max_digits=18, decimal_places=2, null=True)
+    quantity = models.IntegerField(db_column='Quantity', default=0.0)
+    unit_price = models.DecimalField(db_column='UnitPrice', max_digits=18, decimal_places=2, default=0.0)
 
-    discount = models.DecimalField(db_column='Discount', max_digits=18, decimal_places=2, null=True)
+    discount = models.DecimalField(db_column='Discount', max_digits=18, decimal_places=2, default=0.0)
 
     tax_rate = models.UUIDField(db_column="CalculationUUID", null=True)
     tax_analysis = FallbackJSONField(db_column='TaxAnalysis', null=True)
 
     amount_total = models.DecimalField(db_column='AmountTotal', max_digits=18, decimal_places=2, null=True)
-    amount_net = models.DecimalField(db_column='AmountNet', max_digits=18, decimal_places=2, null=True)
+    amount_net = models.DecimalField(db_column='AmountNet', max_digits=18, decimal_places=2, default=0.0)
 
     class Meta:
         managed = True
