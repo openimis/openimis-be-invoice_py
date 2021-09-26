@@ -6,8 +6,8 @@ from contract.models import Contract
 from core.forms import User
 from django.test import TestCase
 
-from invoice_payment.models import Invoice
-from invoice_payment.services.invoice import InvoiceService
+from invoice.models import Invoice
+from invoice.services.invoice import InvoiceService
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
