@@ -6,8 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 
-from invoice_payment.models import Invoice
-from invoice_payment.validation.invoice import InvoiceModelValidation
+from invoice.models import Invoice
+from invoice.validation.invoice import InvoiceModelValidation
 from django.forms.models import model_to_dict
 
 
