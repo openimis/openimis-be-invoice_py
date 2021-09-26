@@ -5,9 +5,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from typing import Type
 
-from invoice_payment.services.service_utils import _check_authentication as check_authentication, _output_exception, \
+from invoice.services.service_utils import _check_authentication as check_authentication, _output_exception, \
     _model_representation, _output_result_success, _get_generic_type, _build_delete_instance_payload
-from invoice_payment.validation.base import BaseModelValidation
+from invoice.validation.base import BaseModelValidation
 
 
 class BaseService(ABC):

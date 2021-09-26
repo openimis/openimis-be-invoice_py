@@ -4,11 +4,11 @@ from core.models import HistoryModel
 from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 
-from invoice_payment.models import Invoice
-from invoice_payment.services.base import BaseService
-from invoice_payment.services.service_utils import _check_authentication as check_authentication, _output_exception, \
+from invoice.models import Invoice
+from invoice.services.base import BaseService
+from invoice.services.service_utils import _check_authentication as check_authentication, _output_exception, \
     _model_representation, _output_result_success, _get_generic_type
-from invoice_payment.validation.invoice import InvoiceModelValidation
+from invoice.validation.invoice import InvoiceModelValidation
 
 
 class InvoiceService(BaseService):

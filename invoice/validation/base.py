@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from typing import Type
 
-from invoice_payment.models import Invoice
+from invoice.models import Invoice
 
 
 class BaseModelValidation(ABC):

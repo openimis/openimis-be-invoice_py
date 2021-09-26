@@ -2,7 +2,7 @@ import logging
 
 from django.apps import AppConfig
 
-MODULE_NAME = 'invoice_payment'
+MODULE_NAME = 'invoice'
 
 DEFAULT_CONFIG = {
     "default_currency_code": "USD"
