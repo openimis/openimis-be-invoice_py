@@ -7,7 +7,7 @@ from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
 from core.forms import User
 
-from invoice_payment.models import Invoice
+from invoice.models import Invoice
 
 DEFAULT_TEST_INVOICE_PAYLOAD = {
     'subject_type': 'contract',

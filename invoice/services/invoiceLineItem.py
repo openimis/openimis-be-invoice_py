@@ -2,10 +2,10 @@ from json import JSONDecodeError
 
 import json
 
-from invoice_payment.models import InvoiceLineItem
-from invoice_payment.services.base import BaseService
-from invoice_payment.services.service_utils import _get_generic_type
-from invoice_payment.validation.invoiceLineItem import InvoiceLineItemModelValidation
+from invoice.models import InvoiceLineItem
+from invoice.services.base import BaseService
+from invoice.services.service_utils import _get_generic_type
+from invoice.validation.invoiceLineItem import InvoiceLineItemModelValidation
 
 import logging
 

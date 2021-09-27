@@ -7,7 +7,7 @@ from core.models import HistoryBusinessModel, HistoryModel
 from core.fields import DateTimeField, DateField
 from datetime import date
 from jsonfallback.fields import FallbackJSONField
-from invoice_payment.apps import InvoicePaymentConfig
+from invoice.apps import InvoicePaymentConfig
 # Create your models here.
 
 
