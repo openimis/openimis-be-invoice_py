@@ -23,6 +23,7 @@ class Invoice(HistoryBusinessModel):
         PAYED = 2, _('payed')
         CANCELLED = 3, _('cancelled')
         DELETED = 4, _('deleted')
+        SUSPENDED = 5, _('suspended')
 
     subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
                                         db_column='SubjectType', null=True, related_name='subject_type')
@@ -106,6 +107,7 @@ class InvoicePayment(HistoryModel):
         REJECTED = 0, _('rejected')
         ACCEPTED = 1, _('accepted')
         REFUNDED = 2, _('refunded')
+        CANCELLED = 3, _('cancelled')
 
     status = models.SmallIntegerField(db_column='Status', null=False, choices=InvoicePaymentStatus.choices)
 

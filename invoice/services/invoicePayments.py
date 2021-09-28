@@ -49,9 +49,8 @@ class InvoicePaymentsService(BaseService):
         try:
             with transaction.atomic():
                 self.validation_class.validate_refund_payment(self.user, invoice_payment)
-                # TODO: Currently Payment model doesn't include cancelled status. Should it be added?
                 self._update_payment_status(invoice_payment, InvoicePayment.InvoicePaymentStatus.REFUNDED)
-                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.CANCELLED)
+                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.SUSPENDED)
 
                 invoice_payment.invoice.save(username=self.user.username)
                 return self.save_instance(invoice_payment)
@@ -63,8 +62,8 @@ class InvoicePaymentsService(BaseService):
             with transaction.atomic():
                 self.validation_class.validate_cancel_payment(self.user, invoice_payment)
 
-                # TODO: Currently Payment model doesn't include cancelled status. Should it be added?
-                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.CANCELLED)
+                self._update_payment_status(invoice_payment.invoice, InvoicePayment.InvoicePaymentStatus.CANCELLED)
+                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.SUSPENDED)
 
                 invoice_payment.invoice.save(username=self.user.username)
                 return self.save_instance(invoice_payment)

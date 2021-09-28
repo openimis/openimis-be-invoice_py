@@ -162,7 +162,7 @@ class ServiceTestInvoicePayments(TestCase):
             expected = copy.deepcopy(self.BASE_EXPECTED_SUCCESS_RESPONSE)
             expected['data']['status'] = 2
             self._assert_output_valid(out, payment, expected)
-            self.assertEqual(payment.invoice.status, Invoice.InvoiceStatus.CANCELLED)
+            self.assertEqual(payment.invoice.status, Invoice.InvoiceStatus.SUSPENDED)
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
             self.invoice.status = Invoice.InvoiceStatus.VALIDATED
 
@@ -232,7 +232,7 @@ class ServiceTestInvoicePayments(TestCase):
             expected = copy.deepcopy(self.BASE_EXPECTED_SUCCESS_RESPONSE)
             self._assert_output_valid(out, payment, expected)
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
-            self.assertEqual(payment.invoice.status, Invoice.InvoiceStatus.CANCELLED)
+            self.assertEqual(payment.invoice.status, Invoice.InvoiceStatus.SUSPENDED)
             self.invoice.status = Invoice.InvoiceStatus.VALIDATED
 
     def _create_payment(self, args):
