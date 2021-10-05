@@ -1,8 +1,9 @@
 import json
 
-from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
+from policy.test_helpers import create_test_policy
 from policyholder.models import PolicyHolder
+from product.test_helpers import create_test_product
 
 from contract.models import Contract
 from core.forms import User
@@ -13,10 +14,11 @@ from invoice.services.invoice import InvoiceService
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
-from datetime import date
+from datetime import date, datetime, timedelta
 
-from invoice.tests.helpers import create_test_invoice
+from invoice.tests.helpers import create_test_invoice_line_item
 from invoice.validation.base import TaxAnalysisFormatValidationMixin
+from invoice.validation.invoice import InvoiceItemStatus
 
 
 class ServiceTestInvoice(TestCase):
@@ -126,7 +128,7 @@ class ServiceTestInvoice(TestCase):
         cls.policy_holder = create_test_policy_holder()
         cls.contract = create_test_contract(cls.policy_holder)
         cls.user = User.objects.filter(username='admin_invoice').first()
-        cls.insuree = create_test_insuree(with_family=False)
+        cls.insuree = create_test_insuree(with_family=True)
         cls.insuree_service = InvoiceService(cls.user)
 
         cls.BASE_TEST_INVOICE_PAYLOAD['subject'] = cls.contract
@@ -135,13 +137,23 @@ class ServiceTestInvoice(TestCase):
         # Business model use PK of uuid type
         cls.BASE_EXPECTED_CREATE_RESPONSE['data']['subject_id'] = str(cls.contract.pk)
         cls.BASE_EXPECTED_CREATE_RESPONSE['data']['recipient_id'] = cls.insuree.pk
+
+        cls.product = create_test_product("TestC0d4", custom_props={"insurance_period": 12})
+        cls.policy = create_test_policy(
+            product=cls.product,
+            insuree=cls.insuree
+        )
         super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
         Contract.objects.filter(id=cls.contract.id).delete()
         PolicyHolder.objects.filter(id=cls.policy_holder.id).delete()
+
+        cls.insuree.insuree_policies.first().delete()
+        cls.policy.delete()
         cls.insuree.delete()
+        cls.product.delete()
         super().tearDownClass()
 
     def test_invoice_create(self):
@@ -223,4 +235,77 @@ class ServiceTestInvoice(TestCase):
                 "data": ''
             }
             self.assertDictEqual(expected_response, response)
+            Invoice.objects.filter(code=payload['code']).delete()
+
+    def test_invoice_match_items_subject_id(self):
+        with transaction.atomic():
+            payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
+            response = self.insuree_service.create(payload)
+            invoice = Invoice.objects.filter(code=payload['code']).get()
+            invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
+
+            output = self.insuree_service.invoice_match_items(invoice)
+            expected_output = {
+                'subject': InvoiceItemStatus.VALID,
+                'line_items': {invoice_line_item: InvoiceItemStatus.VALID}
+            }
+
+            self.assertDictEqual(output, expected_output)
+            InvoiceLineItem.objects.filter(id=invoice_line_item.id).delete()
+            Invoice.objects.filter(code=payload['code']).delete()
+
+    def test_invoice_match_items_no_subject_valid_line_item(self):
+        with transaction.atomic():
+            payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
+            response = self.insuree_service.create(payload)
+            invoice = Invoice.objects.filter(code=payload['code']).get()
+            invoice.subject = None
+            invoice.save(username=self.user.username)
+            invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
+
+            output = self.insuree_service.invoice_match_items(invoice)
+            expected_output = {
+                'subject': InvoiceItemStatus.NO_ITEM,
+                'line_items': {invoice_line_item: InvoiceItemStatus.VALID}
+            }
+            self.assertDictEqual(output, expected_output)
+            InvoiceLineItem.objects.filter(id=invoice_line_item.id).delete()
+            Invoice.objects.filter(code=payload['code']).delete()
+
+    def test_invoice_match_items_no_subject_id_invalid_no_line_item(self):
+        with transaction.atomic():
+            payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
+            response = self.insuree_service.create(payload)
+            invoice = Invoice.objects.filter(code=payload['code']).get()
+            invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
+            invoice.subject = None
+            invoice.save(username=self.user.username)
+            invoice_line_item.line = None
+            invoice_line_item.save(username=self.user.username)
+
+            output = self.insuree_service.invoice_match_items(invoice)
+            expected_output = {
+                'subject': InvoiceItemStatus.NO_ITEM,
+                'line_items': {invoice_line_item: InvoiceItemStatus.NO_ITEM}
+            }
+            self.assertDictEqual(output, expected_output)
+            InvoiceLineItem.objects.filter(id=invoice_line_item.id).delete()
+            Invoice.objects.filter(code=payload['code']).delete()
+
+    def test_invoice_match_items_subject_id_invalid_outdated_item(self):
+        with transaction.atomic():
+            payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
+            response = self.insuree_service.create(payload)
+            invoice = Invoice.objects.filter(code=payload['code']).get()
+            invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
+            invoice_line_item.line.validity_to = datetime.now() - timedelta(days=1)
+            invoice_line_item.line.save()
+
+            output = self.insuree_service.invoice_match_items(invoice)
+            expected_output = {
+                'subject': InvoiceItemStatus.VALID,
+                'line_items': {invoice_line_item: InvoiceItemStatus.INVALID_ITEM}
+            }
+            self.assertDictEqual(output, expected_output)
+            InvoiceLineItem.objects.filter(id=invoice_line_item.id).delete()
             Invoice.objects.filter(code=payload['code']).delete()

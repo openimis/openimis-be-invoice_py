@@ -1,7 +1,6 @@
 from abc import ABC
 
 from core.models import HistoryModel
-from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from typing import Type
 

@@ -1,14 +1,9 @@
-from typing import Type
+from typing import Dict, Union, List
 
-from core.models import HistoryModel
-from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
-
-from invoice.models import Invoice
+from invoice.models import Invoice, InvoiceLineItem
 from invoice.services.base import BaseService
-from invoice.services.service_utils import _check_authentication as check_authentication, _output_exception, \
-    _model_representation, _output_result_success, _get_generic_type
-from invoice.validation.invoice import InvoiceModelValidation
+from invoice.services.service_utils import _get_generic_type
+from invoice.validation.invoice import InvoiceModelValidation, InvoiceItemStatus
 
 
 class InvoiceService(BaseService):
@@ -17,9 +12,32 @@ class InvoiceService(BaseService):
 
     def __init__(self, user, validation_class: InvoiceModelValidation = InvoiceModelValidation):
         super().__init__(user, validation_class)
+        self.validation_class = validation_class
 
     def _base_payload_adjust(self, invoice_data):
         return self._evaluate_generic_types(invoice_data)
+
+    def invoice_validate_items(self, invoice: Invoice):
+        # TODO: Implement after calculation rules available
+        pass
+
+    def invoice_match_items(self, invoice: Invoice) \
+            -> Dict[str, Union[InvoiceItemStatus, Dict[InvoiceLineItem, List[InvoiceItemStatus]]]]:
+        """
+        Check if items related to invoice are valid.
+        @param invoice: Invoice object
+        @return: Dict with two keys, 'subject_status' containing information if invoice subject is valid and
+        'line_items', containing information about statuses of lines connected to invoice items.
+        """
+        match_result = {
+            'subject': self.validation_class.validate_subject(invoice),
+            'line_items': self.validation_class.validate_line_items(invoice)
+        }
+        return match_result
+
+    def invoiceTaxCalculation(self, invoice: Invoice):
+        # TODO: Implement after calculation rules available
+        pass
 
     def _evaluate_generic_types(self, invoice_data):
         if 'subject_type' in invoice_data.keys():
@@ -29,4 +47,3 @@ class InvoiceService(BaseService):
             invoice_data['recipient_type'] = _get_generic_type(invoice_data['recipient_type'])
 
         return invoice_data
-
