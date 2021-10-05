@@ -8,6 +8,7 @@ from core.fields import DateTimeField, DateField
 from datetime import date
 from jsonfallback.fields import FallbackJSONField
 from invoice.apps import InvoicePaymentConfig
+from django.utils.translation import gettext as _
 # Create your models here.
 
 
@@ -17,11 +18,12 @@ def get_default_currency():
 
 class Invoice(HistoryBusinessModel):
     class InvoiceStatus(models.IntegerChoices):
-        DRAFT = 0
-        VALIDATED = 1
-        PAYED = 2
-        CANCELLED = 3
-        DELETED = 4
+        DRAFT = 0, _('draft')
+        VALIDATED = 1, _('validated')
+        PAYED = 2, _('payed')
+        CANCELLED = 3, _('cancelled')
+        DELETED = 4, _('deleted')
+        SUSPENDED = 5, _('suspended')
 
     subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
                                         db_column='SubjectType', null=True, related_name='subject_type')
@@ -102,9 +104,10 @@ class InvoiceLineItem(HistoryBusinessModel):
 
 class InvoicePayment(HistoryModel):
     class InvoicePaymentStatus(models.IntegerChoices):
-        ACCEPTED = 0
-        REJECTED = 1
-        REFUNDED = 2
+        REJECTED = 0, _('rejected')
+        ACCEPTED = 1, _('accepted')
+        REFUNDED = 2, _('refunded')
+        CANCELLED = 3, _('cancelled')
 
     status = models.SmallIntegerField(db_column='Status', null=False, choices=InvoicePaymentStatus.choices)
 
@@ -129,11 +132,11 @@ class InvoicePayment(HistoryModel):
 
 class InvoiceEvent(HistoryModel):
     class InvoiceEventType(models.IntegerChoices):
-        MESSAGE = 0
-        STATUS = 1
-        WARNING = 2
-        PAYMENT = 3
-        PAYMENT_ERROR = 4
+        MESSAGE = 0, _('message')
+        STATUS = 1, _('status')
+        WARNING = 2, _('warning')
+        PAYMENT = 3, _('payment')
+        PAYMENT_ERROR = 4, _('payment_error')
 
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="events")
     event_type = models.SmallIntegerField(

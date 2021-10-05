@@ -8,7 +8,7 @@ from contract.models import Contract
 from core.forms import User
 from django.test import TestCase
 
-from invoice.models import Invoice
+from invoice.models import Invoice, InvoiceLineItem, InvoicePayment
 from invoice.services.invoice import InvoiceService
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
@@ -117,6 +117,10 @@ class ServiceTestInvoice(TestCase):
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
 
+        InvoiceLineItem.objects\
+            .filter(invoice__code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
+        InvoicePayment.objects\
+            .filter(invoice__code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
         Invoice.objects.filter(code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
 
         cls.policy_holder = create_test_policy_holder()
