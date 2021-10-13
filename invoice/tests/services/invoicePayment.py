@@ -87,6 +87,10 @@ class ServiceTestInvoicePayments(TestCase):
 
         cls.insuree.insuree_policies.first().delete()
         cls.policy.delete()
+        f = cls.insuree.family
+        cls.insuree.family = None
+        cls.insuree.save()
+        f.delete()
         cls.insuree.delete()
         cls.product.delete()
 

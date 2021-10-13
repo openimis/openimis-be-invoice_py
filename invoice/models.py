@@ -1,22 +1,26 @@
 from enum import IntEnum
 
+from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from core.models import HistoryBusinessModel, HistoryModel
+from graphql import ResolveInfo
+
+from core.models import HistoryBusinessModel, HistoryModel, UUIDModel, ObjectMutation, MutationLog
 from core.fields import DateTimeField, DateField
 from datetime import date
 from jsonfallback.fields import FallbackJSONField
 from invoice.apps import InvoicePaymentConfig
 from django.utils.translation import gettext as _
 # Create your models here.
+from invoice.mixins import GenericInvoiceQuerysetMixin, GenericInvoiceManager
 
 
 def get_default_currency():
     return InvoicePaymentConfig.default_currency_code
 
 
-class Invoice(HistoryBusinessModel):
+class Invoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     class InvoiceStatus(models.IntegerChoices):
         DRAFT = 0, _('draft')
         VALIDATED = 1, _('validated')
@@ -65,13 +69,14 @@ class Invoice(HistoryBusinessModel):
     terms = models.TextField(db_column='Terms', blank=True, null=True)
 
     payment_reference = models.CharField(db_column='PaymentReference', max_length=255, null=True)
+    objects = GenericInvoiceManager()
 
     class Meta:
         managed = True
         db_table = 'tblInvoice'
 
 
-class InvoiceLineItem(HistoryBusinessModel):
+class InvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     code = models.CharField(db_column='Code', max_length=255, null=False)
 
     line_type = models.OneToOneField(
@@ -97,12 +102,14 @@ class InvoiceLineItem(HistoryBusinessModel):
     amount_total = models.DecimalField(db_column='AmountTotal', max_digits=18, decimal_places=2, null=True)
     amount_net = models.DecimalField(db_column='AmountNet', max_digits=18, decimal_places=2, default=0.0)
 
+    objects = GenericInvoiceManager()
+
     class Meta:
         managed = True
         db_table = 'tblInvoiceLineItem'
 
 
-class InvoicePayment(HistoryModel):
+class InvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
     class InvoicePaymentStatus(models.IntegerChoices):
         REJECTED = 0, _('rejected')
         ACCEPTED = 1, _('accepted')
@@ -125,12 +132,14 @@ class InvoicePayment(HistoryModel):
 
     date_payment = DateField(db_column='DatePayment', null=True)
 
+    objects = GenericInvoiceManager()
+
     class Meta:
         managed = True
         db_table = 'tblInvoicePayment'
 
 
-class InvoiceEvent(HistoryModel):
+class InvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
     class InvoiceEventType(models.IntegerChoices):
         MESSAGE = 0, _('message')
         STATUS = 1, _('status')
@@ -143,6 +152,44 @@ class InvoiceEvent(HistoryModel):
         db_column='Status', null=False, choices=InvoiceEventType.choices, default=InvoiceEventType.MESSAGE)
     message = models.CharField(db_column='Message', max_length=500, null=True)
 
+    objects = GenericInvoiceManager()
+
     class Meta:
         managed = True
         db_table = 'tblInvoiceEvent'
+
+
+class InvoiceMutation(UUIDModel, ObjectMutation):
+    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='invoices')
+
+    class Meta:
+        managed = True
+        db_table = "invoice_invoiceMutation"
+
+
+class InvoicePaymentMutation(UUIDModel, ObjectMutation):
+    invoice_payment = models.ForeignKey(InvoicePayment, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='invoice_payments')
+
+    class Meta:
+        managed = True
+        db_table = "invoice_InvoicePaymentMutation"
+
+
+class InvoiceLineItemMutation(UUIDModel, ObjectMutation):
+    invoice_line_items = models.ForeignKey(InvoiceLineItem, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='invoice_line_items')
+
+    class Meta:
+        managed = True
+        db_table = "invoice_InvoiceLineItemsMutation"
+
+
+class InvoiceEventMutation(UUIDModel, ObjectMutation):
+    invoice_event = models.ForeignKey(InvoiceEvent, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='event_messages')
+
+    class Meta:
+        managed = True
+        db_table = "invoice_InvoiceEventMutation"
