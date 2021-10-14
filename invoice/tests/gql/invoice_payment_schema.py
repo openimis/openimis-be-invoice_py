@@ -98,8 +98,9 @@ mutation {{
         mutation = self.delete_mutation_str.format(payment_uuid=expected.id)
         self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
         # TODO: Currently deleted entries are not filtered by manager, only in GQL Query. Should we change this?
-        payment = InvoicePayment.objects.filter(code_ext=payment_code).first()
-        self.assertTrue(payment.is_deleted)
+        payment = InvoicePayment.objects.filter(code_ext=payment_code).all()
+        self.assertEqual(len(payment), 1)
+        self.assertTrue(payment[0].is_deleted)
 
     def test_update_payment_mutation(self):
         payment_code = "GQLCOD"
