@@ -29,9 +29,9 @@ class Mutation(graphene.ObjectType):
 
 
 def _on_mutation_log(mutation_model, model, obj_type, sender, **kwargs):
-    uuids = kwargs['data'].get('ids', [])
+    uuids = kwargs['data'].get('ids', []) or kwargs['data'].get('uuids', [])
     if not uuids:
-        uuid = kwargs['data'].get('id', None)
+        uuid = kwargs['data'].get('id', None) or kwargs['data'].get('uuid', [])
         uuids = [uuid] if uuid else []
     if not uuids:
         return []

@@ -42,12 +42,13 @@ mutation {{
 
     delete_mutation_str = '''  
 mutation {{
-  deleteInvoicePayment(input:{{uuids:["{payment_uuid}"]}}) {{
+  deleteInvoicePayment(input:{{uuids:["{payment_uuid}"], clientMutationId: "{mutation_id}"}}) {{
     internalId
     clientMutationId
   }}
 }}
 '''
+
     update_mutation_str = '''  
 mutation {{
 	updateInvoicePayment(input:{{id:"{payment_uuid}", codeExt:"updExt", clientMutationId: "{mutation_id}"}}){{
@@ -95,19 +96,15 @@ mutation {{
         )
         self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
         expected = InvoicePayment.objects.get(code_ext=payment_code)
-        mutation = self.delete_mutation_str.format(payment_uuid=expected.id)
+        mutation_client_id = str(uuid.uuid4())
+        mutation = self.delete_mutation_str.format(payment_uuid=expected.id, mutation_id=mutation_client_id)
         self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
         # TODO: Currently deleted entries are not filtered by manager, only in GQL Query. Should we change this?
         payment = InvoicePayment.objects.filter(code_ext=payment_code).all()
-        print(payment.values())
         mutation_ = InvoicePaymentMutation.objects.filter(invoice_payment=payment[0]).all()
-        print("Mutation output: ", [
-            (m.mutation.json_content,
-             m.mutation.status,
-             m.mutation.error) for m in mutation_
-        ])
         self.assertEqual(len(payment), 1)
         self.assertTrue(payment[0].is_deleted)
+        self.assertTrue(len(mutation_) == 2)
 
     def test_update_payment_mutation(self):
         payment_code = "GQLCOD"

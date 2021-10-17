@@ -10,14 +10,14 @@ from core.models import HistoryBusinessModel, HistoryModel, UUIDModel, ObjectMut
 from core.fields import DateTimeField, DateField
 from datetime import date
 from jsonfallback.fields import FallbackJSONField
-from invoice.apps import InvoicePaymentConfig
+from invoice.apps import InvoiceConfig
 from django.utils.translation import gettext as _
 # Create your models here.
 from invoice.mixins import GenericInvoiceQuerysetMixin, GenericInvoiceManager
 
 
 def get_default_currency():
-    return InvoicePaymentConfig.default_currency_code
+    return InvoiceConfig.default_currency_code
 
 
 class Invoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):

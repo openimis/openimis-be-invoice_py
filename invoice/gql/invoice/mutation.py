@@ -8,6 +8,7 @@ from policy.apps import PolicyConfig
 
 from core.gql.gql_mutations.base_mutation import BaseMutation
 from core.schema import OpenIMISMutation
+from invoice.apps import InvoiceConfig
 from invoice.models import Invoice
 from invoice.services import InvoiceService
 
@@ -22,9 +23,8 @@ class GenerateTimeframeInvoices(BaseMutation):
 
     @classmethod
     def _validate_mutation(cls, user, **data):
-        # TODO: What permissions should be used?
         if type(user) is AnonymousUser or not user.id or not user.has_perms(
-                PolicyConfig.gql_mutation_create_policies_perms):
+                InvoiceConfig.gql_invoice_create_perms):
             raise ValidationError("mutation.authentication_required")
 
     @classmethod

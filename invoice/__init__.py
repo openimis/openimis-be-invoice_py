@@ -1,1 +1,1 @@
-default_app_config = 'invoice.apps.InvoicePaymentConfig'
+default_app_config = 'invoice.apps.InvoiceConfig'

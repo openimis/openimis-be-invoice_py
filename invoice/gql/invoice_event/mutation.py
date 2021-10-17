@@ -1,5 +1,13 @@
+import graphene
+from django.utils.translation import gettext as _
+from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import ValidationError
+from django.db.models import Q
+
 from core.gql.gql_mutations.base_mutation import BaseHistoryModelCreateMutationMixin, BaseMutation, \
-    BaseHistoryModelUpdateMutationMixin
+    BaseHistoryModelUpdateMutationMixin, BaseHistoryModelDeleteMutationMixin
+from core.schema import OpenIMISMutation
+from invoice.apps import InvoiceConfig
 from invoice.gql.input_types import CreateInvoiceEventType, UpdateInvoiceEventType
 from invoice.models import InvoiceEvent, InvoiceEventMutation
 
@@ -24,5 +32,35 @@ class CreateInvoiceEventMutation(BaseHistoryModelCreateMutationMixin, BaseMutati
                 invoice_event=p
             )
 
+    @classmethod
+    def _validate_mutation(cls, user, **data):
+        if type(user) is AnonymousUser or not user.id or not user.has_perms(
+                InvoiceConfig.gql_invoice_event_create_message_perms):
+            raise PermissionError("Unauthorized")
+
     class Input(CreateInvoiceEventType):
         pass
+
+
+class DeleteUserInvoiceEventMutation(BaseHistoryModelDeleteMutationMixin, BaseMutation):
+    _mutation_class = "DeleteUserInvoiceEventMutation"
+    _mutation_module = "invoice"
+    _model = InvoiceEvent
+
+    @classmethod
+    def _validate_mutation(cls, user, **data):
+        if type(user) is AnonymousUser or not user.id or not user.has_perms(
+                InvoiceConfig.gql_invoice_event_delete_my_message_perms):
+            raise PermissionError("Unauthorized")
+
+        objs_ = cls._model.objects.filter(id=data['uuids'])
+        not_created_by_user = objs_.filter(~Q(user_created=user))
+        if not_created_by_user.exists():
+            raise PermissionError(
+                _(F"User is not creator of invoice events: %(events)s, events can't be deleted.")
+                % {'events': str(not_created_by_user.values_list('uuid', flat=True))}
+            )
+
+    class Input(OpenIMISMutation.Input):
+        uuids = graphene.List(graphene.UUID)
+

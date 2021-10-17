@@ -78,7 +78,7 @@ class InvoiceLineItemGQLType(DjangoObjectType):
 
             "description": ["istartswith", "icontains", "iexact"],
 
-            "ledger_account": ["iexact"],
+            "ledger_account": ["istartswith", "iexact"],
 
             "quantity": ["exact", "lt", "lte", "gt", "gte"],
             "unit_price": ["exact", "lt", "lte", "gt", "gte"],
@@ -115,7 +115,7 @@ class InvoicePaymentGQLType(DjangoObjectType):
             "code_rcp": ["istartswith", "icontains", "iexact"],
             "code_receipt": ["istartswith", "icontains", "iexact"],
 
-            "label": ["iexact"],
+            "label": ["istartswith", "iexact"],
 
             **prefix_filterset("invoice__", InvoiceGQLType._meta.filter_fields),
 
