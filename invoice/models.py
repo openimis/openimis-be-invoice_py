@@ -56,6 +56,8 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
 
     payment_reference = models.CharField(db_column='PaymentReference', max_length=255, null=True)
 
+    objects = GenericInvoiceManager()
+
     class Meta:
         abstract = True
 
@@ -160,8 +162,6 @@ class InvoiceLineItem(GenericInvoiceLineItem):
 
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="line_items")
 
-    objects = GenericInvoiceManager()
-
     class Meta:
         managed = True
         db_table = 'tblInvoiceLineItem'
@@ -170,8 +170,6 @@ class InvoiceLineItem(GenericInvoiceLineItem):
 class InvoicePayment(GenericInvoicePayment):
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="payments")
     code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
-
-    objects = GenericInvoiceManager()
 
     class Meta:
         managed = True
