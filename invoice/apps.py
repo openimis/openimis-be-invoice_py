@@ -18,13 +18,13 @@ DEFAULT_CONFIG = {
     "gql_invoice_payment_delete_perms": ["155204"],
     "gql_invoice_payment_refund_perms": ["155206"],
 
-    "gql_invoice_event_search_perms":             ["155201"],
-    "gql_invoice_event_create_perms":             ["155202"],
-    "gql_invoice_event_update_perms":             ["155203"],
-    "gql_invoice_event_delete_perms":             ["155204"],
-    "gql_invoice_event_create_message_perms":     ["155206"],
-    "gql_invoice_event_delete_my_message_perms":  ["155206"],
-    "gql_invoice_event_delete_all_message_perms": ["155206"],
+    "gql_invoice_event_search_perms":             ["155301"],
+    "gql_invoice_event_create_perms":             ["155302"],
+    "gql_invoice_event_update_perms":             ["155303"],
+    "gql_invoice_event_delete_perms":             ["155304"],
+    "gql_invoice_event_create_message_perms":     ["155306"],
+    "gql_invoice_event_delete_my_message_perms":  ["155307"],
+    "gql_invoice_event_delete_all_message_perms": ["155308"],
 }
 
 logger = logging.getLogger(__name__)
