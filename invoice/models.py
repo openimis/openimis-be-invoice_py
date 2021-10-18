@@ -199,7 +199,7 @@ class Bill(GenericInvoice):
 
     code_sdr = models.CharField(db_column='CodeSdr', max_length=255, null=True)
 
-    date_invoice = DateField(db_column='DateInvoice', default=date.today, null=True)
+    date_bill = DateField(db_column='DateBill', default=date.today, null=True)
 
     currency_sdr_code = models.CharField(
         db_column='CurrencySdrCode', null=False, max_length=255, default=get_default_currency)
