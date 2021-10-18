@@ -20,8 +20,8 @@ def get_default_currency():
     return InvoiceConfig.default_currency_code
 
 
-class Invoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
-    class InvoiceStatus(models.IntegerChoices):
+class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
+    class Status(models.IntegerChoices):
         DRAFT = 0, _('draft')
         VALIDATED = 1, _('validated')
         PAYED = 2, _('payed')
@@ -29,22 +29,10 @@ class Invoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
         DELETED = 4, _('deleted')
         SUSPENDED = 5, _('suspended')
 
-    subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                        db_column='SubjectType', null=True, related_name='subject_type')
-    subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)   # object is referenced by uuid
-    subject = GenericForeignKey('subject_type', 'subject_id')
-
-    recipient_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                          db_column='RecipientType', null=True, related_name='recipient_type')
-    recipient_id = models.CharField(db_column='RecipientId', max_length=255, null=True)   # object is referenced by uuid
-    recipient = GenericForeignKey('recipient_type', 'recipient_id')
-
     code = models.CharField(db_column='Code', max_length=255, null=False)
-    code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
     code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
 
     date_due = DateField(db_column='DateDue', null=True)
-    date_invoice = DateField(db_column='DateInvoice', default=date.today, null=True)
 
     date_payed = DateField(db_column='DatePayed', null=True)
 
@@ -58,10 +46,8 @@ class Invoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     tax_analysis = FallbackJSONField(db_column='TaxAnalysis', null=True)
 
     status = models.SmallIntegerField(
-        db_column='Status', null=False, choices=InvoiceStatus.choices, default=InvoiceStatus.DRAFT)
+        db_column='Status', null=False, choices=Status.choices, default=Status.DRAFT)
 
-    currency_rcp_code = models.CharField(
-        db_column='CurrencyRcpCode', null=False, max_length=255, default=get_default_currency)
     currency_code = models.CharField(
         db_column='CurrencyCode', null=False, max_length=255, default=get_default_currency)
 
@@ -69,22 +55,13 @@ class Invoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     terms = models.TextField(db_column='Terms', blank=True, null=True)
 
     payment_reference = models.CharField(db_column='PaymentReference', max_length=255, null=True)
-    objects = GenericInvoiceManager()
 
     class Meta:
-        managed = True
-        db_table = 'tblInvoice'
+        abstract = True
 
 
-class InvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
+class GenericInvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     code = models.CharField(db_column='Code', max_length=255, null=False)
-
-    line_type = models.OneToOneField(
-        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type')
-    line_id = models.CharField(db_column='LineId', max_length=255, null=True)   # object is referenced by uuid
-    line = GenericForeignKey('line_type', 'line_id')
-
-    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="line_items")
 
     description = models.TextField(db_column='Description', blank=True, null=True)
     details = FallbackJSONField(db_column='Details', null=True)
@@ -105,26 +82,22 @@ class InvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     objects = GenericInvoiceManager()
 
     class Meta:
-        managed = True
-        db_table = 'tblInvoiceLineItem'
+        abstract = True
 
 
-class InvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
-    class InvoicePaymentStatus(models.IntegerChoices):
+class GenericInvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
+    class PaymentStatus(models.IntegerChoices):
         REJECTED = 0, _('rejected')
         ACCEPTED = 1, _('accepted')
         REFUNDED = 2, _('refunded')
         CANCELLED = 3, _('cancelled')
 
-    status = models.SmallIntegerField(db_column='Status', null=False, choices=InvoicePaymentStatus.choices)
-
     code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
-    code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
     code_receipt = models.CharField(db_column='CodeReceipt', max_length=255, null=True)
 
     label = models.CharField(db_column='Label', max_length=255, null=True)
 
-    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="payments")
+    status = models.SmallIntegerField(db_column='Status', null=False, choices=PaymentStatus.choices)
 
     amount_payed = models.DecimalField(db_column='AmountPayed', max_digits=18, decimal_places=2, null=True)
     fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2, null=True)
@@ -135,28 +108,139 @@ class InvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
     objects = GenericInvoiceManager()
 
     class Meta:
-        managed = True
-        db_table = 'tblInvoicePayment'
+        abstract = True
 
 
-class InvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
-    class InvoiceEventType(models.IntegerChoices):
+class GenericInvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
+    class EventType(models.IntegerChoices):
         MESSAGE = 0, _('message')
         STATUS = 1, _('status')
         WARNING = 2, _('warning')
         PAYMENT = 3, _('payment')
         PAYMENT_ERROR = 4, _('payment_error')
 
-    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="events")
-    event_type = models.SmallIntegerField(
-        db_column='Status', null=False, choices=InvoiceEventType.choices, default=InvoiceEventType.MESSAGE)
     message = models.CharField(db_column='Message', max_length=500, null=True)
+    event_type = models.SmallIntegerField(
+        db_column='Status', null=False, choices=EventType.choices, default=EventType.MESSAGE)
+
+    objects = GenericInvoiceManager()
+
+    class Meta:
+        abstract = True
+
+
+class Invoice(GenericInvoice):
+    subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
+                                        db_column='SubjectType', null=True, related_name='subject_type')
+    subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
+    subject = GenericForeignKey('subject_type', 'subject_id')
+
+    recipient_type = models.OneToOneField(ContentType, models.DO_NOTHING,
+                                          db_column='RecipientType', null=True, related_name='recipient_type')
+    recipient_id = models.CharField(db_column='RecipientId', max_length=255, null=True)   # object is referenced by uuid
+    recipient = GenericForeignKey('recipient_type', 'recipient_id')
+
+    code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
+
+    date_invoice = DateField(db_column='DateInvoice', default=date.today, null=True)
+
+    currency_rcp_code = models.CharField(
+        db_column='CurrencyRcpCode', null=False, max_length=255, default=get_default_currency)
+
+    class Meta:
+        managed = True
+        db_table = 'tblInvoice'
+
+
+class InvoiceLineItem(GenericInvoiceLineItem):
+    line_type = models.OneToOneField(
+        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type')
+    line_id = models.CharField(db_column='LineId', max_length=255, null=True)  # object is referenced by uuid
+    line = GenericForeignKey('line_type', 'line_id')
+
+    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="line_items")
 
     objects = GenericInvoiceManager()
 
     class Meta:
         managed = True
+        db_table = 'tblInvoiceLineItem'
+
+
+class InvoicePayment(GenericInvoicePayment):
+    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="payments")
+    code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
+
+    objects = GenericInvoiceManager()
+
+    class Meta:
+        managed = True
+        db_table = 'tblInvoicePayment'
+
+
+class InvoiceEvent(GenericInvoiceEvent):
+    invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="events")
+
+    class Meta:
+        managed = True
         db_table = 'tblInvoiceEvent'
+
+
+class Bill(GenericInvoice):
+    subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
+                                        db_column='SubjectType', null=True, related_name='subject_type_bill')
+    subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
+    subject = GenericForeignKey('subject_type', 'subject_id')
+
+    sender_type = models.OneToOneField(ContentType, models.DO_NOTHING,
+                                       db_column='SenderType', null=True, related_name='sender_type')
+    sender_id = models.CharField(db_column='SenderId', max_length=255, null=True)  # object is referenced by uuid
+    sender = GenericForeignKey('sender_type', 'sender_id')
+
+    code_sdr = models.CharField(db_column='CodeSdr', max_length=255, null=True)
+
+    date_invoice = DateField(db_column='DateInvoice', default=date.today, null=True)
+
+    currency_sdr_code = models.CharField(
+        db_column='CurrencySdrCode', null=False, max_length=255, default=get_default_currency)
+
+    class Meta:
+        managed = True
+        db_table = 'tblBill'
+
+
+class BillItem(GenericInvoiceLineItem):
+    line_type = models.OneToOneField(
+        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type_bill')
+    line_id = models.CharField(db_column='LineId', max_length=255, null=True)  # object is referenced by uuid
+    line = GenericForeignKey('line_type', 'line_id')
+
+    bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="line_items_bill")
+
+    objects = GenericInvoiceManager()
+
+    class Meta:
+        managed = True
+        db_table = 'tblBillLineItem'
+
+
+class BillPayment(GenericInvoicePayment):
+    bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="payments_bill")
+    code_sdr = models.CharField(db_column='CodeSdr', max_length=255, null=True)
+
+    objects = GenericInvoiceManager()
+
+    class Meta:
+        managed = True
+        db_table = 'tblBillPayment'
+
+
+class BillEvent(GenericInvoiceEvent):
+    bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="events_bill")
+
+    class Meta:
+        managed = True
+        db_table = 'tblBillEvent'
 
 
 class InvoiceMutation(UUIDModel, ObjectMutation):

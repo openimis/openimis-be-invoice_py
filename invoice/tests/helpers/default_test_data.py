@@ -31,7 +31,7 @@ DEFAULT_TEST_INVOICE_PAYLOAD = {
     'amount_net': 20.1,
     'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
     'amount_total': 20.1,
-    'status': Invoice.InvoiceStatus.VALIDATED,  # Validated
+    'status': Invoice.Status.VALIDATED,  # Validated
     'note': 'NOTE',
     'terms': 'TERMS',
     'payment_reference': 'payment reference'
@@ -47,5 +47,5 @@ DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD = {
     'fees': 12.0,
     'amount_received': 22.0,
     'date_payment': date(2021, 10, 10),
-    'status': InvoicePayment.InvoicePaymentStatus.ACCEPTED
+    'status': InvoicePayment.PaymentStatus.ACCEPTED
 }

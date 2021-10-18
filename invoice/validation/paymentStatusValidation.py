@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 class GenericPaymentStatusValidation(ABC):
     @property
-    def allowed_invoice_statuses(self) -> Iterable[Invoice.InvoiceStatus]:
+    def allowed_invoice_statuses(self) -> Iterable[Invoice.Status]:
         """
         Iterable of valid invoice statuses.
         """
@@ -47,9 +47,9 @@ class GenericPaymentStatusValidation(ABC):
             'invoice': self.invoice_payment.invoice,
             'payment': self.invoice_payment,
             'invoice_status':
-                invoice_status.label if isinstance(invoice_status, Invoice.InvoiceStatus) else invoice_status,
+                invoice_status.label if isinstance(invoice_status, Invoice.Status) else invoice_status,
             'payment_status':
-                payment_status.label if isinstance(payment_status, InvoicePayment.InvoicePaymentStatus)
+                payment_status.label if isinstance(payment_status, InvoicePayment.PaymentStatus)
                 else payment_status,
             'allowed_invoice': ', '.join([x.label for x in self.allowed_invoice_statuses]),
             'allowed_payment': ', '.join([x.label for x in self.allowed_payment_statuses]),
@@ -67,8 +67,8 @@ class GenericPaymentStatusValidation(ABC):
 
     @classmethod
     def _validate_status(
-            cls, status: Union[InvoicePayment.InvoicePaymentStatus, Invoice.InvoiceStatus],
-            allowed: Union[Iterable[InvoicePayment.InvoicePaymentStatus], Iterable[Invoice.InvoiceStatus]],
+            cls, status: Union[InvoicePayment.PaymentStatus, Invoice.Status],
+            allowed: Union[Iterable[InvoicePayment.PaymentStatus], Iterable[Invoice.Status]],
             err_msg):
         if status not in allowed:
             raise ValidationError(err_msg)
@@ -87,7 +87,7 @@ class GenericPaymentStatusValidation(ABC):
 
 
 class InvoicePaymentReceiveStatusValidator(GenericPaymentStatusValidation):
-    allowed_invoice_statuses = [Invoice.InvoiceStatus.DRAFT, Invoice.InvoiceStatus.VALIDATED]
+    allowed_invoice_statuses = [Invoice.Status.DRAFT, Invoice.Status.VALIDATED]
 
     error_message_invalid_invoice = _(
         "Payment for invoice %(invoice)s can't be made. Invoice has to be in status"
@@ -95,7 +95,7 @@ class InvoicePaymentReceiveStatusValidator(GenericPaymentStatusValidation):
     )
 
     allowed_payment_statuses = \
-        [InvoicePayment.InvoicePaymentStatus.ACCEPTED, InvoicePayment.InvoicePaymentStatus.REJECTED]
+        [InvoicePayment.PaymentStatus.ACCEPTED, InvoicePayment.PaymentStatus.REJECTED]
 
     error_message_invalid_payment = _(
         "It's not possible to set payment status to %(payment_status)s during payment. Allowed statuses are "
@@ -104,12 +104,12 @@ class InvoicePaymentReceiveStatusValidator(GenericPaymentStatusValidation):
 
 
 class InvoicePaymentRefundStatusValidator(GenericPaymentStatusValidation):
-    allowed_invoice_statuses = [Invoice.InvoiceStatus.PAYED]
+    allowed_invoice_statuses = [Invoice.Status.PAYED]
     error_message_invalid_invoice = _(
         "Invoice %(invoice)s can't be refunded. Invoice has to be in PAYED status, currently it's %(invoice_status)s."
     )
 
-    allowed_payment_statuses = [InvoicePayment.InvoicePaymentStatus.ACCEPTED]
+    allowed_payment_statuses = [InvoicePayment.PaymentStatus.ACCEPTED]
     error_message_invalid_payment = _(
         "It's not possible to refund payment %(payment)s, as it's in %(payment_status) status. "
         "Only ACCEPTED payments can be refunded."
@@ -117,13 +117,13 @@ class InvoicePaymentRefundStatusValidator(GenericPaymentStatusValidation):
 
 
 class InvoicePaymentCancelStatusValidator(GenericPaymentStatusValidation):
-    allowed_invoice_statuses = [Invoice.InvoiceStatus.PAYED]
+    allowed_invoice_statuses = [Invoice.Status.PAYED]
 
     error_message_invalid_invoice = _(
         "Invoice %(invoice)s can't be canceled. Invoice has to be in PAYED status, currently it's %(invoice_status)s."
     )
 
-    allowed_payment_statuses = [InvoicePayment.InvoicePaymentStatus.ACCEPTED]
+    allowed_payment_statuses = [InvoicePayment.PaymentStatus.ACCEPTED]
     error_message_invalid_payment = _(
         "It's not possible to cancel payment %(payment)s, only ACCEPTED payments can be canceled."
     )
