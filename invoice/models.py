@@ -217,8 +217,6 @@ class BillItem(GenericInvoiceLineItem):
 
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="line_items_bill")
 
-    objects = GenericInvoiceManager()
-
     class Meta:
         managed = True
         db_table = 'tblBillLineItem'
@@ -227,8 +225,6 @@ class BillItem(GenericInvoiceLineItem):
 class BillPayment(GenericInvoicePayment):
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="payments_bill")
     code_sdr = models.CharField(db_column='CodeSdr', max_length=255, null=True)
-
-    objects = GenericInvoiceManager()
 
     class Meta:
         managed = True
