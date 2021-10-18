@@ -14,6 +14,10 @@ class Query(
     query_mixins.InvoiceLineItemQueryMixin,
     query_mixins.InvoicePaymentQueryMixin,
     query_mixins.InvoiceEventQueryMixin,
+    query_mixins.BillQueryMixin,
+    query_mixins.BillItemQueryMixin,
+    query_mixins.BillPaymentQueryMixin,
+    query_mixins.BillEventQueryMixin,
     graphene.ObjectType
 ):
     pass

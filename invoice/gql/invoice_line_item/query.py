@@ -6,7 +6,7 @@ from policy.apps import PolicyConfig
 from core.schema import OrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
-from invoice.gql.gql_types import InvoiceLineItemGQLType
+from invoice.gql.gql_types.invoice_types import InvoiceLineItemGQLType
 from invoice.models import InvoiceLineItem
 import graphene_django_optimizer as gql_optimizer
 
