@@ -12,20 +12,22 @@ from core.forms import User
 
 from invoice.models import Invoice, InvoiceLineItem
 from invoice.tests.helpers import create_test_invoice
+from invoice.tests.helpers.default_test_data import DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD
 
-DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD = {
-        'code': 'LineItem1',
-        'description': 'description_str',
-        'details': '{"test_int": 1, "test_txt": "some_str"}',
-        'ledger_account': 'account',
-        'quantity': 10,
-        'unit_price': 10.5,
-        'discount': 15.5,
-        'tax_rate': None,
-        'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.00'}], 'total': '2.0'},
-        'amount_net': 10*10.5-15.5,
-        'amount_total': (10*10.5-15.5) + 2.0
-    }
+
+def create_test_invoice_line_item(invoice=None, line_item=None, user=None, **custom_props):
+    payload = DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD.copy()
+    payload['invoice'] = invoice or create_test_invoice()
+    payload['line'] = line_item or __create_test_policy()
+    payload.update(**custom_props)
+
+    InvoiceLineItem.objects.filter(code=payload['code']).delete()
+
+    user = user or __get_or_create_user()
+    invoice = InvoiceLineItem(**payload)
+    invoice.save(username=user.username)
+
+    return invoice
 
 
 def __get_or_create_user():
@@ -49,18 +51,3 @@ def __create_test_policy():
         product=product,
         insuree=insuree
     )
-
-
-def create_test_invoice_line_item(invoice=None, line_item=None, user=None, **custom_props):
-    payload = DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD.copy()
-    payload['invoice'] = invoice or create_test_invoice()
-    payload['line'] = line_item or __create_test_policy()
-    payload.update(**custom_props)
-
-    InvoiceLineItem.objects.filter(code=payload['code']).delete()
-
-    user = user or __get_or_create_user()
-    invoice = InvoiceLineItem(**payload)
-    invoice.save(username=user.username)
-
-    return invoice

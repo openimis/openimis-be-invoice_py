@@ -4,6 +4,7 @@ from invoice.models import Invoice, InvoiceLineItem
 from invoice.services.base import BaseService
 from invoice.services.service_utils import _get_generic_type
 from invoice.validation.invoice import InvoiceModelValidation, InvoiceItemStatus
+from core.signals import *
 
 
 class InvoiceService(BaseService):
@@ -37,6 +38,15 @@ class InvoiceService(BaseService):
 
     def invoiceTaxCalculation(self, invoice: Invoice):
         # TODO: Implement after calculation rules available
+        pass
+
+    @classmethod
+    @register_service_signal('invoice_creation_from_calculation')
+    def invoice_creation_from_calculation(cls, user, from_date, to_date):
+        """
+        It sends the invoice_creation_from_calculation signal which should inform the
+        relevant calculation rule that invoices need to be generated.
+        """
         pass
 
     def _evaluate_generic_types(self, invoice_data):

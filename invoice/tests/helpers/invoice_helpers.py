@@ -8,27 +8,7 @@ from insuree.test_helpers import create_test_insuree
 from core.forms import User
 
 from invoice.models import Invoice
-
-DEFAULT_TEST_INVOICE_PAYLOAD = {
-    'subject_type': 'contract',
-    'subject_id': None,
-    'recipient_type': 'insuree',
-    'recipient_id': None,
-    'code': 'INVOICE_CODE',
-    'code_rcp': 'INVOICE_CODE_RCP',
-    'code_ext': 'INVOICE_CODE_EXT',
-    'date_due': date(2021, 9, 13),
-    'date_invoice': date(2021, 9, 11),
-    'date_payed': date(2021, 9, 12),
-    'amount_discount': 20.1,
-    'amount_net': 20.1,
-    'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
-    'amount_total': 20.1,
-    'status': Invoice.InvoiceStatus.VALIDATED,  # Validated
-    'note': 'NOTE',
-    'terms': 'TERMS',
-    'payment_reference': 'payment reference'
-}
+from invoice.tests.helpers.default_test_data import DEFAULT_TEST_INVOICE_PAYLOAD
 
 
 def __get_or_create_user():
