@@ -17,11 +17,17 @@ class BillPaymentQueryMixin:
         dateValidFrom__Gte=graphene.DateTime(),
         dateValidTo__Lte=graphene.DateTime(),
         applyDefaultValidityFilter=graphene.Boolean(),
+        client_mutation_id=graphene.String(),
     )
 
     def resolve_bill_payment(self, info, **kwargs):
         filters = []
         filters += append_validity_filter(**kwargs)
+
+        client_mutation_id = kwargs.get("client_mutation_id", None)
+        if client_mutation_id:
+            filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
+
         BillPaymentQueryMixin._check_permissions(info.context.user)
         return gql_optimizer.query(BillPayment.objects.filter(*filters).all(), info)
 

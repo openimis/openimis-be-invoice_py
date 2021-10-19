@@ -271,3 +271,39 @@ class InvoiceEventMutation(UUIDModel, ObjectMutation):
     class Meta:
         managed = True
         db_table = "invoice_InvoiceEventMutation"
+
+
+class BillMutation(UUIDModel, ObjectMutation):
+    bill = models.ForeignKey(Bill, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='bills')
+
+    class Meta:
+        managed = True
+        db_table = "bill_BillMutation"
+
+
+class BillPaymentMutation(UUIDModel, ObjectMutation):
+    bill_payment = models.ForeignKey(BillPayment, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='bill_payments')
+
+    class Meta:
+        managed = True
+        db_table = "bill_BillPaymentMutation"
+
+
+class BillItemMutation(UUIDModel, ObjectMutation):
+    bile_items = models.ForeignKey(BillItem, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='bill_line_items')
+
+    class Meta:
+        managed = True
+        db_table = "bill_BillLineItemsMutation"
+
+
+class BillEventMutation(UUIDModel, ObjectMutation):
+    bill_event = models.ForeignKey(BillEvent, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='bill_event_messages')
+
+    class Meta:
+        managed = True
+        db_table = "bill_BillEventMutation"
