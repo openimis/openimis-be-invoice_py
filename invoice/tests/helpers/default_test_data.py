@@ -19,10 +19,10 @@ DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD = {
 DEFAULT_TEST_INVOICE_PAYLOAD = {
     'subject_type': 'contract',
     'subject_id': None,
-    'recipient_type': 'insuree',
-    'recipient_id': None,
+    'thirdparty_type': 'insuree',
+    'thirdparty_id': None,
     'code': 'INVOICE_CODE',
-    'code_rcp': 'INVOICE_CODE_RCP',
+    'code_tp': 'INVOICE_CODE_TP',
     'code_ext': 'INVOICE_CODE_EXT',
     'date_due': date(2021, 9, 13),
     'date_invoice': date(2021, 9, 11),
@@ -40,7 +40,7 @@ DEFAULT_TEST_INVOICE_PAYLOAD = {
 
 DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD = {
     'label': 'label_pay',
-    'code_rcp': 'pay_sys_ref',
+    'code_tp': 'pay_sys_ref',
     'code_receipt': 'receipt number',
     'invoice': None,
     'amount_payed': 91.5,
@@ -53,10 +53,10 @@ DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD = {
 DEFAULT_TEST_BILL_PAYLOAD = {
     'subject_type': 'contract',
     'subject_id': None,
-    'sender_type': 'insuree',
-    'sender_id': None,
+    'thirdparty_type': 'insuree',
+    'thirdparty_id': None,
     'code': 'BILL_CODE',
-    'code_sdr': 'BILL_CODE_SDR',
+    'code_tp': 'BILL_CODE_TP',
     'code_ext': 'BILL_CODE_EXT',
     'date_due': date(2021, 9, 13),
     'date_bill': date(2021, 9, 11),
@@ -73,7 +73,7 @@ DEFAULT_TEST_BILL_PAYLOAD = {
 
 DEFAULT_TEST_BILL_PAYMENT_PAYLOAD = {
     'label': 'label_pay',
-    'code_sdr': 'pay_sys_ref',
+    'code_tp': 'pay_sys_ref',
     'code_receipt': 'receipt number',
     'bill': None,
     'amount_payed': 91.5,

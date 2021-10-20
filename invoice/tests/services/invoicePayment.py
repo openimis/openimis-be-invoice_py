@@ -29,7 +29,7 @@ from invoice.validation.paymentStatusValidation import InvoicePaymentRefundStatu
 class ServiceTestInvoicePayments(TestCase):
     BASE_TEST_INVOICE_PAYMENT_PAYLOAD = {
         'label': 'label_pay',
-        'code_rcp': 'pay_sys_ref',
+        'code_tp': 'pay_sys_ref',
         'code_receipt': 'receipt number',
         'invoice': None,
         'amount_payed': 91.5,
@@ -45,7 +45,7 @@ class ServiceTestInvoicePayments(TestCase):
         "data": {
             'status': 1,
             'label': 'label_pay',
-            'code_rcp': 'pay_sys_ref',
+            'code_tp': 'pay_sys_ref',
             'code_receipt': 'receipt number',
             'amount_payed': 91.5,
             'fees': 12.0,

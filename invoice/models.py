@@ -29,6 +29,12 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
         DELETED = 4, _('deleted')
         SUSPENDED = 5, _('suspended')
 
+    thirdparty_type = models.OneToOneField(ContentType, models.DO_NOTHING,
+                                          db_column='ThirdpartyType', null=True)
+    thirdparty_id = models.CharField(db_column='ThirdpartyId', max_length=255, null=True)  # object is referenced by uuid
+    thirdparty = GenericForeignKey('thirdparty_type', 'thirdparty_id')
+
+    code_tp = models.CharField(db_column='CodeTp', max_length=255, null=True)
     code = models.CharField(db_column='Code', max_length=255, null=False)
     code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
 
@@ -48,6 +54,8 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     status = models.SmallIntegerField(
         db_column='Status', null=False, choices=Status.choices, default=Status.DRAFT)
 
+    currency_tp_code = models.CharField(
+        db_column='CurrencyTpCode', null=False, max_length=255, default=get_default_currency)
     currency_code = models.CharField(
         db_column='CurrencyCode', null=False, max_length=255, default=get_default_currency)
 
@@ -94,6 +102,7 @@ class GenericInvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
         REFUNDED = 2, _('refunded')
         CANCELLED = 3, _('cancelled')
 
+    code_tp = models.CharField(db_column='CodeTp', max_length=255, null=True)
     code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
     code_receipt = models.CharField(db_column='CodeReceipt', max_length=255, null=True)
 
@@ -137,17 +146,7 @@ class Invoice(GenericInvoice):
     subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
-    recipient_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                          db_column='RecipientType', null=True, related_name='recipient_type')
-    recipient_id = models.CharField(db_column='RecipientId', max_length=255, null=True)   # object is referenced by uuid
-    recipient = GenericForeignKey('recipient_type', 'recipient_id')
-
-    code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
-
     date_invoice = DateField(db_column='DateInvoice', default=date.today, null=True)
-
-    currency_rcp_code = models.CharField(
-        db_column='CurrencyRcpCode', null=False, max_length=255, default=get_default_currency)
 
     class Meta:
         managed = True
@@ -169,7 +168,6 @@ class InvoiceLineItem(GenericInvoiceLineItem):
 
 class InvoicePayment(GenericInvoicePayment):
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="payments")
-    code_rcp = models.CharField(db_column='CodeRcp', max_length=255, null=True)
 
     class Meta:
         managed = True
@@ -190,17 +188,7 @@ class Bill(GenericInvoice):
     subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
-    sender_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                       db_column='SenderType', null=True, related_name='sender_type')
-    sender_id = models.CharField(db_column='SenderId', max_length=255, null=True)  # object is referenced by uuid
-    sender = GenericForeignKey('sender_type', 'sender_id')
-
-    code_sdr = models.CharField(db_column='CodeSdr', max_length=255, null=True)
-
     date_bill = DateField(db_column='DateBill', default=date.today, null=True)
-
-    currency_sdr_code = models.CharField(
-        db_column='CurrencySdrCode', null=False, max_length=255, default=get_default_currency)
 
     class Meta:
         managed = True
@@ -222,7 +210,6 @@ class BillItem(GenericInvoiceLineItem):
 
 class BillPayment(GenericInvoicePayment):
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="payments_bill")
-    code_sdr = models.CharField(db_column='CodeSdr', max_length=255, null=True)
 
     class Meta:
         managed = True

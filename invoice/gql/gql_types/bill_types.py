@@ -14,20 +14,16 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject_type(root, info):
         return root.subject_type.id
 
-    sender_type = graphene.Int()
-    def resolve_recipient_type(root, info):
-        return root.sender_type.id
+    thirdparty_type = graphene.Int()
+    def resolve_thirdparty_type(root, info):
+        return root.thirdparty_type.id
 
     class Meta:
         model = Bill
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             **GenericFilterGQLTypeMixin.get_base_filters_invoice(),
-            "sender_id": ["exact"],
-            "sender_type": ["exact"],
-            "code_sdr": ["exact", "istartswith", "icontains", "iexact"],
             "date_bill": ["exact", "lt", "lte", "gt", "gte"],
-            "currency_sdr_code": ["exact"],
         }
 
         connection_class = ExtendedConnection
@@ -65,7 +61,6 @@ class BillPaymentGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             **GenericFilterGQLTypeMixin.get_base_filters_invoice_payment(),
-            "code_sdr": ["istartswith", "icontains", "iexact"],
             **prefix_filterset("bill__", BillGQLType._meta.filter_fields),
         }
 

@@ -12,10 +12,10 @@ from invoice.models import Invoice
 DEFAULT_TEST_INVOICE_PAYLOAD = {
     'subject_type': 'contract',
     'subject_id': None,
-    'recipient_type': 'insuree',
-    'recipient_id': None,
+    'thirdparty_type': 'insuree',
+    'thirdparty_id': None,
     'code': 'INVOICE_CODE',
-    'code_rcp': 'INVOICE_CODE_RCP',
+    'code_tp': 'INVOICE_CODE_TP',
     'code_ext': 'INVOICE_CODE_EXT',
     'date_due': date(2021, 9, 13),
     'date_invoice': date(2021, 9, 11),
@@ -38,14 +38,14 @@ def __get_or_create_user():
     return user
 
 
-def create_test_invoice(subject=None, recipient=None, user=None, **custom_props):
+def create_test_invoice(subject=None, thirdparty=None, user=None, **custom_props):
     subject = subject or __create_test_subject()
-    recipient = recipient or __create_test_recipient()
+    thirdparty = thirdparty or __create_test_thirdparty()
     payload = DEFAULT_TEST_INVOICE_PAYLOAD.copy()
     payload['subject'] = subject
     payload['subject_type'] = ContentType.objects.get_for_model(subject)
-    payload['recipient'] = recipient
-    payload['recipient_type'] = ContentType.objects.get_for_model(recipient)
+    payload['thirdparty'] = thirdparty
+    payload['thirdparty_type'] = ContentType.objects.get_for_model(thirdparty)
     payload.update(**custom_props)
 
     Invoice.objects.filter(code=payload['code']).delete()
@@ -62,5 +62,5 @@ def __create_test_subject():
     return create_test_contract(policy_holder)
 
 
-def __create_test_recipient():
+def __create_test_thirdparty():
     return create_test_insuree(with_family=False)

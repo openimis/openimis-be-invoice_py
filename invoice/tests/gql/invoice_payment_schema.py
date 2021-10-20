@@ -31,7 +31,7 @@ query {{
 
     create_mutation_str = '''  
 mutation {{
-  createInvoicePayment(input:{{status: 1, codeExt:"{payment_code}", codeRcp:"gqlRcp", codeReceipt:"gqlRec", 
+  createInvoicePayment(input:{{status: 1, codeExt:"{payment_code}", codeTp:"gqlTp", codeReceipt:"gqlRec", 
   label:"gql label", invoiceId:"{invoice_id}", amountPayed: "10.0", fees: "10.0", amountReceived: "20.0", 
   datePayment:"2021-10-10", clientMutationId: "{mutation_id}"}}) {{
     internalId

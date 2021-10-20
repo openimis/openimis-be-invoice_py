@@ -29,7 +29,7 @@ class CreateBillEventMutation(BaseHistoryModelCreateMutationMixin, BaseMutation)
             BillEventMutation.object_mutated(
                 user,
                 client_mutation_id=client_mutation_id,
-                invoice_event=p
+                bill_event=p
             )
 
     @classmethod

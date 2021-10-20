@@ -18,14 +18,14 @@ def __get_or_create_user():
     return user
 
 
-def create_test_invoice(subject=None, recipient=None, user=None, **custom_props):
+def create_test_invoice(subject=None, thirdparty=None, user=None, **custom_props):
     subject = subject or __create_test_subject()
-    recipient = recipient or __create_test_recipient()
+    thirdparty = thirdparty or __create_test_thirdparty()
     payload = DEFAULT_TEST_INVOICE_PAYLOAD.copy()
     payload['subject'] = subject
     payload['subject_type'] = ContentType.objects.get_for_model(subject)
-    payload['recipient'] = recipient
-    payload['recipient_type'] = ContentType.objects.get_for_model(recipient)
+    payload['thirdparty'] = thirdparty
+    payload['thirdparty_type'] = ContentType.objects.get_for_model(thirdparty)
     payload.update(**custom_props)
     user = user or __get_or_create_user()
 
@@ -46,5 +46,5 @@ def __create_test_subject():
     return create_test_contract(policy_holder)
 
 
-def __create_test_recipient():
+def __create_test_thirdparty():
     return create_test_insuree(with_family=False)

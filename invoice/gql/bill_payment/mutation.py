@@ -27,7 +27,7 @@ class CreateBillPaymentMutation(BaseHistoryModelCreateMutationMixin, BaseMutatio
             BillPaymentMutation.object_mutated(
                 user,
                 client_mutation_id=client_mutation_id,
-                invoice_payment=p
+                bill_payment=p
             )
 
     @classmethod

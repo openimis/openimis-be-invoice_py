@@ -8,6 +8,9 @@ class GenericFilterGQLTypeMixin:
             "subject_id": ["exact"],
             "subject_type": ["exact"],
 
+            "thirdparty_id": ["exact"],
+            "thirdparty_type": ["exact"],
+            "code_tp": ["exact", "istartswith", "icontains", "iexact"],
             "code": ["exact", "istartswith", "icontains", "iexact"],
             "code_ext": ["exact", "istartswith", "icontains", "iexact"],
             "date_due": ["exact", "lt", "lte", "gt", "gte"],
@@ -19,6 +22,7 @@ class GenericFilterGQLTypeMixin:
 
             "status": ["exact"],
 
+            "currency_tp_code": ["exact"],
             "currency_code": ["exact"],
             "note": ["exact", "icontains"],
             "terms": ["exact", "icontains"],
@@ -63,6 +67,7 @@ class GenericFilterGQLTypeMixin:
             "id": ["exact"],
             "status": ["exact"],
 
+            "code_tp": ["istartswith", "icontains", "iexact"],
             "code_ext": ["istartswith", "icontains", "iexact"],
             "code_receipt": ["istartswith", "icontains", "iexact"],
 

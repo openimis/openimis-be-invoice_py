@@ -14,20 +14,16 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject_type(root, info):
         return root.subject_type.id
 
-    recipient_type = graphene.Int()
-    def resolve_recipient_type(root, info):
-        return root.recipient_type.id
+    thirdparty_type = graphene.Int()
+    def resolve_thirdparty_type(root, info):
+        return root.thirdparty_type.id
 
     class Meta:
         model = Invoice
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             **GenericFilterGQLTypeMixin.get_base_filters_invoice(),
-            "recipient_id": ["exact"],
-            "recipient_type": ["exact"],
-            "code_rcp": ["exact", "istartswith", "icontains", "iexact"],
             "date_invoice": ["exact", "lt", "lte", "gt", "gte"],
-            "currency_rcp_code": ["exact"],
         }
 
         connection_class = ExtendedConnection
@@ -65,7 +61,6 @@ class InvoicePaymentGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
         interfaces = (graphene.relay.Node,)
         filter_fields = {
             **GenericFilterGQLTypeMixin.get_base_filters_invoice_payment(),
-            "code_rcp": ["istartswith", "icontains", "iexact"],
             **prefix_filterset("invoice__", InvoiceGQLType._meta.filter_fields),
         }
 
