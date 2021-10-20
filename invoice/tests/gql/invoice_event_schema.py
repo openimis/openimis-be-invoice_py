@@ -54,4 +54,4 @@ mutation {{
         obj: InvoiceEvent = InvoiceEventMutation.objects.get(mutation_id=mutation_log.id).invoice_event
         self.assertEqual(obj.invoice, self.invoice)
         self.assertEqual(obj.message, "Some message with type")
-        self.assertEqual(obj.event_type, InvoiceEvent.InvoiceEventType.MESSAGE)
+        self.assertEqual(obj.event_type, InvoiceEvent.EventType.MESSAGE)

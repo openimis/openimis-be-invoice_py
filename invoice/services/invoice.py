@@ -53,7 +53,7 @@ class InvoiceService(BaseService):
         if 'subject_type' in invoice_data.keys():
             invoice_data['subject_type'] = _get_generic_type(invoice_data['subject_type'])
 
-        if 'recipient_type' in invoice_data.keys():
-            invoice_data['recipient_type'] = _get_generic_type(invoice_data['recipient_type'])
+        if 'thirdparty_type' in invoice_data.keys():
+            invoice_data['thirdparty_type'] = _get_generic_type(invoice_data['thirdparty_type'])
 
         return invoice_data

@@ -25,10 +25,10 @@ class ServiceTestInvoice(TestCase):
     BASE_TEST_INVOICE_PAYLOAD = {
             'subject_type': 'contract',
             'subject_id': None,
-            'recipient_type': 'insuree',
-            'recipient_id': None,
+            'thirdparty_type': 'insuree',
+            'thirdparty_id': None,
             'code': 'INVOICE_CODE',
-            'code_rcp': 'INVOICE_CODE_RCP',
+            'code_tp': 'INVOICE_CODE_TP',
             'code_ext': 'INVOICE_CODE_EXT',
             'date_due': date(2021, 9, 13),
             'date_invoice': date(2021, 9, 11),
@@ -45,10 +45,10 @@ class ServiceTestInvoice(TestCase):
 
     BASE_TEST_UPDATE_INVOICE_PAYLOAD = {
         'id': None,
-        'recipient_type': 'policyholder',
-        'recipient_id': None,
+        'thirdparty_type': 'policyholder',
+        'thirdparty_id': None,
         'code': 'INVOICE_CODE_2',
-        'code_rcp': 'INVOICE_CODE_RCP_2',
+        'code_tp': 'INVOICE_CODE_TP_2',
         'code_ext': 'INVOICE_CODE_EXT_2',
         'date_due': date(2021, 10, 13),
         'date_invoice': date(2021, 10, 11),
@@ -70,10 +70,10 @@ class ServiceTestInvoice(TestCase):
         "data": {
             'subject_type': None,
             'subject_id':  None,
-            'recipient_type': None,
-            'recipient_id': None,
+            'thirdparty_type': None,
+            'thirdparty_id': None,
             'code': 'INVOICE_CODE',
-            'code_rcp': 'INVOICE_CODE_RCP',
+            'code_tp': 'INVOICE_CODE_TP',
             'code_ext': 'INVOICE_CODE_EXT',
             'date_due': '2021-09-13',
             'date_invoice': '2021-09-11',
@@ -95,10 +95,10 @@ class ServiceTestInvoice(TestCase):
         "message": "Ok",
         "detail": "",
         "data": {
-            'recipient_type': None,
-            'recipient_id': None,
+            'thirdparty_type': None,
+            'thirdparty_id': None,
             'code': 'INVOICE_CODE_2',
-            'code_rcp': 'INVOICE_CODE_RCP_2',
+            'code_tp': 'INVOICE_CODE_TP_2',
             'code_ext': 'INVOICE_CODE_EXT_2',
             'date_due': '2021-10-13',
             'date_invoice': '2021-10-11',
@@ -132,11 +132,11 @@ class ServiceTestInvoice(TestCase):
         cls.insuree_service = InvoiceService(cls.user)
 
         cls.BASE_TEST_INVOICE_PAYLOAD['subject'] = cls.contract
-        cls.BASE_TEST_INVOICE_PAYLOAD['recipient'] = cls.insuree
+        cls.BASE_TEST_INVOICE_PAYLOAD['thirdparty'] = cls.insuree
 
         # Business model use PK of uuid type
         cls.BASE_EXPECTED_CREATE_RESPONSE['data']['subject_id'] = str(cls.contract.pk)
-        cls.BASE_EXPECTED_CREATE_RESPONSE['data']['recipient_id'] = cls.insuree.pk
+        cls.BASE_EXPECTED_CREATE_RESPONSE['data']['thirdparty_id'] = cls.insuree.pk
 
         cls.product = create_test_product("TestC0d4", custom_props={"insurance_period": 12})
         cls.policy = create_test_policy(
@@ -171,7 +171,7 @@ class ServiceTestInvoice(TestCase):
 
             invoice = Invoice.objects.filter(code=payload['code']).first()
             expected_response['data']['subject_type'] = invoice.subject_type.id
-            expected_response['data']['recipient_type'] = invoice.recipient_type.id
+            expected_response['data']['thirdparty_type'] = invoice.thirdparty_type.id
 
             self.assertDictEqual(expected_response, response)
             Invoice.objects.filter(code=payload['code']).delete()
@@ -194,7 +194,7 @@ class ServiceTestInvoice(TestCase):
 
             invoice = Invoice.objects.filter(code=update_payload['code']).first()
 
-            expected_response['data']['recipient_type'] = invoice.recipient_type.id
+            expected_response['data']['thirdparty_type'] = invoice.thirdparty_type.id
             self.assertDictEqual(expected_response, response)
 
             Invoice.objects.filter(code=update_payload['code']).delete()

@@ -6,7 +6,11 @@ from invoice.gql.invoice import GenerateTimeframeInvoices
 from invoice.gql.invoice_event.mutation import CreateInvoiceEventMutation
 from invoice.gql.invoice_payment.mutation import CreateInvoicePaymentMutation, UpdateInvoicePaymentMutation, \
     DeleteInvoicePaymentMutation
-from invoice.models import InvoicePayment, InvoicePaymentMutation, InvoiceEventMutation, InvoiceEvent
+from invoice.gql.bill_event.mutation import CreateBillEventMutation
+from invoice.gql.bill_payment.mutation import CreateBillPaymentMutation, UpdateBillPaymentMutation, \
+    DeleteBillPaymentMutation
+from invoice.models import InvoicePayment, InvoicePaymentMutation, InvoiceEventMutation, InvoiceEvent, \
+    BillPayment, BillPaymentMutation, BillEventMutation, BillEvent
 
 
 class Query(
@@ -14,18 +18,29 @@ class Query(
     query_mixins.InvoiceLineItemQueryMixin,
     query_mixins.InvoicePaymentQueryMixin,
     query_mixins.InvoiceEventQueryMixin,
+    query_mixins.BillQueryMixin,
+    query_mixins.BillItemQueryMixin,
+    query_mixins.BillPaymentQueryMixin,
+    query_mixins.BillEventQueryMixin,
     graphene.ObjectType
 ):
     pass
 
 
 class Mutation(graphene.ObjectType):
+    # invoice mutations
     generate_invoices_for_time_period = GenerateTimeframeInvoices.Field()
     create_invoice_payment = CreateInvoicePaymentMutation.Field()
     update_invoice_payment = UpdateInvoicePaymentMutation.Field()
     delete_invoice_payment = DeleteInvoicePaymentMutation.Field()
 
     create_invoice_event_message = CreateInvoiceEventMutation.Field()
+
+    # bill mutations
+    create_bill_payment = CreateBillPaymentMutation.Field()
+    update_bill_payment = UpdateBillPaymentMutation.Field()
+    delete_bill_payment = DeleteBillPaymentMutation.Field()
+    create_bill_event_type = CreateBillEventMutation.Field()
 
 
 def _on_mutation_log(mutation_model, model, obj_type, sender, **kwargs):
@@ -54,4 +69,16 @@ def on_invoice_payment_mutation(sender, **kwargs):
     return []
 
 
+def on_bill_payment_mutation(sender, **kwargs):
+    if kwargs.get('mutation_class', None) \
+            in ('CreateBillPaymentMutation', 'UpdateBillPaymentMutation', 'DeleteBillPaymentMutation'):
+        return _on_mutation_log(BillPaymentMutation, BillPayment, 'bill_payment', sender, **kwargs)
+
+    if kwargs.get('mutation_class', None) in ('CreateBillEventMutation'):
+        return _on_mutation_log(BillEventMutation, BillEvent, 'bill_event', sender, **kwargs)
+
+    return []
+
+
 signal_mutation_module_validate["invoice"].connect(on_invoice_payment_mutation)
+signal_mutation_module_validate["invoice"].connect(on_bill_payment_mutation)

@@ -7,28 +7,8 @@ from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
 from core.forms import User
 
-from invoice.models import Invoice
-
-DEFAULT_TEST_INVOICE_PAYLOAD = {
-    'subject_type': 'contract',
-    'subject_id': None,
-    'thirdparty_type': 'insuree',
-    'thirdparty_id': None,
-    'code': 'INVOICE_CODE',
-    'code_tp': 'INVOICE_CODE_TP',
-    'code_ext': 'INVOICE_CODE_EXT',
-    'date_due': date(2021, 9, 13),
-    'date_invoice': date(2021, 9, 11),
-    'date_payed': date(2021, 9, 12),
-    'amount_discount': 20.1,
-    'amount_net': 20.1,
-    'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
-    'amount_total': 20.1,
-    'status': 0,  # Draft
-    'note': 'NOTE',
-    'terms': 'TERMS',
-    'payment_reference': 'payment reference'
-}
+from invoice.models import Bill
+from invoice.tests.helpers.default_test_data import DEFAULT_TEST_BILL_PAYLOAD
 
 
 def __get_or_create_user():
@@ -38,23 +18,27 @@ def __get_or_create_user():
     return user
 
 
-def create_test_invoice(subject=None, thirdparty=None, user=None, **custom_props):
+def create_test_bill(subject=None, thirdparty=None, user=None, **custom_props):
     subject = subject or __create_test_subject()
     thirdparty = thirdparty or __create_test_thirdparty()
-    payload = DEFAULT_TEST_INVOICE_PAYLOAD.copy()
+    payload = DEFAULT_TEST_BILL_PAYLOAD.copy()
     payload['subject'] = subject
     payload['subject_type'] = ContentType.objects.get_for_model(subject)
     payload['thirdparty'] = thirdparty
     payload['thirdparty_type'] = ContentType.objects.get_for_model(thirdparty)
     payload.update(**custom_props)
-
-    Invoice.objects.filter(code=payload['code']).delete()
-
     user = user or __get_or_create_user()
-    invoice = Invoice(**payload)
-    invoice.save(username=user.username)
 
-    return invoice
+    if Bill.objects.filter(code=payload['code']).exists():
+        b = Bill.objects.filter(code=payload['code']).first()
+        b.payments_bill.all().delete()
+        b.line_items_bill.all().delete()
+        Bill.objects.filter(code=payload['code']).delete()
+
+    bill = Bill(**payload)
+    bill.save(username=user.username)
+
+    return bill
 
 
 def __create_test_subject():

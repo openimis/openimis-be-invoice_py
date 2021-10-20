@@ -26,12 +26,12 @@ query {{
       node {{
         isDeleted,
         code,
-        codeRcp,
+        codeTp,
         codeExt,
         subjectId,
         subjectType,
-        recipientId,
-        recipientType,
+        thirdpartyId,
+        thirdpartyType,
       }}
     }}
   }}
@@ -65,10 +65,10 @@ query {{
                         {'node': {
                             'code': F'{DEFAULT_TEST_INVOICE_PAYLOAD["code"]}',
                             'codeExt': F'{DEFAULT_TEST_INVOICE_PAYLOAD["code_ext"]}',
-                            'codeRcp': F'{DEFAULT_TEST_INVOICE_PAYLOAD["code_rcp"]}',
+                            'codeTp': F'{DEFAULT_TEST_INVOICE_PAYLOAD["code_tp"]}',
                             'isDeleted': False,
-                            'recipientId': F'{self.invoice.recipient.id}',
-                            'recipientType': self.invoice.recipient_type.id,
+                            'thirdpartyId': F'{self.invoice.thirdparty.id}',
+                            'thirdpartyType': self.invoice.thirdparty_type.id,
                             'subjectId': F'{self.invoice.subject.id}',
                             'subjectType': self.invoice.subject_type.id
         }}]}}}

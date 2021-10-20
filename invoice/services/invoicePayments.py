@@ -32,13 +32,13 @@ class InvoicePaymentsService(BaseService):
         except Exception as exc:
             return _output_exception(model_name="InvoicePayment", method="ref_received", exception=exc)
 
-    def payment_received(self, invoice_payment: InvoicePayment, payment_status: InvoicePayment.InvoicePaymentStatus):
+    def payment_received(self, invoice_payment: InvoicePayment, payment_status: InvoicePayment.PaymentStatus):
         try:
             with transaction.atomic():
                 invoice_payment.status = payment_status
                 self.validation_class.validate_receive_payment(self.user, invoice_payment)
 
-                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.PAYED)
+                self._update_invoice_status(invoice_payment.invoice, Invoice.Status.PAYED)
 
                 invoice_payment.invoice.save(username=self.user.username)
                 return self.save_instance(invoice_payment)
@@ -49,8 +49,8 @@ class InvoicePaymentsService(BaseService):
         try:
             with transaction.atomic():
                 self.validation_class.validate_refund_payment(self.user, invoice_payment)
-                self._update_payment_status(invoice_payment, InvoicePayment.InvoicePaymentStatus.REFUNDED)
-                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.SUSPENDED)
+                self._update_payment_status(invoice_payment, InvoicePayment.PaymentStatus.REFUNDED)
+                self._update_invoice_status(invoice_payment.invoice, Invoice.Status.SUSPENDED)
 
                 invoice_payment.invoice.save(username=self.user.username)
                 return self.save_instance(invoice_payment)
@@ -62,16 +62,16 @@ class InvoicePaymentsService(BaseService):
             with transaction.atomic():
                 self.validation_class.validate_cancel_payment(self.user, invoice_payment)
 
-                self._update_payment_status(invoice_payment.invoice, InvoicePayment.InvoicePaymentStatus.CANCELLED)
-                self._update_invoice_status(invoice_payment.invoice, Invoice.InvoiceStatus.SUSPENDED)
+                self._update_payment_status(invoice_payment.invoice, InvoicePayment.PaymentStatus.CANCELLED)
+                self._update_invoice_status(invoice_payment.invoice, Invoice.Status.SUSPENDED)
 
                 invoice_payment.invoice.save(username=self.user.username)
                 return self.save_instance(invoice_payment)
         except Exception as exc:
             return _output_exception(model_name="InvoicePayment", method="payment_refunded", exception=exc)
 
-    def _update_payment_status(self, invoice_payment: InvoicePayment, status: InvoicePayment.InvoicePaymentStatus):
+    def _update_payment_status(self, invoice_payment: InvoicePayment, status: InvoicePayment.PaymentStatus):
         invoice_payment.status = status
 
-    def _update_invoice_status(self, invoice_payment: Invoice, status: Invoice.InvoiceStatus):
+    def _update_invoice_status(self, invoice_payment: Invoice, status: Invoice.Status):
         invoice_payment.status = status
