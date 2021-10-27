@@ -14,9 +14,17 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject_type(root, info):
         return root.subject_type.id
 
+    subject_type_name = graphene.String()
+    def resolve_subject_type_name(root, info):
+        return root.subject_type.name
+
     thirdparty_type = graphene.Int()
     def resolve_thirdparty_type(root, info):
         return root.thirdparty_type.id
+
+    thirdparty_type_name = graphene.String()
+    def resolve_thirdparty_type_name(root, info):
+        return root.thirdparty_type.name
 
     class Meta:
         model = Bill
@@ -38,6 +46,10 @@ class BillItemGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     line_type = graphene.Int()
     def resolve_line_type(root, info):
         return root.line_type.id
+
+    line_type_name = graphene.String()
+    def resolve_line_type_name(root, info):
+        return root.line_type.name
 
     class Meta:
         model = BillItem

@@ -29,8 +29,8 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
         DELETED = 4, _('deleted')
         SUSPENDED = 5, _('suspended')
 
-    thirdparty_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                          db_column='ThirdpartyType', null=True)
+    thirdparty_type = models.ForeignKey(ContentType, models.DO_NOTHING,
+                                          db_column='ThirdpartyType', null=True, unique=False)
     thirdparty_id = models.CharField(db_column='ThirdpartyId', max_length=255, null=True)  # object is referenced by uuid
     thirdparty = GenericForeignKey('thirdparty_type', 'thirdparty_id')
 
@@ -141,8 +141,8 @@ class GenericInvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
 
 
 class Invoice(GenericInvoice):
-    subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                        db_column='SubjectType', null=True, related_name='subject_type')
+    subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
+                                        db_column='SubjectType', null=True, related_name='subject_type', unique=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
@@ -154,8 +154,8 @@ class Invoice(GenericInvoice):
 
 
 class InvoiceLineItem(GenericInvoiceLineItem):
-    line_type = models.OneToOneField(
-        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type')
+    line_type = models.ForeignKey(
+        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type', unique=False)
     line_id = models.CharField(db_column='LineId', max_length=255, null=True)  # object is referenced by uuid
     line = GenericForeignKey('line_type', 'line_id')
 
@@ -183,8 +183,8 @@ class InvoiceEvent(GenericInvoiceEvent):
 
 
 class Bill(GenericInvoice):
-    subject_type = models.OneToOneField(ContentType, models.DO_NOTHING,
-                                        db_column='SubjectType', null=True, related_name='subject_type_bill')
+    subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
+                                        db_column='SubjectType', null=True, related_name='subject_type_bill', unique=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
@@ -196,8 +196,8 @@ class Bill(GenericInvoice):
 
 
 class BillItem(GenericInvoiceLineItem):
-    line_type = models.OneToOneField(
-        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type_bill')
+    line_type = models.ForeignKey(
+        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type_bill', unique=False)
     line_id = models.CharField(db_column='LineId', max_length=255, null=True)  # object is referenced by uuid
     line = GenericForeignKey('line_type', 'line_id')
 
