@@ -30,7 +30,6 @@ def check_invoice_exist(**kwargs):
 def save_invoice_in_db(**kwargs):
     convert_results = kwargs.get('result', {})
     if 'invoice_data' in convert_results and 'invoice_data_line' in convert_results:
-        # get the user from 'user created'
         user = convert_results['user']
         # save in database this invoice and invoice line item
         invoice_line_item = convert_results['invoice_data_line']
