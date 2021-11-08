@@ -81,4 +81,4 @@ def __save_invoice_in_db_contract(**kwargs):
                 invoice_update["amount_net"] += float(result_invoice_line["data"]["amount_net"])
                 invoice_update["amount_total"] += float(result_invoice_line["data"]["amount_total"])
                 invoice_update["amount_discount"] += 0 if result_invoice_line["data"]["discount"] else result_invoice_line["data"]["discount"]
-        result = invoice_service.update(invoice_update)
+        invoice_service.update(invoice_update)
