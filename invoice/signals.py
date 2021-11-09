@@ -30,55 +30,25 @@ def check_invoice_exist(**kwargs):
 def save_invoice_in_db(**kwargs):
     convert_results = kwargs.get('result', {})
     if 'invoice_data' in convert_results and 'invoice_data_line' in convert_results:
-        if convert_results['type_conversion'] == "policy-invoice":
-            __save_invoice_in_db_policy(result=convert_results)
-        if convert_results['type_conversion'] == "contract-invoice":
-            __save_invoice_in_db_contract(result=convert_results)
-
-
-def __save_invoice_in_db_policy(**kwargs):
-    convert_results = kwargs.get('result', {})
-    user = convert_results['user']
-    # save in database this invoice and invoice line item
-    invoice_line_item = convert_results['invoice_data_line']
-    invoice_service = InvoiceService(user=user)
-    invoice_line_item_service = InvoiceLineItemService(user=user)
-    result_invoice = invoice_service.create(convert_results['invoice_data'])
-    if result_invoice["success"] is True:
-        # build invoice item
-        invoice_line_item["invoice_id"] = result_invoice["data"]["id"]
-        result_invoice_line = invoice_line_item_service.create(invoice_line_item)
-        if result_invoice_line["success"] is True:
-            # build invoice amounts based on invoice_line_item data
+        convert_results = kwargs.get('result', {})
+        user = convert_results['user']
+        # save in database this invoice and invoice line item
+        invoice_line_items = convert_results['invoice_data_line']
+        invoice_service = InvoiceService(user=user)
+        invoice_line_item_service = InvoiceLineItemService(user=user)
+        result_invoice = invoice_service.create(convert_results['invoice_data'])
+        if result_invoice["success"] is True:
             invoice_update = {
                 "id": result_invoice["data"]["id"],
-                "amount_net": result_invoice_line["data"]["amount_net"],
-                "amount_total": result_invoice_line["data"]["amount_total"],
-                "amount_discount": 0 if result_invoice_line["data"]["discount"] else result_invoice_line["data"]["discount"]
+                "amount_net": 0,
+                "amount_total": 0,
+                "amount_discount": 0
             }
+            for invoice_line_item in invoice_line_items:
+                invoice_line_item["invoice_id"] = result_invoice["data"]["id"]
+                result_invoice_line = invoice_line_item_service.create(invoice_line_item)
+                if result_invoice_line["success"] is True:
+                    invoice_update["amount_net"] += float(result_invoice_line["data"]["amount_net"])
+                    invoice_update["amount_total"] += float(result_invoice_line["data"]["amount_total"])
+                    invoice_update["amount_discount"] += 0 if result_invoice_line["data"]["discount"] else result_invoice_line["data"]["discount"]
             invoice_service.update(invoice_update)
-
-
-def __save_invoice_in_db_contract(**kwargs):
-    convert_results = kwargs.get('result', {})
-    user = convert_results['user']
-    # save in database this invoice and invoice line item
-    invoice_line_items = convert_results['invoice_data_line']
-    invoice_service = InvoiceService(user=user)
-    invoice_line_item_service = InvoiceLineItemService(user=user)
-    result_invoice = invoice_service.create(convert_results['invoice_data'])
-    if result_invoice["success"] is True:
-        invoice_update = {
-            "id": result_invoice["data"]["id"],
-            "amount_net": 0,
-            "amount_total": 0,
-            "amount_discount": 0
-        }
-        for invoice_line_item in invoice_line_items:
-            invoice_line_item["invoice_id"] = result_invoice["data"]["id"]
-            result_invoice_line = invoice_line_item_service.create(invoice_line_item)
-            if result_invoice_line["success"] is True:
-                invoice_update["amount_net"] += float(result_invoice_line["data"]["amount_net"])
-                invoice_update["amount_total"] += float(result_invoice_line["data"]["amount_total"])
-                invoice_update["amount_discount"] += 0 if result_invoice_line["data"]["discount"] else result_invoice_line["data"]["discount"]
-        invoice_service.update(invoice_update)
