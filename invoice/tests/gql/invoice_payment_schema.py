@@ -67,12 +67,12 @@ mutation {{
                     'edges': [
                         {'node': {
                             'isDeleted': False,
-                            'amountPayed': DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['amount_payed'],
-                            'amountReceived': DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['amount_received'],
+                            'amountPayed': f"{DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['amount_payed']}",
+                            'amountReceived': f"{DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['amount_received']}",
                             'invoice': {'code': F'{DEFAULT_TEST_INVOICE_PAYLOAD["code"]}'},
                             'datePayment': '2021-10-10',
                             'status': 'A_1',
-                            'fees': DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['fees'],
+                            'fees': f"{DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['fees']}",
         }}]}}}
         self.assertEqual(output, expected)
 
