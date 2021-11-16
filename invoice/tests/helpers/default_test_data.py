@@ -43,9 +43,9 @@ DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD = {
     'code_tp': 'pay_sys_ref',
     'code_receipt': 'receipt number',
     'invoice': None,
-    'amount_payed': 91.50,
-    'fees': 12.00,
-    'amount_received': 22.00,
+    'amount_payed': '91.50',
+    'fees': '12.00',
+    'amount_received': '22.00',
     'date_payment': date(2021, 10, 10),
     'status': InvoicePayment.PaymentStatus.ACCEPTED
 }
