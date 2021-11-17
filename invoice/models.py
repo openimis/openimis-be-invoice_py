@@ -83,6 +83,8 @@ class GenericInvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
 
     discount = models.DecimalField(db_column='Discount', max_digits=18, decimal_places=2, default=0.0)
 
+    deduction = models.DecimalField(db_column='Deduction', max_digits=18, decimal_places=2, default=0.0)
+
     tax_rate = models.UUIDField(db_column="CalculationUUID", null=True)
     tax_analysis = FallbackJSONField(db_column='TaxAnalysis', null=True)
 
