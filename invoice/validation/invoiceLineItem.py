@@ -1,6 +1,6 @@
 from invoice.models import InvoiceLineItem
-from invoice.validation.base import BaseInvoiceValidation
+from invoice.validation.base import BaseModelValidation
 
 
-class InvoiceLineItemModelValidation(BaseInvoiceValidation):
+class InvoiceLineItemModelValidation(BaseModelValidation):
     OBJECT_TYPE = InvoiceLineItem
