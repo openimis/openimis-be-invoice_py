@@ -28,6 +28,11 @@ def bind_service_signals():
         save_bill_in_db,
         bind_type=ServiceSignalBindType.AFTER
     )
+    bind_service_signal(
+        'trigger_bill_creation_from_calcrule',
+        BillService.bill_creation_from_calculation,
+        bind_type=ServiceSignalBindType.AFTER
+    )
 
 
 def check_invoice_exist(**kwargs):
