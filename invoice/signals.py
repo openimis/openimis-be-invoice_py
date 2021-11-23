@@ -19,17 +19,17 @@ def bind_service_signals():
     )
 
     bind_service_signal(
-        'convert_to_bill',
+        'signal_before_and_after_calcrule_third_party_payment_module_process_convert_service',
         check_bill_exist,
         bind_type=ServiceSignalBindType.BEFORE
     )
     bind_service_signal(
-        'convert_to_bill',
+        'signal_before_and_after_calcrule_third_party_payment_module_process_convert_service',
         save_bill_in_db,
         bind_type=ServiceSignalBindType.AFTER
     )
     bind_service_signal(
-        'trigger_bill_creation_from_calcrule',
+        'signal_after_claim_batch_module_process_batch_run_service',
         BillService.bill_creation_from_calculation,
         bind_type=ServiceSignalBindType.AFTER
     )
