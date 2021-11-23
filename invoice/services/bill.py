@@ -42,7 +42,7 @@ class BillService(BaseService):
 
     @classmethod
     @register_service_signal('bill_creation_from_calculation')
-    def bill_creation_from_calculation(cls, user, from_date, to_date):
+    def bill_creation_from_calculation(cls, **kwargs):
         """
         It sends the bill_creation_from_calculation signal which should inform the
         relevant calculation rule that bills need to be generated.
