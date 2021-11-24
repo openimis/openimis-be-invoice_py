@@ -41,11 +41,12 @@ class BillService(BaseService):
         pass
 
     @classmethod
-    @register_service_signal('bill_creation_from_calculation')
+    # signal_after_invoice_module_bill_creation_from_calculation_run_service
+    @register_service_signal('signal_after_invoice_module_bill_creation_from_calculation_run_service')
     def bill_creation_from_calculation(cls, **kwargs):
         """
-        It sends the bill_creation_from_calculation signal which should inform the
-        relevant calculation rule that bills need to be generated.
+        It sends the signal_after_invoice_module_bill_creation_from_calculation_run_service
+        signal which should inform the relevant calculation rule that bills need to be generated.
         """
         pass
 
