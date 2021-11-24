@@ -41,7 +41,6 @@ class BillService(BaseService):
         pass
 
     @classmethod
-    # signal_after_invoice_module_bill_creation_from_calculation_run_service
     @register_service_signal('signal_after_invoice_module_bill_creation_from_calculation_run_service')
     def bill_creation_from_calculation(cls, **kwargs):
         """
