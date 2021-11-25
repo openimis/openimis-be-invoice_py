@@ -2,6 +2,7 @@ from typing import Dict, Union, List
 
 from invoice.models import Bill, BillItem
 from invoice.services.base import BaseService
+from invoice.services.billLineItem import BillLineItemService
 from invoice.services.service_utils import _get_generic_type
 from invoice.validation.bill import BillModelValidation, BillItemStatus
 from core.signals import *
@@ -41,13 +42,32 @@ class BillService(BaseService):
         pass
 
     @classmethod
-    @register_service_signal('signal_after_invoice_module_bill_creation_from_calculation_run_service')
-    def bill_creation_from_calculation(cls, **kwargs):
-        """
-        It sends the signal_after_invoice_module_bill_creation_from_calculation_run_service
-        signal which should inform the relevant calculation rule that bills need to be generated.
-        """
-        pass
+    @register_service_signal('signal_after_invoice_module_bill_create_run_service')
+    def bill_create(cls, **kwargs):
+        convert_results = kwargs.get('convert_results', {})
+        if 'bill_data' in convert_results and 'bill_data_line' in convert_results:
+            user = convert_results['user']
+            # save in database this invoice and invoice line item
+            bill_line_items = convert_results['bill_data_line']
+            bill_service = BillService(user=user)
+            bill_line_item_service = BillLineItemService(user=user)
+            result_bill = bill_service.create(convert_results['bill_data'])
+            if result_bill["success"] is True:
+                bill_update = {
+                    "id": result_bill["data"]["id"],
+                    "amount_net": 0,
+                    "amount_total": 0,
+                    "amount_discount": 0
+                }
+                for bill_line_item in bill_line_items:
+                    bill_line_item["bill_id"] = result_bill["data"]["id"]
+                    result_bill_line = bill_line_item_service.create(bill_line_item)
+                    if result_bill_line["success"] is True:
+                        bill_update["amount_net"] += float(result_bill_line["data"]["amount_net"])
+                        bill_update["amount_total"] += float(result_bill_line["data"]["amount_total"])
+                        bill_update["amount_discount"] += 0 if result_bill_line["data"]["discount"] else result_bill_line["data"]["discount"]
+                generated_bill = bill_service.update(bill_update)
+                return generated_bill
 
     def _evaluate_generic_types(self, bill_data):
         if 'subject_type' in bill_data.keys():

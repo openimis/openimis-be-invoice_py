@@ -17,11 +17,6 @@ def bind_service_signals():
         save_invoice_in_db,
         bind_type=ServiceSignalBindType.AFTER
     )
-    bind_service_signal(
-        'signal_after_claim_batch_module_process_batch_run_service',
-        BillService.bill_creation_from_calculation,
-        bind_type=ServiceSignalBindType.AFTER
-    )
 
 
 def check_invoice_exist(**kwargs):
