@@ -42,7 +42,7 @@ class BillService(BaseService):
         pass
 
     @classmethod
-    @register_service_signal('signal_after_invoice_module_bill_create_run_service')
+    @register_service_signal('signal_after_invoice_module_bill_create_service')
     def bill_create(cls, **kwargs):
         convert_results = kwargs.get('convert_results', {})
         if 'bill_data' in convert_results and 'bill_data_line' in convert_results:
