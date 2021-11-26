@@ -2,7 +2,8 @@ from core.signals import bind_service_signal
 from core.service_signals import ServiceSignalBindType
 from django.contrib.contenttypes.models import ContentType
 from invoice.models import InvoiceLineItem
-from invoice.services import InvoiceService, InvoiceLineItemService
+from invoice.services import InvoiceService, InvoiceLineItemService, \
+    BillService
 
 
 def bind_service_signals():
@@ -30,7 +31,6 @@ def check_invoice_exist(**kwargs):
 def save_invoice_in_db(**kwargs):
     convert_results = kwargs.get('result', {})
     if 'invoice_data' in convert_results and 'invoice_data_line' in convert_results:
-        convert_results = kwargs.get('result', {})
         user = convert_results['user']
         # save in database this invoice and invoice line item
         invoice_line_items = convert_results['invoice_data_line']

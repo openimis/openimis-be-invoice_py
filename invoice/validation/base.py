@@ -62,13 +62,15 @@ class TaxAnalysisFormatValidationMixin:
         if tax and not cls._has_required_keys(tax):
             raise ValidationError(cls.INVALID_TAX_ANALYSIS_JSON_FORMAT_NO_KEYS)
 
-        lines = tax['lines']
-        if not isinstance(lines, list):
-            raise ValidationError(cls.INVALID_TAX_ANALYSIS_JSON_FORMAT_LINES_KEYS)
+        # TODO when tax calculation rule is available then remove this condition
+        if tax:
+            lines = tax['lines']
+            if not isinstance(lines, list):
+                raise ValidationError(cls.INVALID_TAX_ANALYSIS_JSON_FORMAT_LINES_KEYS)
 
-        for line in lines:
-            if not isinstance(line, dict):
-                raise ValidationError(cls.INVALID_TAX_ANALYSIS_JSON_FORMAT_LINES_FORMAT)
+            for line in lines:
+                if not isinstance(line, dict):
+                    raise ValidationError(cls.INVALID_TAX_ANALYSIS_JSON_FORMAT_LINES_FORMAT)
 
     @classmethod
     def _has_required_keys(cls, tax: dict):
