@@ -17,7 +17,7 @@ class InvoiceQueryMixin:
         dateValidFrom__Gte=graphene.DateTime(),
         dateValidTo__Lte=graphene.DateTime(),
         applyDefaultValidityFilter=graphene.Boolean(),
-        client_mutation_id=graphene.String(),
+        client_mutation_id=graphene.String()
     )
 
     def resolve_invoice(self, info, **kwargs):
@@ -27,6 +27,14 @@ class InvoiceQueryMixin:
         client_mutation_id = kwargs.get("client_mutation_id", None)
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
+
+        subject_type = kwargs.get("subject_type", None)
+        if subject_type:
+            filters.append(Q(subject_type__model=subject_type))
+
+        thirdparty_type = kwargs.get("thirdparty_type", None)
+        if thirdparty_type:
+            filters.append(Q(thirdparty_type__model=thirdparty_type))
 
         InvoiceQueryMixin._check_permissions(info.context.user)
         return gql_optimizer.query(Invoice.objects.filter(*filters).all(), info)
