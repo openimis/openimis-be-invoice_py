@@ -1,5 +1,6 @@
 import graphene
-from django.contrib.contenttypes.models import ContentType
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 from graphene_django import DjangoObjectType
 
 from core import prefix_filterset, ExtendedConnection
@@ -25,6 +26,20 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     thirdparty_type_name = graphene.String()
     def resolve_thirdparty_type_name(root, info):
         return root.thirdparty_type.name
+
+    subject = graphene.JSONString()
+    def resolve_subject(root, info):
+        subject_object_dict = root.subject.__dict__
+        subject_object_dict.pop('_state')
+        subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
+        return subject_object_dict
+
+    thirdparty = graphene.JSONString()
+    def resolve_thirdparty(root, info):
+        thirdparty_object_dict = root.thirdparty.__dict__
+        thirdparty_object_dict.pop('_state')
+        thirdparty_object_dict = json.dumps(thirdparty_object_dict, cls=DjangoJSONEncoder)
+        return thirdparty_object_dict
 
     class Meta:
         model = Invoice

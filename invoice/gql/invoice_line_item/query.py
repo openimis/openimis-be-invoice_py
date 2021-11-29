@@ -28,6 +28,10 @@ class InvoiceLineItemQueryMixin:
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
+        line_type = kwargs.get("line_type", None)
+        if line_type:
+            filters.append(Q(line_type__model=line_type))
+
         InvoiceLineItemQueryMixin._check_invoice_permissions(info.context.user)
         return gql_optimizer.query(InvoiceLineItem.objects.filter(*filters).all(), info)
 
@@ -36,5 +40,3 @@ class InvoiceLineItemQueryMixin:
         if type(user) is AnonymousUser or not user.id or not user.has_perms(
                 InvoiceConfig.gql_invoice_search_perms):
             raise PermissionError("Unauthorized")
-
-
