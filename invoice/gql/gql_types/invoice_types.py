@@ -66,6 +66,13 @@ class InvoiceLineItemGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_line_type_name(root, info):
         return root.line_type.name
 
+    line = graphene.JSONString()
+    def resolve_line(root, info):
+        line_object_dict = root.line.__dict__
+        line_object_dict.pop('_state')
+        line_object_dict = json.dumps(line_object_dict, cls=DjangoJSONEncoder)
+        return line_object_dict
+
     class Meta:
         model = InvoiceLineItem
         interfaces = (graphene.relay.Node,)
