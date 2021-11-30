@@ -7,6 +7,7 @@ from core import prefix_filterset, ExtendedConnection
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment, InvoiceEvent, InvoiceMutation, \
     InvoicePaymentMutation, InvoiceLineItemMutation, InvoiceEventMutation
+from invoice.utils import underscore_to_camel
 
 
 class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
@@ -31,6 +32,11 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject(root, info):
         subject_object_dict = root.subject.__dict__
         subject_object_dict.pop('_state')
+        key_values = list(subject_object_dict.items())
+        subject_object_dict.clear()
+        for k, v in key_values:
+            new_key = underscore_to_camel(k)
+            subject_object_dict[new_key] = v
         subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
         return subject_object_dict
 
@@ -38,6 +44,11 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_thirdparty(root, info):
         thirdparty_object_dict = root.thirdparty.__dict__
         thirdparty_object_dict.pop('_state')
+        key_values = list(thirdparty_object_dict.items())
+        thirdparty_object_dict.clear()
+        for k, v in key_values:
+            new_key = underscore_to_camel(k)
+            thirdparty_object_dict[new_key] = v
         thirdparty_object_dict = json.dumps(thirdparty_object_dict, cls=DjangoJSONEncoder)
         return thirdparty_object_dict
 
@@ -70,6 +81,11 @@ class InvoiceLineItemGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_line(root, info):
         line_object_dict = root.line.__dict__
         line_object_dict.pop('_state')
+        key_values = list(line_object_dict.items())
+        line_object_dict.clear()
+        for k, v in key_values:
+            new_key = underscore_to_camel(k)
+            line_object_dict[new_key] = v
         line_object_dict = json.dumps(line_object_dict, cls=DjangoJSONEncoder)
         return line_object_dict
 
