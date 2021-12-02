@@ -33,7 +33,7 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject(root, info):
         subject_object_dict = root.subject.__dict__
         subject_object_dict.pop('_state')
-        #    insuree_id = ""
+
         key_values = list(subject_object_dict.items())
         subject_object_dict.clear()
         for k, v in key_values:
