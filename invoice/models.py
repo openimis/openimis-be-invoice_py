@@ -118,6 +118,8 @@ class GenericInvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
 
     date_payment = DateField(db_column='DatePayment', null=True)
 
+    payment_origin = models.CharField(db_column='PaymentOrigin', max_length=255, null=True)
+
     objects = GenericInvoiceManager()
 
     class Meta:
