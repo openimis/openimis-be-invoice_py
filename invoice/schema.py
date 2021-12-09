@@ -6,6 +6,7 @@ from invoice.gql.invoice import DeleteInvoiceMutation, GenerateTimeframeInvoices
 from invoice.gql.invoice_event.mutation import CreateInvoiceEventMutation
 from invoice.gql.invoice_payment.mutation import CreateInvoicePaymentMutation, UpdateInvoicePaymentMutation, \
     DeleteInvoicePaymentMutation
+from invoice.gql.bill.mutation import DeleteBillMutation
 from invoice.gql.bill_event.mutation import CreateBillEventMutation
 from invoice.gql.bill_payment.mutation import CreateBillPaymentMutation, UpdateBillPaymentMutation, \
     DeleteBillPaymentMutation
@@ -38,6 +39,7 @@ class Mutation(graphene.ObjectType):
     create_invoice_event_message = CreateInvoiceEventMutation.Field()
 
     # bill mutations
+    delete_bill = DeleteBillMutation.Field()
     create_bill_payment = CreateBillPaymentMutation.Field()
     update_bill_payment = UpdateBillPaymentMutation.Field()
     delete_bill_payment = DeleteBillPaymentMutation.Field()
