@@ -39,16 +39,18 @@ class GenericFilterGQLTypeMixin:
     def get_base_filters_invoice_line_item(cls):
         return {
             "id": ["exact"],
+            "code": ["exact", "icontains", "istartswith"],
+
             "line_type": ["exact"],
             "line_id": ["exact"],
 
             "description": ["istartswith", "icontains", "iexact"],
 
-            "ledger_account": ["istartswith", "iexact"],
+            "ledger_account": ["istartswith", "iexact", "icontains"],
 
             "quantity": ["exact", "lt", "lte", "gt", "gte"],
             "unit_price": ["exact", "lt", "lte", "gt", "gte"],
-
+            "deduction": ["exact", "lt", "lte", "gt", "gte"],
             "discount": ["exact", "lt", "lte", "gt", "gte"],
 
             "tax_rate": ["exact"],
