@@ -6,13 +6,28 @@ from django.core.exceptions import ValidationError
 from graphql import GraphQLError
 from policy.apps import PolicyConfig
 
-from core.gql.gql_mutations.base_mutation import BaseMutation
+from core.gql.gql_mutations.base_mutation import BaseMutation, BaseHistoryModelDeleteMutationMixin
 from core.schema import OpenIMISMutation
 from invoice.apps import InvoiceConfig
 from invoice.models import Invoice
 from invoice.services import InvoiceService
 
 logger = logging.getLogger(__name__)
+
+
+class DeleteInvoiceMutation(BaseHistoryModelDeleteMutationMixin, BaseMutation):
+    _mutation_class = "DeleteInvoiceMutation"
+    _mutation_module = "invoice"
+    _model = Invoice
+
+    @classmethod
+    def _validate_mutation(cls, user, **data):
+        if type(user) is AnonymousUser or not user.id or not user.has_perms(
+                InvoiceConfig.gql_invoice_delete_perms):
+            raise ValidationError("mutation.authentication_required")
+
+    class Input(OpenIMISMutation.Input):
+        uuids = graphene.List(graphene.UUID)
 
 
 class GenerateTimeframeInvoices(BaseMutation):
