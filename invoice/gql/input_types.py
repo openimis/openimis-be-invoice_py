@@ -10,6 +10,8 @@ class CreatePaymentInputType(OpenIMISMutation.Input):
     code_tp = graphene.String(required=False, max_length=32)
     code_receipt = graphene.String(required=False, max_length=32)
 
+    payment_origin = graphene.String(required=False, max_length=32)
+
     label = graphene.String(required=False, max_length=32)
 
     invoice_id = graphene.UUID(required=False)
@@ -45,6 +47,8 @@ class CreateBillPaymentInputType(OpenIMISMutation.Input):
     code_ext = graphene.String(required=False, max_length=32)
     code_tp = graphene.String(required=False, max_length=32)
     code_receipt = graphene.String(required=False, max_length=32)
+
+    payment_origin = graphene.String(required=False, max_length=32)
 
     label = graphene.String(required=False, max_length=32)
 
