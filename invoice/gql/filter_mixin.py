@@ -83,6 +83,9 @@ class GenericFilterGQLTypeMixin:
 
             "date_created": ["exact", "lt", "lte", "gt", "gte"],
             "date_updated": ["exact", "lt", "lte", "gt", "gte"],
+
+            "payment_origin": ["istartswith", "icontains", "iexact"],
+
             "is_deleted": ["exact"],
             "version": ["exact"],
         }
