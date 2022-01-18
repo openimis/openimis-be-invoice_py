@@ -1,8 +1,7 @@
 from django.core.exceptions import ValidationError
-from typing import Iterable, Union
 
-from invoice.models import InvoicePayment, Invoice
-from invoice.validation.base import BaseModelValidation, UniqueCodeValidationMixin, ObjectExistsValidationMixin
+from invoice.models import InvoicePayment
+from core.validation import BaseModelValidation, UniqueCodeValidationMixin, ObjectExistsValidationMixin
 from django.utils.translation import gettext as _
 
 from invoice.validation.paymentStatusValidation import InvoicePaymentReceiveStatusValidator, \

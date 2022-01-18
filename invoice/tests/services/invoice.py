@@ -1,47 +1,44 @@
 import json
-
-from django.db import transaction
-from policy.test_helpers import create_test_policy
-from policyholder.models import PolicyHolder
-from product.test_helpers import create_test_product
-
-from contract.models import Contract
-from core.forms import User
-from django.test import TestCase
-
-from invoice.models import Invoice, InvoiceLineItem, InvoicePayment
-from invoice.services.invoice import InvoiceService
-from contract.tests.helpers import create_test_contract
-from policyholder.tests.helpers import create_test_policy_holder
-from insuree.test_helpers import create_test_insuree
 from datetime import date, datetime, timedelta
 
+from django.db import transaction
+from django.test import TestCase
+
+from contract.models import Contract
+from contract.tests.helpers import create_test_contract
+from core.forms import User
+from insuree.test_helpers import create_test_insuree
+from invoice.models import Invoice, InvoiceLineItem, InvoicePayment
+from invoice.services import InvoiceService
 from invoice.tests.helpers import create_test_invoice_line_item
-from invoice.validation.base import TaxAnalysisFormatValidationMixin
-from invoice.validation.invoice import InvoiceItemStatus
+from invoice.validation import TaxAnalysisFormatValidationMixin, InvoiceItemStatus
+from policy.test_helpers import create_test_policy
+from policyholder.models import PolicyHolder
+from policyholder.tests.helpers import create_test_policy_holder
+from product.test_helpers import create_test_product
 
 
 class ServiceTestInvoice(TestCase):
     BASE_TEST_INVOICE_PAYLOAD = {
-            'subject_type': 'contract',
-            'subject_id': None,
-            'thirdparty_type': 'insuree',
-            'thirdparty_id': None,
-            'code': 'INVOICE_CODE',
-            'code_tp': 'INVOICE_CODE_TP',
-            'code_ext': 'INVOICE_CODE_EXT',
-            'date_due': date(2021, 9, 13),
-            'date_invoice': date(2021, 9, 11),
-            'date_payed':  date(2021, 9, 12),
-            'amount_discount': 20.1,
-            'amount_net': 20.1,
-            'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
-            'amount_total': 20.1,
-            'status': 0,  # Draft
-            'note': 'NOTE',
-            'terms': 'TERMS',
-            'payment_reference': 'payment reference'
-        }
+        'subject_type': 'contract',
+        'subject_id': None,
+        'thirdparty_type': 'insuree',
+        'thirdparty_id': None,
+        'code': 'INVOICE_CODE',
+        'code_tp': 'INVOICE_CODE_TP',
+        'code_ext': 'INVOICE_CODE_EXT',
+        'date_due': date(2021, 9, 13),
+        'date_invoice': date(2021, 9, 11),
+        'date_payed': date(2021, 9, 12),
+        'amount_discount': 20.1,
+        'amount_net': 20.1,
+        'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
+        'amount_total': 20.1,
+        'status': 0,  # Draft
+        'note': 'NOTE',
+        'terms': 'TERMS',
+        'payment_reference': 'payment reference'
+    }
 
     BASE_TEST_UPDATE_INVOICE_PAYLOAD = {
         'id': None,
@@ -69,7 +66,7 @@ class ServiceTestInvoice(TestCase):
         "detail": "",
         "data": {
             'subject_type': None,
-            'subject_id':  None,
+            'subject_id': None,
             'thirdparty_type': None,
             'thirdparty_id': None,
             'code': 'INVOICE_CODE',
@@ -77,7 +74,7 @@ class ServiceTestInvoice(TestCase):
             'code_ext': 'INVOICE_CODE_EXT',
             'date_due': '2021-09-13',
             'date_invoice': '2021-09-11',
-            'date_payed':  '2021-09-12',
+            'date_payed': '2021-09-12',
             'amount_discount': 20.1,
             'amount_net': 20.1,
             'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.01'}], 'total': '2.01'},
@@ -102,7 +99,7 @@ class ServiceTestInvoice(TestCase):
             'code_ext': 'INVOICE_CODE_EXT_2',
             'date_due': '2021-10-13',
             'date_invoice': '2021-10-11',
-            'date_payed':  '2021-10-12',
+            'date_payed': '2021-10-12',
             'amount_discount': 22.1,
             'amount_net': 22.1,
             'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '2.21'}], 'total': '2.21'},
@@ -119,9 +116,9 @@ class ServiceTestInvoice(TestCase):
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
 
-        InvoiceLineItem.objects\
+        InvoiceLineItem.objects \
             .filter(invoice__code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
-        InvoicePayment.objects\
+        InvoicePayment.objects \
             .filter(invoice__code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
         Invoice.objects.filter(code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
 

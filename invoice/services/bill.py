@@ -1,9 +1,9 @@
-from typing import Dict, Union, List
+from typing import Union, List
 
 from invoice.models import Bill, BillItem
-from invoice.services.base import BaseService
+from core.services import BaseService
 from invoice.services.billLineItem import BillLineItemService
-from invoice.services.service_utils import _get_generic_type
+from core.services.utils import get_generic_type
 from invoice.validation.bill import BillModelValidation, BillItemStatus
 from core.signals import *
 
@@ -71,9 +71,9 @@ class BillService(BaseService):
 
     def _evaluate_generic_types(self, bill_data):
         if 'subject_type' in bill_data.keys():
-            bill_data['subject_type'] = _get_generic_type(bill_data['subject_type'])
+            bill_data['subject_type'] = get_generic_type(bill_data['subject_type'])
 
         if 'thirdparty_type' in bill_data.keys():
-            bill_data['thirdparty_type'] = _get_generic_type(bill_data['thirdparty_type'])
+            bill_data['thirdparty_type'] = get_generic_type(bill_data['thirdparty_type'])
 
         return bill_data

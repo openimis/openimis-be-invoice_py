@@ -4,7 +4,7 @@ from typing import Union
 
 from core.models import HistoryBusinessModel, HistoryModel, BaseVersionedModel
 from invoice.models import Bill
-from invoice.validation.base import BaseInvoiceValidation
+from invoice.validation import BaseInvoiceValidation
 
 
 class BillItemStatus(Enum):
