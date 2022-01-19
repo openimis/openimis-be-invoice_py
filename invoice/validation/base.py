@@ -1,53 +1,9 @@
 from abc import ABC
 
-from core.models import HistoryModel
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
-from typing import Type
 
-from invoice.models import Invoice
-
-
-class BaseModelValidation(ABC):
-    """
-    Base validation class, by default all operations are unconditionally allowed.
-    Validation methods should raise ValidationError in case of any data inconsistencies.
-    """
-    @property
-    def OBJECT_TYPE(self) -> Type[HistoryModel]:
-        """
-        Django ORM model. It's expected that it'll be inheriting from HistoryModel.
-        """
-        raise NotImplementedError("Class has to define OBJECT_TYPE for service.")
-
-    @classmethod
-    def validate_create(cls, user, **data):
-        pass
-
-    @classmethod
-    def validate_update(cls, user, **data):
-        pass
-
-    @classmethod
-    def validate_delete(cls, user, **data):
-        pass
-
-
-class UniqueCodeValidationMixin:
-    CODE_DUPLICATE_MSG = _("Object code %(code)s is not unique.")
-
-    @classmethod
-    def validate_unique_code_name(cls, code, excluded_id=None, code_key='code'):
-        if not cls._unique_code_name(code, excluded_id, code_key=code_key):
-            raise ValidationError(cls.CODE_DUPLICATE_MSG % {'code': code})
-
-    @classmethod
-    def _unique_code_name(cls, code, excluded_id=None, code_key='code'):
-        query = cls.OBJECT_TYPE.objects.filter(**{code_key: code})
-        if excluded_id:
-            query = query.exclude(id=excluded_id)
-
-        return not query.exists()
+from core.validation import BaseModelValidation, UniqueCodeValidationMixin, ObjectExistsValidationMixin
 
 
 class TaxAnalysisFormatValidationMixin:
@@ -78,16 +34,6 @@ class TaxAnalysisFormatValidationMixin:
         if 'total' not in keys or 'lines' not in keys:
             return False
         return True
-
-
-class ObjectExistsValidationMixin:
-    INVALID_UPDATE_ID_MSG = _("Invoice for id  %(id)s does not exists")
-
-    @classmethod
-    def validate_object_exists(cls, id_):
-        existing = cls.OBJECT_TYPE.objects.filter(id=id_).first()
-        if not existing:
-            raise ValidationError(cls.INVALID_UPDATE_ID_MSG % {'id': id_})
 
 
 class BaseInvoiceValidation(BaseModelValidation, UniqueCodeValidationMixin,

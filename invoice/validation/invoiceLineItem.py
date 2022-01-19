@@ -1,5 +1,5 @@
 from invoice.models import InvoiceLineItem
-from invoice.validation.base import BaseModelValidation
+from core.validation import BaseModelValidation
 
 
 class InvoiceLineItemModelValidation(BaseModelValidation):

@@ -3,8 +3,8 @@ from json import JSONDecodeError
 import json
 
 from invoice.models import InvoiceLineItem
-from invoice.services.base import BaseService
-from invoice.services.service_utils import _get_generic_type
+from core.services import BaseService
+from core.services.utils import get_generic_type
 from invoice.validation.invoiceLineItem import InvoiceLineItemModelValidation
 
 import logging
@@ -27,7 +27,7 @@ class InvoiceLineItemService(BaseService):
 
     def _evaluate_generic_types(self, invoice_data):
         if 'line_type' in invoice_data.keys():
-            invoice_data['line_type'] = _get_generic_type(invoice_data['line_type'])
+            invoice_data['line_type'] = get_generic_type(invoice_data['line_type'])
         return invoice_data
 
     def _calculate_payload_values(self, invoice_data):
