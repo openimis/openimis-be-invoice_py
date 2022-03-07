@@ -28,6 +28,10 @@ class BillItemQueryMixin:
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
+        line_type = kwargs.get("line_type", None)
+        if line_type:
+            filters.append(Q(line_type__model=line_type))
+
         BillItemQueryMixin._check_permissions(info.context.user)
         return gql_optimizer.query(BillItem.objects.filter(*filters).all(), info)
 
