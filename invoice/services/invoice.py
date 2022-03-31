@@ -3,12 +3,12 @@ from typing import Union, List
 from invoice.models import Invoice, InvoiceLineItem
 from core.services import BaseService
 from core.services.utils import get_generic_type
+from invoice.services.invoiceLineItem import InvoiceLineItemService
 from invoice.validation.invoice import InvoiceModelValidation, InvoiceItemStatus
 from core.signals import *
 
 
 class InvoiceService(BaseService):
-
     OBJECT_TYPE = Invoice
 
     def __init__(self, user, validation_class: InvoiceModelValidation = InvoiceModelValidation):
@@ -57,3 +57,32 @@ class InvoiceService(BaseService):
             invoice_data['thirdparty_type'] = get_generic_type(invoice_data['thirdparty_type'])
 
         return invoice_data
+
+    @classmethod
+    @register_service_signal('signal_after_invoice_module_invoice_create_service')
+    def invoice_create(cls, **kwargs):
+        convert_results = kwargs.get('result', {})
+        if 'invoice_data' in convert_results and 'invoice_data_line' in convert_results:
+            user = convert_results['user']
+            # save in database this invoice and invoice line item
+            invoice_line_items = convert_results['invoice_data_line']
+            invoice_service = InvoiceService(user=user)
+            invoice_line_item_service = InvoiceLineItemService(user=user)
+            result_invoice = invoice_service.create(convert_results['invoice_data'])
+            if result_invoice["success"] is True:
+                invoice_update = {
+                    "id": result_invoice["data"]["id"],
+                    "amount_net": 0,
+                    "amount_total": 0,
+                    "amount_discount": 0
+                }
+                for invoice_line_item in invoice_line_items:
+                    invoice_line_item["invoice_id"] = result_invoice["data"]["id"]
+                    result_invoice_line = invoice_line_item_service.create(invoice_line_item)
+                    if result_invoice_line["success"] is True:
+                        invoice_update["amount_net"] += float(result_invoice_line["data"]["amount_net"])
+                        invoice_update["amount_total"] += float(result_invoice_line["data"]["amount_total"])
+                        invoice_update["amount_discount"] += 0 if result_invoice_line["data"]["discount"] else \
+                            result_invoice_line["data"]["discount"]
+                generated_invoice = invoice_service.update(invoice_update)
+                return generated_invoice
