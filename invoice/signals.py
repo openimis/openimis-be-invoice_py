@@ -2,8 +2,7 @@ from core.signals import bind_service_signal
 from core.service_signals import ServiceSignalBindType
 from django.contrib.contenttypes.models import ContentType
 from invoice.models import InvoiceLineItem
-from invoice.services import InvoiceService, InvoiceLineItemService, \
-    BillService
+from invoice.services import InvoiceService
 
 
 def bind_service_signals():
@@ -29,26 +28,4 @@ def check_invoice_exist(**kwargs):
 
 
 def save_invoice_in_db(**kwargs):
-    convert_results = kwargs.get('result', {})
-    if 'invoice_data' in convert_results and 'invoice_data_line' in convert_results:
-        user = convert_results['user']
-        # save in database this invoice and invoice line item
-        invoice_line_items = convert_results['invoice_data_line']
-        invoice_service = InvoiceService(user=user)
-        invoice_line_item_service = InvoiceLineItemService(user=user)
-        result_invoice = invoice_service.create(convert_results['invoice_data'])
-        if result_invoice["success"] is True:
-            invoice_update = {
-                "id": result_invoice["data"]["id"],
-                "amount_net": 0,
-                "amount_total": 0,
-                "amount_discount": 0
-            }
-            for invoice_line_item in invoice_line_items:
-                invoice_line_item["invoice_id"] = result_invoice["data"]["id"]
-                result_invoice_line = invoice_line_item_service.create(invoice_line_item)
-                if result_invoice_line["success"] is True:
-                    invoice_update["amount_net"] += float(result_invoice_line["data"]["amount_net"])
-                    invoice_update["amount_total"] += float(result_invoice_line["data"]["amount_total"])
-                    invoice_update["amount_discount"] += 0 if result_invoice_line["data"]["discount"] else result_invoice_line["data"]["discount"]
-            invoice_service.update(invoice_update)
+    InvoiceService.invoice_create(**kwargs)
