@@ -3,6 +3,7 @@ import json
 
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
+from unittest import skip
 from policy.test_helpers import create_test_policy
 from policyholder.models import PolicyHolder
 from product.test_helpers import create_test_product
@@ -96,6 +97,7 @@ class ServiceTestInvoicePayments(TestCase):
 
         super().tearDownClass()
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_ref_received(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD.copy()
@@ -110,6 +112,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_valid(out, payment, expected)
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_received(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
@@ -117,6 +120,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_valid(out, payment, self.BASE_EXPECTED_SUCCESS_RESPONSE.copy())
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_received_invalid_amount(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD.copy()
@@ -129,6 +133,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_invalid(out, message, detail)
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_received_invalid_invoice_status(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD.copy()
@@ -143,6 +148,7 @@ class ServiceTestInvoicePayments(TestCase):
             payment.invoice.status = Invoice.Status.VALIDATED
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_received_invalid_payment_status(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD.copy()
@@ -156,6 +162,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_invalid(out, message, detail)
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_refunded(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
@@ -170,6 +177,7 @@ class ServiceTestInvoicePayments(TestCase):
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
             self.invoice.status = Invoice.Status.VALIDATED
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_refunded_invalid_invoice_status(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
@@ -185,6 +193,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_invalid(out, message, detail)
             self.invoice.status = Invoice.Status.VALIDATED
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_refunded_invalid_payment_status(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
@@ -198,6 +207,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_invalid(out, message, detail)
             self.invoice.status = Invoice.Status.VALIDATED
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_cancel_invalid_invoice_status(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
@@ -213,6 +223,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_invalid(out, message, detail)
             self.invoice.status = Invoice.Status.VALIDATED
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_cancel_invalid_payment_status(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
@@ -226,6 +237,7 @@ class ServiceTestInvoicePayments(TestCase):
             self._assert_output_invalid(out, message, detail)
             self.invoice.status = Invoice.Status.VALIDATED
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_payment_cancelled(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)

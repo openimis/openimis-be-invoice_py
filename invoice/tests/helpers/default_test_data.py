@@ -1,6 +1,7 @@
 from datetime import date
 
-from invoice.models import Invoice, InvoicePayment, Bill, BillPayment
+from invoice.models import Invoice, InvoicePayment, Bill, BillPayment, PaymentInvoice, DetailPaymentInvoice
+
 
 DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD = {
         'code': 'LineItem1',
@@ -15,6 +16,7 @@ DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD = {
         'amount_net': 10*10.5-15.5,
         'amount_total': (10*10.5-15.5) + 2.0
     }
+
 
 DEFAULT_TEST_INVOICE_PAYLOAD = {
     'subject_type': 'contract',
@@ -50,6 +52,7 @@ DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD = {
     'status': InvoicePayment.PaymentStatus.ACCEPTED
 }
 
+
 DEFAULT_TEST_BILL_PAYLOAD = {
     'subject_type': 'contract',
     'subject_id': None,
@@ -71,6 +74,7 @@ DEFAULT_TEST_BILL_PAYLOAD = {
     'payment_reference': 'payment reference'
 }
 
+
 DEFAULT_TEST_BILL_PAYMENT_PAYLOAD = {
     'label': 'label_pay',
     'code_tp': 'pay_sys_ref',
@@ -82,6 +86,7 @@ DEFAULT_TEST_BILL_PAYMENT_PAYLOAD = {
     'date_payment': date(2021, 10, 10),
     'status': BillPayment.PaymentStatus.ACCEPTED
 }
+
 
 DEFAULT_TEST_BILL_LINE_ITEM_PAYLOAD = {
         'code': 'LineItem1',
@@ -96,3 +101,30 @@ DEFAULT_TEST_BILL_LINE_ITEM_PAYLOAD = {
         'amount_net': 10*10.5-15.5,
         'amount_total': (10*10.5-15.5) + 2.0
     }
+
+
+DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD = {
+    'code_tp': 'PAY_CODE',
+    'code_ext': 'PAY_CODE_EXT',
+    'code_receipt': 'PAY_CODE_RCP',
+    'label': 'test label',
+    'reconciliation_status': PaymentInvoice.ReconciliationStatus.ACCEPTED,
+    'fees': 12.0,
+    'amount_received': 91.50,
+    'date_payment': date(2022, 4, 11),
+    'payment_origin': 'payment origin',
+    'payer_ref': 'payment reference',
+    'payer_name': 'payer name'
+}
+
+
+DEFAULT_TEST_DETAIL_PAYMENT_INVOICE_PAYLOAD = {
+    'payment_id': None,
+    'subject_type': 'invoice',
+    'subject_id': None,
+    'status': DetailPaymentInvoice.DetailPaymentStatus.ACCEPTED,
+    'fees': 12.0,
+    'amount': 91.50,
+    'reconcilation_id': 'RECONCID',
+    'reconcilation_date': date(2022, 4, 11),
+}
