@@ -7,5 +7,6 @@ from .bill_payment_helpers import DEFAULT_TEST_BILL_PAYMENT_PAYLOAD, create_test
 from .payment_invoice_helpers import (
     DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD,
     DEFAULT_TEST_DETAIL_PAYMENT_INVOICE_PAYLOAD,
+    create_test_payment_invoice_without_details,
     create_test_payment_invoice_with_details
 )

@@ -7,6 +7,20 @@ from invoice.tests.helpers.default_test_data import DEFAULT_TEST_PAYMENT_INVOICE
     DEFAULT_TEST_DETAIL_PAYMENT_INVOICE_PAYLOAD
 
 
+def create_test_payment_invoice_without_details(invoice=None, user=None, **custom_props):
+    invoice = invoice or create_test_invoice()
+    invoice_item = create_test_invoice_line_item(invoice=invoice)
+    user = user or __get_or_create_user()
+
+    payload = DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD.copy()
+    payload.update(**custom_props)
+
+    payment = PaymentInvoice(**payload)
+    payment.save(username=user.username)
+
+    return payment, invoice, invoice_item
+
+
 def create_test_payment_invoice_with_details(invoice=None, user=None, **custom_props):
     invoice = invoice or create_test_invoice()
     create_test_invoice_line_item(invoice=invoice)
