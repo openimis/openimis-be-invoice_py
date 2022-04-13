@@ -303,8 +303,8 @@ class BillEventMutation(UUIDModel, ObjectMutation):
 # new approach for payment tables: 'PaymentInvoice' and 'DetailPaymentInvoice'
 class PaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
     class ReconciliationStatus(models.IntegerChoices):
-        REJECTED = 0, _('rejected')
-        ACCEPTED = 1, _('accepted')
+        NOT_RECONCILIATED = 0, _('not reconciliated')
+        RECONCILIATED = 1, _('reconciliated')
         REFUNDED = 2, _('refunded')
         CANCELLED = 3, _('cancelled')
 
@@ -361,3 +361,21 @@ class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
     class Meta:
         managed = True
         db_table = "tblDetailPaymentInvoice"
+
+
+class PaymentInvoiceMutation(UUIDModel, ObjectMutation):
+    payment_invoice = models.ForeignKey(PaymentInvoice, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='payment_invoices')
+
+    class Meta:
+        managed = True
+        db_table = "paymentinvoice_PaymentInvoiceMutation"
+
+
+class DetailPaymentInvoiceMutation(UUIDModel, ObjectMutation):
+    detail_payment_invoice = models.ForeignKey(DetailPaymentInvoice, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='detail_payment_invoices')
+
+    class Meta:
+        managed = True
+        db_table = "paymentinvoice_DetailPaymentInvoiceMutation"

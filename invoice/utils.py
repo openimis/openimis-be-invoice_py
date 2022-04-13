@@ -25,17 +25,11 @@ def underscore_to_camel(name):
 
 def resolve_payment_details(payment_invoice):
     invoice_list = _retrieve_list_of_invoices_bills(payment_invoice, Invoice)
-
     invoice_line_item_list = _retrieve_list_of_invoices_bills(payment_invoice, InvoiceLineItem)
-
     invoices = Invoice.objects.filter(Q(id__in=invoice_list) | Q(line_items__id__in=invoice_line_item_list))
-
     bill_list = _retrieve_list_of_invoices_bills(payment_invoice, Bill)
-
     bill_line_item_list = _retrieve_list_of_invoices_bills(payment_invoice, BillItem)
-
     bills = Bill.objects.filter(Q(id__in=bill_list) | Q(line_items_bill__id__in=bill_line_item_list))
-
     return invoices, bills
 
 

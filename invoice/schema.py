@@ -4,14 +4,42 @@ from core.schema import signal_mutation_module_validate
 from invoice.gql import query_mixins
 from invoice.gql.invoice import DeleteInvoiceMutation, GenerateTimeframeInvoices
 from invoice.gql.invoice_event.mutation import CreateInvoiceEventMutation
-from invoice.gql.invoice_payment.mutation import CreateInvoicePaymentMutation, UpdateInvoicePaymentMutation, \
+from invoice.gql.invoice_payment.mutation import (
+    CreateInvoicePaymentMutation,
+    UpdateInvoicePaymentMutation,
     DeleteInvoicePaymentMutation
+)
 from invoice.gql.bill.mutation import DeleteBillMutation
 from invoice.gql.bill_event.mutation import CreateBillEventMutation
-from invoice.gql.bill_payment.mutation import CreateBillPaymentMutation, UpdateBillPaymentMutation, \
+from invoice.gql.bill_payment.mutation import (
+    CreateBillPaymentMutation,
+    UpdateBillPaymentMutation,
     DeleteBillPaymentMutation
-from invoice.models import InvoicePayment, InvoicePaymentMutation, InvoiceEventMutation, InvoiceEvent, \
-    BillPayment, BillPaymentMutation, BillEventMutation, BillEvent
+)
+from invoice.gql.payment_invoice.mutation import (
+    CreatePaymentInvoiceMutation,
+    UpdatePaymentInvoiceMutation,
+    DeletePaymentInvoiceMutation
+)
+from invoice.gql.detail_payment_invoice.mutation import (
+    CreateDetailPaymentInvoiceMutation,
+    UpdateDetailPaymentInvoiceMutation,
+    DeleteDetailPaymentInvoiceMutation
+)
+from invoice.models import (
+    InvoicePayment,
+    InvoicePaymentMutation,
+    InvoiceEventMutation,
+    InvoiceEvent,
+    BillPayment,
+    BillPaymentMutation,
+    BillEventMutation,
+    BillEvent,
+    PaymentInvoice,
+    DetailPaymentInvoice,
+    PaymentInvoiceMutation,
+    DetailPaymentInvoiceMutation,
+)
 
 
 class Query(
@@ -23,6 +51,8 @@ class Query(
     query_mixins.BillItemQueryMixin,
     query_mixins.BillPaymentQueryMixin,
     query_mixins.BillEventQueryMixin,
+    query_mixins.PaymentInvoiceQueryMixin,
+    query_mixins.DetailPaymentInvoiceQueryMixin,
     graphene.ObjectType
 ):
     pass
@@ -44,6 +74,14 @@ class Mutation(graphene.ObjectType):
     update_bill_payment = UpdateBillPaymentMutation.Field()
     delete_bill_payment = DeleteBillPaymentMutation.Field()
     create_bill_event_type = CreateBillEventMutation.Field()
+
+    # payment mutations
+    create_payment_invoice = CreatePaymentInvoiceMutation.Field()
+    update_payment_invoice = UpdatePaymentInvoiceMutation.Field()
+    delete_payment_invoice = DeletePaymentInvoiceMutation.Field()
+    create_detail_payment_invoice = CreateDetailPaymentInvoiceMutation.Field()
+    update_detail_payment_invoice = UpdateDetailPaymentInvoiceMutation.Field()
+    delete_detail_payment_invoice = DeleteDetailPaymentInvoiceMutation.Field()
 
 
 def _on_mutation_log(mutation_model, model, obj_type, sender, **kwargs):
@@ -83,5 +121,19 @@ def on_bill_payment_mutation(sender, **kwargs):
     return []
 
 
+def on_payment_invoice_mutation(sender, **kwargs):
+    if kwargs.get('mutation_class', None) \
+            in ('CreatePaymentInvoiceMutation', 'UpdatePaymentInvoiceMutation', 'DeletePaymentInvoiceMutation'):
+        return _on_mutation_log(PaymentInvoiceMutation, PaymentInvoice, 'payment_invoice', sender, **kwargs)
+
+    if kwargs.get('mutation_class', None) \
+            in ('CreateDetailPaymentInvoiceMutation', 'UpdateDetailPaymentInvoiceMutation',
+                'DeleteDetailPaymentInvoiceMutation'):
+        return _on_mutation_log(DetailPaymentInvoiceMutation, DetailPaymentInvoice, 'detail_payment_invoice', sender, **kwargs)
+
+    return []
+
+
 signal_mutation_module_validate["invoice"].connect(on_invoice_payment_mutation)
 signal_mutation_module_validate["invoice"].connect(on_bill_payment_mutation)
+signal_mutation_module_validate["invoice"].connect(on_payment_invoice_mutation)

@@ -1,5 +1,7 @@
 import uuid
 
+from unittest import skip
+
 from core.models import MutationLog
 from invoice.models import InvoicePayment, InvoicePaymentMutation
 from invoice.tests.gql.base import InvoiceGQLTestCase
@@ -58,6 +60,7 @@ mutation {{
 }}
 '''
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_fetch_invoice_query(self):
         output = self.graph_client.execute(self.search_for_invoice_payment_query,
                                            context=self.BaseTestContext(self.user))
@@ -76,6 +79,7 @@ mutation {{
         }}]}}}
         self.assertEqual(output, expected)
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_create_payment_mutation(self):
         payment_code = "GQLCOD"
         mutation_client_id = str(uuid.uuid4())
@@ -88,6 +92,7 @@ mutation {{
         obj = InvoicePaymentMutation.objects.get(mutation_id=mutation_log.id).invoice_payment
         self.assertEqual(obj, expected)
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_delete_payment_mutation(self):
         payment_code = "GQLCOD"
         mutation_client_id = str(uuid.uuid4())
@@ -106,6 +111,7 @@ mutation {{
         self.assertTrue(payment[0].is_deleted)
         self.assertTrue(len(mutation_) == 2)
 
+    @skip("This is related to old payment approach model - depreceated")
     def test_update_payment_mutation(self):
         payment_code = "GQLCOD"
         mutation_client_id = str(uuid.uuid4())

@@ -10,6 +10,7 @@ from invoice.models import Bill, \
     BillItem, BillEvent, BillPayment
 from invoice.utils import underscore_to_camel
 from location.models import Location
+from product.models import Product
 
 
 class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
@@ -51,6 +52,19 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
                 new_key = underscore_to_camel(k)
                 location_dict[new_key] = v
             subject_object_dict["location"] = location_dict
+
+        # when we have family - we need for contribution nested head insuree data
+        if root.subject_type.name == "policy":
+            pass
+            product = Product.objects.filter(id=subject_object_dict['productId'], validity_to__isnull=True)
+            product = product.values('name')
+            product_dict = product.first()
+            key_values = list(product_dict.items())
+            product_dict.clear()
+            for k, v in key_values:
+                new_key = underscore_to_camel(k)
+                product_dict[new_key] = v
+            subject_object_dict["product"] = product_dict
 
         subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
         return subject_object_dict
