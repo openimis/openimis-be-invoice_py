@@ -15,6 +15,7 @@ class PaymentInvoiceQueryMixin:
     payment_invoice = OrderedDjangoFilterConnectionField(
         PaymentInvoiceGQLType,
         orderBy=graphene.List(of_type=graphene.String),
+        subjectIds=graphene.List(of_type=graphene.UUID),
         dateValidFrom__Gte=graphene.DateTime(),
         dateValidTo__Lte=graphene.DateTime(),
         applyDefaultValidityFilter=graphene.Boolean(),
@@ -25,12 +26,20 @@ class PaymentInvoiceQueryMixin:
         filters = []
         filters += append_validity_filter(**kwargs)
 
+        query = PaymentInvoice.objects
+
+        subject_ids = kwargs.get('subjectIds', None)
+        if subject_ids:
+            query = query.filter(
+                invoice_payments__subject_id__in=subject_ids
+            ).distinct()
+
         client_mutation_id = kwargs.get("client_mutation_id", None)
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
         PaymentInvoiceQueryMixin._check_permissions(info.context.user)
-        return gql_optimizer.query(PaymentInvoice.objects.filter(*filters).all(), info)
+        return gql_optimizer.query(query.filter(*filters).all(), info)
 
     @staticmethod
     def _check_permissions(user):
