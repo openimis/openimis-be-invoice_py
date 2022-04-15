@@ -18,6 +18,7 @@ from invoice.gql.bill_payment.mutation import (
 )
 from invoice.gql.payment_invoice.mutation import (
     CreatePaymentInvoiceMutation,
+    CreatePaymentInvoiceWithDetailMutation,
     UpdatePaymentInvoiceMutation,
     DeletePaymentInvoiceMutation
 )
@@ -77,6 +78,7 @@ class Mutation(graphene.ObjectType):
 
     # payment mutations
     create_payment_invoice = CreatePaymentInvoiceMutation.Field()
+    create_payment_with_detail_invoice = CreatePaymentInvoiceWithDetailMutation.Field()
     update_payment_invoice = UpdatePaymentInvoiceMutation.Field()
     delete_payment_invoice = DeletePaymentInvoiceMutation.Field()
     create_detail_payment_invoice = CreateDetailPaymentInvoiceMutation.Field()
@@ -123,7 +125,8 @@ def on_bill_payment_mutation(sender, **kwargs):
 
 def on_payment_invoice_mutation(sender, **kwargs):
     if kwargs.get('mutation_class', None) \
-            in ('CreatePaymentInvoiceMutation', 'UpdatePaymentInvoiceMutation', 'DeletePaymentInvoiceMutation'):
+            in ('CreatePaymentInvoiceMutation', 'UpdatePaymentInvoiceMutation', 'DeletePaymentInvoiceMutation',
+                'CreatePaymentInvoiceWithDetailMutation'):
         return _on_mutation_log(PaymentInvoiceMutation, PaymentInvoice, 'payment_invoice', sender, **kwargs)
 
     if kwargs.get('mutation_class', None) \

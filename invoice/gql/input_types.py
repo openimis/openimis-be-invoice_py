@@ -103,6 +103,12 @@ class CreatePaymentInvoiceInputType(OpenIMISMutation.Input):
     json_ext = graphene.types.json.JSONString(required=False)
 
 
+class CreatePaymentInvoiceWithDetailInputType(CreatePaymentInvoiceInputType):
+    status = graphene.Int(required=True)
+    subject_id = graphene.UUID(required=True)
+    subject_type = graphene.String(required=True, max_length=32)
+
+
 class UpdatePaymentInvoiceInputType(CreatePaymentInvoiceInputType):
     id = graphene.UUID(required=True)
 

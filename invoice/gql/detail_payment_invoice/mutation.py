@@ -27,9 +27,7 @@ class CreateDetailPaymentInvoiceMutation(BaseHistoryModelCreateMutationMixin, Ba
             data.pop('client_mutation_id')
         if "client_mutation_label" in data:
             data.pop('client_mutation_label')
-        if "subject_type" in data:
-            subject_type = data.pop('subject_type')
-            data['subject_type'] = ContentType.objects.get(model=subject_type)
+        data = cls._convert_content_type(data=data)
         detail_payment_invoice = cls.create_object(user=user, object_data=data)
         if detail_payment_invoice:
             DetailPaymentInvoiceMutation.object_mutated(
@@ -37,6 +35,13 @@ class CreateDetailPaymentInvoiceMutation(BaseHistoryModelCreateMutationMixin, Ba
                 client_mutation_id=client_mutation_id,
                 detail_payment_invoice=detail_payment_invoice
             )
+
+    @classmethod
+    def _convert_content_type(cls, data):
+        if "subject_type" in data:
+            subject_type = data.pop('subject_type')
+            data['subject_type'] = ContentType.objects.get(model=subject_type)
+        return data
 
     @classmethod
     def _validate_mutation(cls, user, **data):
