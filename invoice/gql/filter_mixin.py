@@ -125,6 +125,9 @@ class GenericFilterGQLTypeMixin:
             "date_created": ["exact", "lt", "lte", "gt", "gte"],
             "date_updated": ["exact", "lt", "lte", "gt", "gte"],
 
+            "payer_ref": ["istartswith", "icontains", "iexact"],
+            "payer_name": ["istartswith", "icontains", "iexact"],
+
             "is_deleted": ["exact"],
             "version": ["exact"],
         }
