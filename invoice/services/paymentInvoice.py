@@ -76,21 +76,12 @@ class PaymentInvoiceService(BaseService):
     def _update_all_dependencies_for_payment(self, payment_invoice, payment_status, invoice_status):
         invoices, bills = resolve_payment_details(payment_invoice)
         payment_details = payment_invoice.invoice_payments.all()
-        for pd in payment_details:
-            if pd.status != payment_status:
-                self._update_payment_status(pd, payment_status)
-                pd.save(username=self.user.username)
-        for invoice in invoices:
-            if invoice.status != invoice_status:
-                self._update_invoice_status(invoice, invoice_status)
-                invoice.save(username=self.user.username)
-        for bill in bills:
-            if bill.status != invoice_status:
-                self._update_invoice_status(bill, invoice_status)
-                bill.save(username=self.user.username)
+        self._update_detail(payment_details, payment_status)
+        self._update_detail(invoices, invoice_status)
+        self._update_detail(bills, invoice_status)
 
-    def _update_payment_status(self, detail_invoice_payment: DetailPaymentInvoice, status: DetailPaymentInvoice.DetailPaymentStatus):
-        detail_invoice_payment.status = status
-
-    def _update_invoice_status(self, invoice_payment, status):
-        invoice_payment.status = status
+    def _update_detail(self, detail_collection, status):
+        for detail in detail_collection:
+            if detail.status != status:
+                detail.status = status
+                detail.save(username=self.user.username)

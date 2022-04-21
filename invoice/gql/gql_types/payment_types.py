@@ -40,11 +40,9 @@ class DetailPaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject(root, info):
         subject_object_dict = root.subject.__dict__
         subject_object_dict.pop('_state')
-        key_values = list(subject_object_dict.items())
-        subject_object_dict.clear()
-        for k, v in key_values:
-            new_key = underscore_to_camel(k)
-            subject_object_dict[new_key] = v
+        subject_object_dict = {
+            underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
+        }
         subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
         return subject_object_dict
 
