@@ -298,3 +298,84 @@ class BillEventMutation(UUIDModel, ObjectMutation):
     class Meta:
         managed = True
         db_table = "bill_BillEventMutation"
+
+
+# new approach for payment tables: 'PaymentInvoice' and 'DetailPaymentInvoice'
+class PaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
+    class ReconciliationStatus(models.IntegerChoices):
+        NOT_RECONCILIATED = 0, _('not reconciliated')
+        RECONCILIATED = 1, _('reconciliated')
+        REFUNDED = 2, _('refunded')
+        CANCELLED = 3, _('cancelled')
+
+    code_tp = models.CharField(db_column='CodeTp', max_length=255, null=True)
+    code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
+    code_receipt = models.CharField(db_column='CodeReceipt', max_length=255, null=True)
+
+    label = models.CharField(db_column='Label', max_length=255, null=True)
+
+    reconciliation_status = models.SmallIntegerField(db_column='ReconciliationStatus', null=False,
+                                                     choices=ReconciliationStatus.choices)
+
+    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2, null=True)
+    amount_received = models.DecimalField(db_column='AmountReceived', max_digits=18, decimal_places=2, null=True)
+
+    date_payment = DateField(db_column='DatePayment', null=True)
+
+    payment_origin = models.CharField(db_column='PaymentOrigin', max_length=255, null=True)
+
+    payer_ref = models.CharField(db_column='PayerRef', max_length=255)
+    payer_name = models.CharField(db_column='PayerName', max_length=255, null=True)
+
+    objects = GenericInvoiceManager()
+
+    class Meta:
+        managed = True
+        db_table = "tblPaymentInvoice"
+
+
+class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
+    class DetailPaymentStatus(models.IntegerChoices):
+        REJECTED = 0, _('rejected')
+        ACCEPTED = 1, _('accepted')
+        REFUNDED = 2, _('refunded')
+        CANCELLED = 3, _('cancelled')
+
+    payment = models.ForeignKey(PaymentInvoice, models.DO_NOTHING,
+                                db_column='PaymentUUID', related_name="invoice_payments")
+
+    subject_type = models.ForeignKey(ContentType, models.DO_NOTHING, db_column='SubjectType',
+                                     related_name='subject_type_payment', null=True, unique=False)
+    subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)
+    subject = GenericForeignKey('subject_type', 'subject_id')
+
+    status = models.SmallIntegerField(db_column='Status', null=False, choices=DetailPaymentStatus.choices)
+    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2, null=True)
+    amount = models.DecimalField(db_column='Amount', max_digits=18, decimal_places=2, null=True)
+
+    reconcilation_id = models.CharField(db_column='ReconcilationId', max_length=255, null=True)
+    reconcilation_date = models.DateField(db_column='ReconcilationDate', null=True)
+
+    objects = GenericInvoiceManager()
+
+    class Meta:
+        managed = True
+        db_table = "tblDetailPaymentInvoice"
+
+
+class PaymentInvoiceMutation(UUIDModel, ObjectMutation):
+    payment_invoice = models.ForeignKey(PaymentInvoice, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='payment_invoices')
+
+    class Meta:
+        managed = True
+        db_table = "paymentinvoice_PaymentInvoiceMutation"
+
+
+class DetailPaymentInvoiceMutation(UUIDModel, ObjectMutation):
+    detail_payment_invoice = models.ForeignKey(DetailPaymentInvoice, models.DO_NOTHING, related_name='mutations')
+    mutation = models.ForeignKey(MutationLog, models.DO_NOTHING, related_name='detail_payment_invoices')
+
+    class Meta:
+        managed = True
+        db_table = "paymentinvoice_DetailPaymentInvoiceMutation"

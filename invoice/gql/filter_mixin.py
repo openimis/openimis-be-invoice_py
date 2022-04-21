@@ -102,3 +102,53 @@ class GenericFilterGQLTypeMixin:
             "is_deleted": ["exact"],
             "version": ["exact"],
         }
+
+    @classmethod
+    def get_base_filters_payment_invoice(cls):
+        return {
+            "id": ["exact"],
+            "code_tp": ["istartswith", "icontains", "iexact"],
+            "code_ext": ["istartswith", "icontains", "iexact"],
+            "code_receipt": ["istartswith", "icontains", "iexact"],
+
+            "label": ["istartswith", "iexact"],
+
+            "reconciliation_status": ["exact"],
+
+            "fees": ["exact", "lt", "lte", "gt", "gte"],
+            "amount_received": ["exact", "lt", "lte", "gt", "gte"],
+
+            "date_payment": ["exact", "lt", "lte", "gt", "gte"],
+
+            "payment_origin": ["istartswith", "icontains", "iexact"],
+
+            "date_created": ["exact", "lt", "lte", "gt", "gte"],
+            "date_updated": ["exact", "lt", "lte", "gt", "gte"],
+
+            "payer_ref": ["istartswith", "icontains", "iexact"],
+            "payer_name": ["istartswith", "icontains", "iexact"],
+
+            "is_deleted": ["exact"],
+            "version": ["exact"],
+        }
+
+    @classmethod
+    def get_base_filters_detail_invoice_payment(cls):
+        return {
+            "id": ["exact"],
+            "subject_id": ["exact"],
+            "subject_type": ["exact"],
+
+            "status": ["exact"],
+            "fees": ["exact", "lt", "lte", "gt", "gte"],
+            "amount": ["exact", "lt", "lte", "gt", "gte"],
+
+            "reconcilation_id": ["istartswith", "icontains", "iexact"],
+            "reconcilation_date": ["exact", "lt", "lte", "gt", "gte"],
+
+            "date_created": ["exact", "lt", "lte", "gt", "gte"],
+            "date_updated": ["exact", "lt", "lte", "gt", "gte"],
+
+            "is_deleted": ["exact"],
+            "version": ["exact"],
+        }

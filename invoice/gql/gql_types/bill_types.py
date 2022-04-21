@@ -10,6 +10,7 @@ from invoice.models import Bill, \
     BillItem, BillEvent, BillPayment
 from invoice.utils import underscore_to_camel
 from location.models import Location
+from product.models import Product
 
 
 class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
@@ -34,24 +35,15 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_subject(root, info):
         subject_object_dict = root.subject.__dict__
         subject_object_dict.pop('_state')
-        key_values = list(subject_object_dict.items())
-        subject_object_dict.clear()
-        for k, v in key_values:
-            new_key = underscore_to_camel(k)
-            subject_object_dict[new_key] = v
-
-        # when we have family - we need for contribution nested head insuree data
+        subject_object_dict = {
+            underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
+        }
         if root.subject_type.name == "batch run":
             location = Location.objects.filter(id=subject_object_dict['locationId'], validity_to__isnull=True)
             location = location.values('code', 'name')
-            location_dict = location.first()
-            key_values = list(location_dict.items())
-            location_dict.clear()
-            for k, v in key_values:
-                new_key = underscore_to_camel(k)
-                location_dict[new_key] = v
-            subject_object_dict["location"] = location_dict
-
+            subject_object_dict['location'] = {
+                underscore_to_camel(k): v for k, v in location.first().items()
+            }
         subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
         return subject_object_dict
 
@@ -59,11 +51,9 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
     def resolve_thirdparty(root, info):
         thirdparty_object_dict = root.thirdparty.__dict__
         thirdparty_object_dict.pop('_state')
-        key_values = list(thirdparty_object_dict.items())
-        thirdparty_object_dict.clear()
-        for k, v in key_values:
-            new_key = underscore_to_camel(k)
-            thirdparty_object_dict[new_key] = v
+        thirdparty_object_dict = {
+            underscore_to_camel(k): v for k, v in list(thirdparty_object_dict.items())
+        }
         thirdparty_object_dict = json.dumps(thirdparty_object_dict, cls=DjangoJSONEncoder)
         return thirdparty_object_dict
 

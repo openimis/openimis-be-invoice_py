@@ -77,3 +77,57 @@ class CreateBillEventType(OpenIMISMutation.Input):
 
 class UpdateBillEventType(CreateBillEventType):
     id = graphene.UUID(required=True)
+
+
+class CreatePaymentInvoiceInputType(OpenIMISMutation.Input):
+    reconciliation_status = graphene.Int(required=False)
+
+    code_ext = graphene.String(required=False, max_length=32)
+    code_tp = graphene.String(required=False, max_length=32)
+    code_receipt = graphene.String(required=False, max_length=32)
+
+    label = graphene.String(required=False, max_length=32)
+
+    fees = graphene.Decimal(max_digits=18, decimal_places=2, required=False)
+    amount_received = graphene.Decimal(max_digits=18, decimal_places=2, required=False)
+
+    date_payment = graphene.Date(required=False)
+
+    payment_origin = graphene.String(required=False, max_length=32)
+
+    payer_ref = graphene.String(required=True, max_length=32)
+    payer_name = graphene.String(required=False, max_length=32)
+
+    date_valid_from = graphene.Date(required=False)
+    date_valid_to = graphene.Date(required=False)
+    json_ext = graphene.types.json.JSONString(required=False)
+
+
+class CreatePaymentInvoiceWithDetailInputType(CreatePaymentInvoiceInputType):
+    status = graphene.Int(required=True)
+    subject_id = graphene.UUID(required=True)
+    subject_type = graphene.String(required=True, max_length=32)
+
+
+class UpdatePaymentInvoiceInputType(CreatePaymentInvoiceInputType):
+    id = graphene.UUID(required=True)
+
+
+class CreateDetailPaymentInvoiceInputType(OpenIMISMutation.Input):
+    status = graphene.Int(required=False)
+
+    payment_id = graphene.UUID(required=False)
+
+    subject_id = graphene.UUID(required=False)
+    subject_type = graphene.String(required=False, max_length=32)
+
+    fees = graphene.Decimal(max_digits=18, decimal_places=2, required=False)
+    amount = graphene.Decimal(max_digits=18, decimal_places=2, required=False)
+
+    date_valid_from = graphene.Date(required=False)
+    date_valid_to = graphene.Date(required=False)
+    json_ext = graphene.types.json.JSONString(required=False)
+
+
+class UpdateDetailPaymentInvoiceInputType(CreateDetailPaymentInvoiceInputType):
+    id = graphene.UUID(required=True)
