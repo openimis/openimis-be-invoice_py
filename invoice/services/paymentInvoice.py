@@ -111,19 +111,6 @@ class PaymentInvoiceService(BaseService):
                 detail.save(username=self.user.username)
 
     @classmethod
-    def _get_field_for_detail(cls, data):
-        status = data.pop('status')
-        subject_id = data.pop('subject_id')
-        subject_type = data.pop('subject_type')
-        return status, subject_id, subject_type
-
-    @classmethod
-    def _create_payment_detail(cls, user, data, payment, status, subject_id, subject_type):
-        payment_detail = cls._build_payment_detail(data, payment, status, subject_id, subject_type)
-        detail_payment_invoice = DetailPaymentInvoice(**payment_detail)
-        detail_payment_invoice.save(username=user.username)
-
-    @classmethod
     def _get_generic_object(cls, uuid, type):
         if type.model == 'invoice':
             object = Invoice.objects.get(id=uuid)
