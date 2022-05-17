@@ -40,6 +40,8 @@ class PaymentInvoiceService(BaseService):
                     payment_detail.subject_id,
                     payment_detail.subject_type
                 )
+                if 'reconciliation' in payment_invoice['json_ext']:
+                    payment_detail.reconcilation_id = payment_invoice['json_ext']['reconciliation']['id']
                 payment_detail.save(username=self.user.username)
                 dict_repr = model_representation(payment)
                 dict_repr['payment_detail_uuid'] = payment_detail.uuid
