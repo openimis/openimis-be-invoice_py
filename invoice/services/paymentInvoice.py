@@ -7,6 +7,7 @@ from core.services.utils import (
     output_result_success,
     model_representation
 )
+from core.signals import *
 from invoice.models import (
     Bill,
     PaymentInvoice,
@@ -50,6 +51,7 @@ class PaymentInvoiceService(BaseService):
             return output_exception(model_name="PaymentInvoice", method="create_with_detail", exception=exc)
 
     @check_authentication
+    @register_service_signal('signal_after_invoice_module_ref_received')
     def ref_received(self, payment_invoice: PaymentInvoice, payment_ref):
         try:
             with transaction.atomic():
@@ -59,6 +61,7 @@ class PaymentInvoiceService(BaseService):
         except Exception as exc:
             return output_exception(model_name="PaymentInvoice", method="ref_received", exception=exc)
 
+    @register_service_signal('signal_after_invoice_module_payment_received')
     def payment_received(self, payment_invoice: PaymentInvoice, payment_status: DetailPaymentInvoice.DetailPaymentStatus):
         try:
             with transaction.atomic():
@@ -73,6 +76,7 @@ class PaymentInvoiceService(BaseService):
         except Exception as exc:
             return output_exception(model_name="PaymentInvoice", method="payment_received", exception=exc)
 
+    @register_service_signal('signal_after_invoice_module_payment_refunded')
     def payment_refunded(self, payment_invoice):
         try:
             with transaction.atomic():
@@ -86,6 +90,7 @@ class PaymentInvoiceService(BaseService):
         except Exception as exc:
             return output_exception(model_name="PaymentInvoice", method="payment_refunded", exception=exc)
 
+    @register_service_signal('signal_after_invoice_module_payment_cancelled')
     def payment_cancelled(self, payment_invoice):
         try:
             with transaction.atomic():
