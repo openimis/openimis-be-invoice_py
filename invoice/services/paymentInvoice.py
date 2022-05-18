@@ -30,7 +30,7 @@ class PaymentInvoiceService(BaseService):
         raise NotImplementedError("Update method is not implemented for PaymentInvoice")
 
     @check_authentication
-    def create_with_detail(self, payment_invoice, payment_detail):
+    def create_with_detail(self, payment_invoice: dict, payment_detail: DetailPaymentInvoice):
         try:
             with transaction.atomic():
                 payment = PaymentInvoice(**payment_invoice)
@@ -40,8 +40,8 @@ class PaymentInvoiceService(BaseService):
                     payment_detail.subject_id,
                     payment_detail.subject_type
                 )
-                if 'reconciliation' in payment_invoice['json_ext']:
-                    payment_detail.reconcilation_id = payment_invoice['json_ext']['reconciliation']['id']
+                if 'reconciliation' in payment.json_ext:
+                    payment_detail.reconcilation_id = payment.json_ext['reconciliation']['id']
                 payment_detail.save(username=self.user.username)
                 dict_repr = model_representation(payment)
                 dict_repr['payment_detail_uuid'] = payment_detail.uuid
@@ -113,9 +113,9 @@ class PaymentInvoiceService(BaseService):
                 detail.save(username=self.user.username)
 
     @classmethod
-    def _get_generic_object(cls, uuid, type):
-        if type.model == 'invoice':
-            object = Invoice.objects.get(id=uuid)
+    def _get_generic_object(cls, subject_id, subject_type):
+        if subject_type.model == 'invoice':
+            object = Invoice.objects.get(id=subject_id)
         else:
-            object = Bill.objects.get(id=uuid)
+            object = Bill.objects.get(id=subject_id)
         return object
