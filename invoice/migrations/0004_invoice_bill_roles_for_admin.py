@@ -2,218 +2,46 @@ import logging
 
 from django.db import migrations
 
+from core.utils import insert_role_right_for_system
+
 logger = logging.getLogger(__name__)
 
 
-MIGRATION_SQL = """
-    /* Invoice */
-    DECLARE @SystemRole INT
-    SELECT @SystemRole = role.RoleID from tblRole role where IsSystem=64;
-    /* Invoice search */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155101)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155101, CURRENT_TIMESTAMP)
-    END
-    /* Invoice create */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155102)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155102, CURRENT_TIMESTAMP)
-    END
-    /* Invoice update */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155103)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155103, CURRENT_TIMESTAMP)
-    END
-    /* Invoice delete */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155104)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155104, CURRENT_TIMESTAMP)
-    END
-    /* Invoice amend */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155109)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155109, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Payment search */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155201)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155201, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Payment create */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155202)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155202, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Payment update */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155203)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155203, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Payment delete */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155204)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155204, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Payment refund */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155206)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155206, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event search */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155301)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155301, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event create */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155302)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155302, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event update */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155303)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155303, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event delete */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155304)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155304, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event create message */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155306)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155306, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event delete my message */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155307)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155307, CURRENT_TIMESTAMP)
-    END
-    /* Invoice Event delete all message */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 155308)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 155308, CURRENT_TIMESTAMP)
-    END
-    /* Bill search */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156101)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156101, CURRENT_TIMESTAMP)
-    END
-    /* Bill create */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156102)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156102, CURRENT_TIMESTAMP)
-    END
-    /* Bill update */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156103)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156103, CURRENT_TIMESTAMP)
-    END
-    /* Bill delete */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156104)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156104, CURRENT_TIMESTAMP)
-    END
-    /* Bill amend */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156109)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156109, CURRENT_TIMESTAMP)
-    END
-    /* Bill Payment search */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156201)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156201, CURRENT_TIMESTAMP)
-    END
-    /* Bill Payment create */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156202)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156202, CURRENT_TIMESTAMP)
-    END
-    /* Bill Payment update */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156203)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156203, CURRENT_TIMESTAMP)
-    END
-    /* Bill Payment delete */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156204)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156204, CURRENT_TIMESTAMP)
-    END
-    /* Bill Payment refund */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156206) 
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156206, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event search */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156301)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156301, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event create */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156302)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156302, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event update */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156303)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156303, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event delete */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156304)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156304, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event create message */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156306)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156306, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event delete my message */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156307)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156307, CURRENT_TIMESTAMP)
-    END
-    /* Bill Event delete all message */
-    IF NOT EXISTS (SELECT * FROM [tblRoleRight] WHERE [RoleID] = @SystemRole AND [RightID] = 156308)
-    BEGIN
-        INSERT [dbo].[tblRoleRight] ([RoleID], [RightID], [ValidityFrom])
-        VALUES (@SystemRole, 156308, CURRENT_TIMESTAMP)
-    END
-"""
+def add_rights(apps, schema_editor):
+    insert_role_right_for_system(64, 155101)  # Invoice search
+    insert_role_right_for_system(64, 155102)  # Invoice create
+    insert_role_right_for_system(64, 155103)  # Invoice update
+    insert_role_right_for_system(64, 155104)  # Invoice delete
+    insert_role_right_for_system(64, 155109)  # Invoice amend
+    insert_role_right_for_system(64, 155201)  # Invoice payment search
+    insert_role_right_for_system(64, 155202)  # Invoice payment create
+    insert_role_right_for_system(64, 155203)  # Invoice payment update
+    insert_role_right_for_system(64, 155204)  # Invoice payment delete
+    insert_role_right_for_system(64, 155206)  # Invoice payment refund
+    insert_role_right_for_system(64, 155301)  # Invoice Event search
+    insert_role_right_for_system(64, 155302)  # Invoice Event create
+    insert_role_right_for_system(64, 155303)  # Invoice Event update
+    insert_role_right_for_system(64, 155304)  # Invoice Event delete
+    insert_role_right_for_system(64, 155306)  # Invoice Event message
+    insert_role_right_for_system(64, 155307)  # Invoice Event delete my message
+    insert_role_right_for_system(64, 155308)  # Invoice Event delete all messages
+    insert_role_right_for_system(64, 156101)  # Bill search
+    insert_role_right_for_system(64, 156102)  # Bill create
+    insert_role_right_for_system(64, 156103)  # Bill update
+    insert_role_right_for_system(64, 156104)  # Bill delete
+    insert_role_right_for_system(64, 156109)  # Bill amend
+    insert_role_right_for_system(64, 156201)  # Bill Payment search
+    insert_role_right_for_system(64, 156202)  # Bill Payment create
+    insert_role_right_for_system(64, 156203)  # Bill Payment update
+    insert_role_right_for_system(64, 156204)  # Bill Payment delete
+    insert_role_right_for_system(64, 156206)  # Bill Payment refund
+    insert_role_right_for_system(64, 156301)  # Bill Event search
+    insert_role_right_for_system(64, 156302)  # Bill Event create
+    insert_role_right_for_system(64, 156303)  # Bill Event update
+    insert_role_right_for_system(64, 156304)  # Bill Event delete
+    insert_role_right_for_system(64, 156306)  # Bill Event create message
+    insert_role_right_for_system(64, 156307)  # Bill Event delete my message
+    insert_role_right_for_system(64, 156308)  # Bill Event delete all messages
 
 
 class Migration(migrations.Migration):
@@ -222,5 +50,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(sql=MIGRATION_SQL),
+        migrations.RunPython(add_rights),
     ]
