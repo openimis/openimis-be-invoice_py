@@ -3,11 +3,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.test import TestCase
 
-from contract.models import Contract
 from contract.tests.helpers import create_test_contract
 from core.forms import User
 from insuree.test_helpers import create_test_insuree
-from invoice.models import Invoice, InvoiceLineItem, PaymentInvoice, DetailPaymentInvoice
+from invoice.models import Invoice, PaymentInvoice, DetailPaymentInvoice
 from invoice.services.paymentInvoice import PaymentInvoiceService
 from invoice.tests.helpers import (
     create_test_invoice,
@@ -18,7 +17,6 @@ from invoice.tests.helpers import (
 from invoice.validation.paymentInvoice import PaymentInvoiceModelValidation
 from product.test_helpers import create_test_product
 from policy.test_helpers import create_test_policy
-from policyholder.models import PolicyHolder
 from policyholder.tests.helpers import create_test_policy_holder
 
 
@@ -40,6 +38,7 @@ class ServiceTestPaymentInvoice(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ServiceTestPaymentInvoice, cls).setUpClass()
         cls.maxDiff = None
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
@@ -59,26 +58,6 @@ class ServiceTestPaymentInvoice(TestCase):
         cls.invoice = create_test_invoice(cls.contract, cls.insuree)
         cls.invoice_line_item = \
             create_test_invoice_line_item(invoice=cls.invoice, line_item=cls.policy, user=cls.user)
-
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        InvoiceLineItem.objects.filter(code=cls.invoice_line_item.code).delete()
-        Invoice.objects.filter(code=cls.invoice.code).delete()
-        Contract.objects.filter(id=cls.contract.id).delete()
-        PolicyHolder.objects.filter(id=cls.policy_holder.id).delete()
-
-        cls.insuree.insuree_policies.first().delete()
-        cls.policy.delete()
-        f = cls.insuree.family
-        cls.insuree.family = None
-        cls.insuree.save()
-        f.delete()
-        cls.insuree.delete()
-        cls.product.delete()
-
-        super().tearDownClass()
 
     def test_ref_received(self):
         with transaction.atomic():
@@ -123,7 +102,7 @@ class ServiceTestPaymentInvoice(TestCase):
                 DetailPaymentInvoice.DetailPaymentStatus.ACCEPTED
             )
             detail = [str(PaymentInvoiceModelValidation.AMOUNT_PAYED_NOT_MATCHING_ITEMS \
-                     % {'payment_invoice': payment, 'expected': 91.5, 'payed': 2.0})]
+                          % {'payment_invoice': payment, 'expected': 91.5, 'payed': 2.0})]
             message = 'Failed to payment_received PaymentInvoice'
             self._assert_output_invalid(out, message, detail)
             DetailPaymentInvoice.objects.filter(payment__code_ext=payment.code_ext).delete()
