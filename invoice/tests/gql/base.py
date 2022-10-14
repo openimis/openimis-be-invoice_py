@@ -1,14 +1,11 @@
 from graphene import Schema
 from graphene.test import Client
 from policy.test_helpers import create_test_policy
-from policyholder.models import PolicyHolder
 from product.test_helpers import create_test_product
 
-from contract.models import Contract
 from core.forms import User
 from django.test import TestCase
 
-from invoice.models import Invoice, InvoiceLineItem, InvoicePayment
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
@@ -26,6 +23,7 @@ class InvoiceGQLTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(InvoiceGQLTestCase, cls).setUpClass()
         cls._graphene_setup()
 
         cls.maxDiff = None
@@ -47,27 +45,6 @@ class InvoiceGQLTestCase(TestCase):
         cls.invoice_line_item = \
             create_test_invoice_line_item(invoice=cls.invoice, line_item=cls.policy, user=cls.user)
         cls.invoice_payment = create_test_invoice_payment(invoice=cls.invoice, user=cls.user)
-
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        InvoicePayment.objects.filter(id=cls.invoice_payment.id).delete()
-        InvoiceLineItem.objects.filter(code=cls.invoice_line_item.code).delete()
-        Invoice.objects.filter(code=cls.invoice.code).delete()
-        Contract.objects.filter(id=cls.contract.id).delete()
-        PolicyHolder.objects.filter(id=cls.policy_holder.id).delete()
-
-        cls.insuree.insuree_policies.first().delete()
-        cls.policy.delete()
-        f = cls.insuree.family
-        cls.insuree.family = None
-        cls.insuree.save()
-        f.delete()
-        cls.insuree.delete()
-        cls.product.delete()
-
-        super().tearDownClass()
 
     @classmethod
     def _graphene_setup(cls):

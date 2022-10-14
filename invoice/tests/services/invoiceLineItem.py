@@ -1,22 +1,17 @@
-from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from policy.test_helpers import create_test_policy
-from policyholder.models import PolicyHolder
 from product.test_helpers import create_test_product
 
-from contract.models import Contract
 from core.forms import User
 from django.test import TestCase
 
-from invoice.models import Invoice, InvoiceLineItem
-from invoice.services.invoice import InvoiceService
+from invoice.models import InvoiceLineItem
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
-from datetime import date
 
 from invoice.services.invoiceLineItem import InvoiceLineItemService
-from invoice.tests.helpers import DEFAULT_TEST_INVOICE_PAYLOAD, create_test_invoice
+from invoice.tests.helpers import create_test_invoice
 
 
 class ServiceTestInvoiceLineItems(TestCase):
@@ -91,6 +86,7 @@ class ServiceTestInvoiceLineItems(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ServiceTestInvoiceLineItems, cls).setUpClass()
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
 
@@ -108,24 +104,6 @@ class ServiceTestInvoiceLineItems(TestCase):
 
         cls.BASE_TEST_INVOICE_LINE_ITEM_PAYLOAD['line'] = cls.policy
         cls.BASE_TEST_INVOICE_LINE_ITEM_PAYLOAD['invoice'] = cls.invoice
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        Invoice.objects.filter(code=cls.invoice.code).delete()
-        Contract.objects.filter(id=cls.contract.id).delete()
-        PolicyHolder.objects.filter(id=cls.policy_holder.id).delete()
-
-        cls.insuree.insuree_policies.first().delete()
-        cls.policy.delete()
-        f = cls.insuree.family
-        cls.insuree.family = None
-        cls.insuree.save()
-        f.delete()
-        cls.insuree.delete()
-        cls.product.delete()
-
-        super().tearDownClass()
 
     def test_line_items_create(self):
         with transaction.atomic():
