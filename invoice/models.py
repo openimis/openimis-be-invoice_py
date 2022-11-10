@@ -1,15 +1,10 @@
-from enum import IntEnum
-
-from django.conf import settings
 from django.db import models
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from graphql import ResolveInfo
 
 from core.models import HistoryBusinessModel, HistoryModel, UUIDModel, ObjectMutation, MutationLog
-from core.fields import DateTimeField, DateField
+from core.fields import DateField
 from datetime import date
-from jsonfallback.fields import FallbackJSONField
 from invoice.apps import InvoiceConfig
 from django.utils.translation import gettext as _
 # Create your models here.
@@ -49,7 +44,7 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     amount_total = models.DecimalField(
         db_column='AmountTotal', max_digits=18, decimal_places=2, default=0.0)
 
-    tax_analysis = FallbackJSONField(db_column='TaxAnalysis', null=True)
+    tax_analysis = models.JSONField(db_column='TaxAnalysis', null=True)
 
     status = models.SmallIntegerField(
         db_column='Status', null=False, choices=Status.choices, default=Status.DRAFT)
@@ -74,7 +69,7 @@ class GenericInvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     code = models.CharField(db_column='Code', max_length=255, null=False)
 
     description = models.TextField(db_column='Description', blank=True, null=True)
-    details = FallbackJSONField(db_column='Details', null=True)
+    details = models.JSONField(db_column='Details', null=True)
 
     ledger_account = models.CharField(db_column='LedgerAccount', max_length=255, null=True)
 
@@ -86,7 +81,7 @@ class GenericInvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     deduction = models.DecimalField(db_column='Deduction', max_digits=18, decimal_places=2, default=0.0)
 
     tax_rate = models.UUIDField(db_column="CalculationUUID", null=True)
-    tax_analysis = FallbackJSONField(db_column='TaxAnalysis', null=True)
+    tax_analysis = models.JSONField(db_column='TaxAnalysis', null=True)
 
     amount_total = models.DecimalField(db_column='AmountTotal', max_digits=18, decimal_places=2, null=True)
     amount_net = models.DecimalField(db_column='AmountNet', max_digits=18, decimal_places=2, default=0.0)

@@ -1,8 +1,19 @@
 from django.db import transaction
 
 from core.services import BaseService
-from core.services.utils import check_authentication, output_exception, output_result_success, model_representation
-from invoice.models import PaymentInvoice, Invoice, DetailPaymentInvoice
+from core.services.utils import (
+    check_authentication,
+    output_exception,
+    output_result_success,
+    model_representation
+)
+from core.signals import *
+from invoice.models import (
+    Bill,
+    PaymentInvoice,
+    Invoice,
+    DetailPaymentInvoice
+)
 from invoice.utils import resolve_payment_details
 from invoice.validation.paymentInvoice import PaymentInvoiceModelValidation
 
@@ -20,10 +31,27 @@ class PaymentInvoiceService(BaseService):
         raise NotImplementedError("Update method is not implemented for PaymentInvoice")
 
     @check_authentication
-    def create(self, obj_data):
-        raise NotImplementedError("Create method is not implemented for PaymentInvoice")
+    def create_with_detail(self, payment_invoice: dict, payment_detail: DetailPaymentInvoice):
+        try:
+            with transaction.atomic():
+                payment = PaymentInvoice(**payment_invoice)
+                payment.save(username=self.user.username)
+                payment_detail.payment = payment
+                payment_detail.subject = self._get_generic_object(
+                    payment_detail.subject_id,
+                    payment_detail.subject_type
+                )
+                if 'reconciliation' in payment.json_ext:
+                    payment_detail.reconcilation_id = payment.json_ext['reconciliation']['id']
+                payment_detail.save(username=self.user.username)
+                dict_repr = model_representation(payment)
+                dict_repr['payment_detail_uuid'] = payment_detail.uuid
+                return output_result_success(dict_representation=dict_repr)
+        except Exception as exc:
+            return output_exception(model_name="PaymentInvoice", method="create_with_detail", exception=exc)
 
     @check_authentication
+    @register_service_signal('signal_after_invoice_module_ref_received')
     def ref_received(self, payment_invoice: PaymentInvoice, payment_ref):
         try:
             with transaction.atomic():
@@ -33,6 +61,7 @@ class PaymentInvoiceService(BaseService):
         except Exception as exc:
             return output_exception(model_name="PaymentInvoice", method="ref_received", exception=exc)
 
+    @register_service_signal('signal_after_invoice_module_payment_received')
     def payment_received(self, payment_invoice: PaymentInvoice, payment_status: DetailPaymentInvoice.DetailPaymentStatus):
         try:
             with transaction.atomic():
@@ -47,6 +76,7 @@ class PaymentInvoiceService(BaseService):
         except Exception as exc:
             return output_exception(model_name="PaymentInvoice", method="payment_received", exception=exc)
 
+    @register_service_signal('signal_after_invoice_module_payment_refunded')
     def payment_refunded(self, payment_invoice):
         try:
             with transaction.atomic():
@@ -60,6 +90,7 @@ class PaymentInvoiceService(BaseService):
         except Exception as exc:
             return output_exception(model_name="PaymentInvoice", method="payment_refunded", exception=exc)
 
+    @register_service_signal('signal_after_invoice_module_payment_cancelled')
     def payment_cancelled(self, payment_invoice):
         try:
             with transaction.atomic():
@@ -85,3 +116,11 @@ class PaymentInvoiceService(BaseService):
             if detail.status != status:
                 detail.status = status
                 detail.save(username=self.user.username)
+
+    @classmethod
+    def _get_generic_object(cls, subject_id, subject_type):
+        if subject_type.model == 'invoice':
+            object = Invoice.objects.get(id=subject_id)
+        else:
+            object = Bill.objects.get(id=subject_id)
+        return object

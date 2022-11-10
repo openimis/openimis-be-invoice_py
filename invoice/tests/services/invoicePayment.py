@@ -1,27 +1,21 @@
 import copy
-import json
 
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import transaction
 from unittest import skip
 from policy.test_helpers import create_test_policy
-from policyholder.models import PolicyHolder
 from product.test_helpers import create_test_product
 
-from contract.models import Contract
 from core.forms import User
 from django.test import TestCase
 
-from invoice.models import Invoice, InvoiceLineItem, InvoicePayment
+from invoice.models import Invoice, InvoicePayment
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
 from datetime import date
 
-from invoice.services.invoiceLineItem import InvoiceLineItemService
 from invoice.services.invoicePayments import InvoicePaymentsService
-from invoice.tests.helpers import DEFAULT_TEST_INVOICE_PAYLOAD, create_test_invoice, \
-    create_test_invoice_line_item
+from invoice.tests.helpers import create_test_invoice, create_test_invoice_line_item
 from invoice.validation.invoicePayment import InvoicePaymentModelValidation
 from invoice.validation.paymentStatusValidation import InvoicePaymentRefundStatusValidator, \
     InvoicePaymentReceiveStatusValidator, InvoicePaymentCancelStatusValidator
@@ -57,6 +51,7 @@ class ServiceTestInvoicePayments(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ServiceTestInvoicePayments, cls).setUpClass()
         cls.maxDiff = None
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
@@ -76,26 +71,6 @@ class ServiceTestInvoicePayments(TestCase):
         cls.invoice = create_test_invoice(cls.contract, cls.insuree)
         cls.invoice_line_item = \
             create_test_invoice_line_item(invoice=cls.invoice, line_item=cls.policy, user=cls.user)
-
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        InvoiceLineItem.objects.filter(code=cls.invoice_line_item.code).delete()
-        Invoice.objects.filter(code=cls.invoice.code).delete()
-        Contract.objects.filter(id=cls.contract.id).delete()
-        PolicyHolder.objects.filter(id=cls.policy_holder.id).delete()
-
-        cls.insuree.insuree_policies.first().delete()
-        cls.policy.delete()
-        f = cls.insuree.family
-        cls.insuree.family = None
-        cls.insuree.save()
-        f.delete()
-        cls.insuree.delete()
-        cls.product.delete()
-
-        super().tearDownClass()
 
     @skip("This is related to old payment approach model - depreceated")
     def test_ref_received(self):
@@ -128,7 +103,7 @@ class ServiceTestInvoicePayments(TestCase):
             payment = self._create_payment(payload)
             out = self.invoice_payment_service.payment_received(payment, InvoicePayment.PaymentStatus.ACCEPTED)
             detail = [str(InvoicePaymentModelValidation.AMOUNT_PAYED_NOT_MATCHING_ITEMS \
-                     % {'invoice': self.invoice, 'expected': 91.5, 'payed': 2.0})]
+                          % {'invoice': self.invoice, 'expected': 91.5, 'payed': 2.0})]
             message = 'Failed to payment_received InvoicePayment'
             self._assert_output_invalid(out, message, detail)
             InvoicePayment.objects.filter(code_ext=payment.code_ext).delete()
@@ -141,7 +116,8 @@ class ServiceTestInvoicePayments(TestCase):
             payment.invoice.status = Invoice.Status.CANCELLED
             out = self.invoice_payment_service.payment_received(payment, InvoicePayment.PaymentStatus.ACCEPTED)
             detail = [str(InvoicePaymentReceiveStatusValidator.error_message_invalid_invoice \
-                     % {'invoice': self.invoice, 'allowed_invoice': 'draft, validated', 'invoice_status': self.invoice.status.label})]
+                          % {'invoice': self.invoice, 'allowed_invoice': 'draft, validated',
+                             'invoice_status': self.invoice.status.label})]
             message = 'Failed to payment_received InvoicePayment'
             self._assert_output_invalid(out, message, detail)
 

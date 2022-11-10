@@ -4,7 +4,6 @@ from datetime import date, datetime, timedelta
 from django.db import transaction
 from django.test import TestCase
 
-from contract.models import Contract
 from contract.tests.helpers import create_test_contract
 from core.forms import User
 from insuree.test_helpers import create_test_insuree
@@ -13,7 +12,6 @@ from invoice.services import InvoiceService
 from invoice.tests.helpers import create_test_invoice_line_item
 from invoice.validation import TaxAnalysisFormatValidationMixin, InvoiceItemStatus
 from policy.test_helpers import create_test_policy
-from policyholder.models import PolicyHolder
 from policyholder.tests.helpers import create_test_policy_holder
 from product.test_helpers import create_test_product
 
@@ -113,6 +111,7 @@ class ServiceTestInvoice(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        super(ServiceTestInvoice, cls).setUpClass()
         if not User.objects.filter(username='admin_invoice').exists():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
 
@@ -140,22 +139,6 @@ class ServiceTestInvoice(TestCase):
             product=cls.product,
             insuree=cls.insuree
         )
-        super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        Contract.objects.filter(id=cls.contract.id).delete()
-        PolicyHolder.objects.filter(id=cls.policy_holder.id).delete()
-
-        cls.insuree.insuree_policies.first().delete()
-        cls.policy.delete()
-        f = cls.insuree.family
-        cls.insuree.family = None
-        cls.insuree.save()
-        f.delete()
-        cls.insuree.delete()
-        cls.product.delete()
-        super().tearDownClass()
 
     def test_invoice_create(self):
         with transaction.atomic():
