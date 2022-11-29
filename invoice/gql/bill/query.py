@@ -1,16 +1,57 @@
-import graphene
-from django.contrib.auth.models import AnonymousUser
-from django.db.models import Q
+import functools
+import logging
+import types
 
-from core.schema import OrderedDjangoFilterConnectionField
+import graphene
+import pandas as pd
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.contenttypes.models import ContentType
+from django.db.models import Q
+from django.http import HttpResponse
+from pandas import DataFrame
+
+from core.gql.export_mixin import ExportableQueryMixin
+from core.schema import OrderedDjangoFilterConnectionField, ExportableOrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.bill_types import BillGQLType
 from invoice.models import Bill
 import graphene_django_optimizer as gql_optimizer
 
+from policy.models import Policy
 
-class BillQueryMixin:
+
+def patch_subjects(bills_df: DataFrame):
+    subject_df = bills_df[['subject_type', 'subject_id']].drop_duplicates()
+    bills_df['subject_class'] = 'undefined'
+    for subject in subject_df['subject_type'].unique():
+        model = ContentType.objects.get(id=subject).model_class()
+        entities_for_model = subject_df[subject_df['subject_type']==subject]['subject_id']
+        if model == Policy:
+            subject_names = model.objects\
+                .filter(id__in=entities_for_model)\
+                .values('id', 'family__head_insuree__chf_id',
+                        'family__head_insuree__last_name', 'family__head_insuree__other_names')
+            names = {
+                str(x['id']): F"{x['family__head_insuree__other_names']} {x['family__head_insuree__last_name']} ({x['family__head_insuree__chf_id']})" for x in subject_names
+            }
+            updated = bills_df['subject_type'] == subject
+            print(bills_df[updated])
+            print(bills_df[updated]['subject_id'])
+            bills_df.loc[updated, 'subject_id'] = bills_df[updated]['subject_id'].apply(lambda x: names[x])
+        bills_df.loc[bills_df['subject_type'] == subject, 'subject_class'] = model.__name__
+        bills_df['subject_type'] = bills_df.pop('subject_class')
+    return bills_df
+
+
+class BillQueryMixin(ExportableQueryMixin):
+    export_patches = {
+        'bill': [
+            patch_subjects
+        ]
+    }
+
+    exportable_fields = ['bill']
     bill = OrderedDjangoFilterConnectionField(
         BillGQLType,
         orderBy=graphene.List(of_type=graphene.String),
