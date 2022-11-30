@@ -11,7 +11,7 @@ from django.http import HttpResponse
 from pandas import DataFrame
 
 from core.gql.export_mixin import ExportableQueryMixin
-from core.schema import OrderedDjangoFilterConnectionField, ExportableOrderedDjangoFilterConnectionField
+from core.schema import OrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.bill_types import BillGQLType
