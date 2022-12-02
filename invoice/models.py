@@ -183,7 +183,8 @@ class InvoiceEvent(GenericInvoiceEvent):
 
 class Bill(GenericInvoice):
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
-                                        db_column='SubjectType', null=True, related_name='subject_type_bill', unique=False)
+                                        db_column='SubjectType', null=True, related_name='subject_type_bill',
+                                     unique=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
