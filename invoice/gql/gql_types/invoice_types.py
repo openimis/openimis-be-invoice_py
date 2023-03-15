@@ -5,32 +5,45 @@ from graphene_django import DjangoObjectType
 
 from core import prefix_filterset, ExtendedConnection
 from insuree.models import Insuree
+from invoice.apps import InvoiceConfig
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment, InvoiceEvent, InvoiceMutation, \
     InvoicePaymentMutation, InvoiceLineItemMutation, InvoiceEventMutation
 from invoice.utils import underscore_to_camel
+from django.core.exceptions import PermissionDenied
+from django.utils.translation import gettext as _
 
 
 class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
 
     subject_type = graphene.Int()
     def resolve_subject_type(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         return root.subject_type.id
 
     subject_type_name = graphene.String()
     def resolve_subject_type_name(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         return root.subject_type.name
 
     thirdparty_type = graphene.Int()
     def resolve_thirdparty_type(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         return root.thirdparty_type.id
 
     thirdparty_type_name = graphene.String()
     def resolve_thirdparty_type_name(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         return root.thirdparty_type.name
 
     subject = graphene.JSONString()
     def resolve_subject(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         subject_object_dict = root.subject.__dict__
         subject_object_dict.pop('_state')
         subject_object_dict = {
@@ -47,6 +60,8 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
 
     thirdparty = graphene.JSONString()
     def resolve_thirdparty(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         thirdparty_object_dict = root.thirdparty.__dict__
         thirdparty_object_dict.pop('_state')
         thirdparty_object_dict = {
@@ -74,14 +89,20 @@ class InvoiceLineItemGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
 
     line_type = graphene.Int()
     def resolve_line_type(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         return root.line_type.id
 
     line_type_name = graphene.String()
     def resolve_line_type_name(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         return root.line_type.name
 
     line = graphene.JSONString()
     def resolve_line(root, info):
+        if not info.context.user.has_perms(InvoiceConfig.gql_invoice_search_perms):
+            raise PermissionDenied(_("unauthorized"))
         line_object_dict = root.line.__dict__
         line_object_dict.pop('_state')
         key_values = list(line_object_dict.items())
