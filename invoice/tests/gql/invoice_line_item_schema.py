@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from invoice.tests.gql.base import InvoiceGQLTestCase
 from invoice.tests.helpers import DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD, DEFAULT_TEST_INVOICE_PAYLOAD
 
@@ -32,8 +34,8 @@ query {{
                         {'node': {
                             'isDeleted': False,
                             'code': 'LineItem1',
-                            'amountNet': 89.5,
-                            'amountTotal': 91.5,
+                            'amountNet': Decimal("89.5"),
+                            'amountTotal': Decimal("91.5"),
                             'taxRate': None,
                             'lineId': F'{self.invoice_line_item.line.id}',
                             'lineType': self.invoice_line_item.line_type.id
