@@ -40,5 +40,6 @@ query {{
                             'lineId': F'{self.invoice_line_item.line.id}',
                             'lineType': self.invoice_line_item.line_type.id
                         }}]}}}
-
+        print(output)
+        print(expected)
         self.assertEqual(output, expected)
