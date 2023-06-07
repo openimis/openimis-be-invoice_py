@@ -34,7 +34,7 @@ query {{
                             'isDeleted': False,
                             'code': 'LineItem1',
                             'amountNet': '89.50',
-                            'amountTotal': format(Decimal('91.50'), '.2f'),
+                            'amountTotal': str('91.50'),
                             'taxRate': None,
                             'lineId': F'{self.invoice_line_item.line.id}',
                             'lineType': self.invoice_line_item.line_type.id

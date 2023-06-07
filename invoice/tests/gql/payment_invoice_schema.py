@@ -128,7 +128,7 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': 'GQLCOD',
                             'codeTp': 'PAY_CODE',
-                            'amountReceived': format(Decimal('91.50'), '.2f'),
+                            'amountReceived': str('91.50'),
                             'datePayment': '2022-04-12',
                             'reconciliationStatus': 'A_1',
                             'fees': "12.00",
@@ -167,16 +167,6 @@ mutation {{
                                 ]
                             }
         }}]}}}
-
-        expected_amount_received_type = type(expected['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
-        output_amount_received_type = type(output['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
-
-        print("Expected amountReceived type:", expected_amount_received_type)
-        print("Output amountReceived type:", output_amount_received_type)
-        print("Expected amountReceived:", expected['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
-        print("Output amountReceived:", output['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
-
-        self.assertEqual(output, expected)
 
         self.assertEqual(output, expected)
 
