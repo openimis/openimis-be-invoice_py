@@ -148,7 +148,7 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': payment.code_ext,
                             'codeTp': payment.code_tp,
-                            'amountReceived': format(Decimal('91.50'), '.2f'),
+                            'amountReceived': str('91.50'),
                             'datePayment': '2022-04-11',
                             'reconciliationStatus': 'A_0',
                             'fees': "12.00",
@@ -167,6 +167,17 @@ mutation {{
                                 ]
                             }
         }}]}}}
+
+        expected_amount_received_type = type(expected['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
+        output_amount_received_type = type(output['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
+
+        print("Expected amountReceived type:", expected_amount_received_type)
+        print("Output amountReceived type:", output_amount_received_type)
+        print("Expected amountReceived:", expected['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
+        print("Output amountReceived:", output['data']['paymentInvoice']['edges'][0]['node']['amountReceived'])
+
+        self.assertEqual(output, expected)
+
         self.assertEqual(output, expected)
 
     def test_create_payment_mutation(self):
