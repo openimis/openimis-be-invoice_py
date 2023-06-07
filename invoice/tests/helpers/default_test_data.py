@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from invoice.models import Invoice, InvoicePayment, Bill, BillPayment, PaymentInvoice, DetailPaymentInvoice
 
@@ -103,7 +104,7 @@ DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD = {
     'label': 'test label',
     'reconciliation_status': PaymentInvoice.ReconciliationStatus.NOT_RECONCILIATED,
     'fees': 12.00,
-    'amount_received': float(91.50),
+    'amount_received': format(Decimal('91.50'), '.2f'),
     'date_payment': date(2022, 4, 11),
     'payment_origin': 'payment origin',
     'payer_ref': 'payment reference',
@@ -116,7 +117,7 @@ DEFAULT_TEST_DETAIL_PAYMENT_INVOICE_PAYLOAD = {
     'subject_id': None,
     'status': DetailPaymentInvoice.DetailPaymentStatus.ACCEPTED,
     'fees': 12.00,
-    'amount': 91.50,
+    'amount': format(Decimal('91.50'), '.2f'),
     'reconcilation_id': 'RECONCID',
     'reconcilation_date': date(2022, 4, 11),
 }
