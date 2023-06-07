@@ -103,7 +103,7 @@ DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD = {
     'label': 'test label',
     'reconciliation_status': PaymentInvoice.ReconciliationStatus.NOT_RECONCILIATED,
     'fees': 12.00,
-    'amount_received': 91.50,
+    'amount_received': float(91.50),
     'date_payment': date(2022, 4, 11),
     'payment_origin': 'payment origin',
     'payer_ref': 'payment reference',

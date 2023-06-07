@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 from core.models import MutationLog
 from invoice.models import (
@@ -127,7 +128,7 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': 'GQLCOD',
                             'codeTp': 'PAY_CODE',
-                            'amountReceived': '91.50',
+                            'amountReceived': format(Decimal('91.50'), '.2f'),
                             'datePayment': '2022-04-12',
                             'reconciliationStatus': 'A_1',
                             'fees': "12.00",
@@ -147,7 +148,7 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': payment.code_ext,
                             'codeTp': payment.code_tp,
-                            'amountReceived': '91.50',
+                            'amountReceived': format(Decimal('91.50'), '.2f'),
                             'datePayment': '2022-04-11',
                             'reconciliationStatus': 'A_0',
                             'fees': "12.00",
