@@ -147,7 +147,7 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': payment.code_ext,
                             'codeTp': payment.code_tp,
-                            'amountReceived': "91.50",
+                            'amountReceived': "91.5",
                             'datePayment': '2022-04-11',
                             'reconciliationStatus': 'A_0',
                             'fees': "12.00",
