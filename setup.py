@@ -23,7 +23,9 @@ setup(
         'django',
         'django-db-signals',
         'djangorestframework',
-        'openimis-be-core'
+        'openimis-be-core',
+        'flake8',
+        'django-nose'
     ],
     classifiers=[
         'Environment :: Web Environment',
