@@ -30,8 +30,6 @@ jobs:
           python-version: 3.8
       - name: install linux packages
         run: |
-          sudo dpkg -P libodbc2 libodbcinst2 unixodbc-common
-          sudo apt-get clean
           git clone --depth 1 --branch develop https://github.com/openimis/database_ms_sqlserver.git  ./sql
           cd sql/ && bash concatenate_files.sh && cd ..
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
