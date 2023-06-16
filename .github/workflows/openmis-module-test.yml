@@ -71,6 +71,11 @@ jobs:
         env:
           SA_PASSWORD: GitHub999
           ACCEPT_EULA: Y
+      - name: Run Flake8
+        working-directory: ./openimis
+        run: |
+          # Run Flake8
+          flake8 .
 
 #      - name: Check formatting with black
 #        run: |
