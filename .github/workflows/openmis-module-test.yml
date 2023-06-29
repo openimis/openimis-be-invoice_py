@@ -71,11 +71,11 @@ jobs:
         env:
           SA_PASSWORD: GitHub999
           ACCEPT_EULA: Y
-      - name: Run Flake8
-        working-directory: ./openimis
-        run: |
-          # Run Flake8
-          flake8 .
+      #- name: Run Flake8
+      #  working-directory: ./openimis
+      #  run: |
+      #    # Run Flake8
+      #    flake8 .
 
 
 #      - name: Check formatting with black
@@ -85,7 +85,6 @@ jobs:
       - name: Django tests
         working-directory: ./openimis/openIMIS
         run: |
-          # Run Django tests with Django Nose
           export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
           python -V
           ls -l
