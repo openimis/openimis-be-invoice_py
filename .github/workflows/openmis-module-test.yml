@@ -71,48 +71,43 @@ jobs:
         env:
           SA_PASSWORD: GitHub999
           ACCEPT_EULA: Y
-      #- name: Run Flake8
-      #  working-directory: ./openimis
+      - name: Run Flake8
+        working-directory: ./openimis
+        continue-on-error: true
+        run: |
+          # Run Flake8
+          flake8 .
+
+      #- name: Check formatting with black
       #  run: |
-      #    # Run Flake8
-      #    flake8 .
+      #    black --check .
 
+      - name: Django tests
+        working-directory: ./openimis/openIMIS
+        continue-on-error: true
+        run: |
+          export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
+          python -V
+          ls -l
+          python manage.py migrate
+          python init_test_db.py | grep . | uniq -c
+          coverage run manage.py test --keepdb $MODULE_NAME
+          coverage report
+        env:
+          SECRET_KEY: secret
+          DEBUG: true
+          #DJANGO_SETTINGS_MODULE: hat.settings
+          DB_HOST: localhost
+          DB_PORT: 1433
+          DB_NAME: imis
+          DB_USER: sa
+          DB_PASSWORD: GitHub999
+          #DEV_SERVER: true
+          SITE_ROOT: api
+          REMOTE_USER_AUTHENTICATION: True
 
-#      - name: Check formatting with black
-#        run: |
-#          black --check .
-
-      #- name: Django tests
-      #  working-directory: ./openimis/openIMIS
-      #  run: |
-      #    export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
-      #    python -V
-      #    ls -l
-      #    python manage.py migrate
-      #    python init_test_db.py | grep . | uniq -c
-      #    coverage run manage.py test --keepdb $MODULE_NAME
-      #    coverage report
-      #  env:
-      #    SECRET_KEY: secret
-      #    DEBUG: true
-      #    #DJANGO_SETTINGS_MODULE: hat.settings
-      #    DB_HOST: localhost
-      #    DB_PORT: 1433
-      #    DB_NAME: imis
-      #    DB_USER: sa
-      #    DB_PASSWORD: GitHub999
-      #    #DEV_SERVER: true
-      #    SITE_ROOT: api
-      #    REMOTE_USER_AUTHENTICATION: True
-
-      - name: SonarCloud
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v3
-            with:
-              fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          - name: SonarCloud Scan
-            uses: SonarSource/sonarcloud-github-action@master
-            env:
-              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
