@@ -90,7 +90,8 @@ jobs:
           ls -l
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
-          python manage.py nosetests --with-coverage --cover-package=$MODULE_NAME --cover-xml --cover-xml-file=coverage.xml
+          coverage run manage.py test --keepdb $MODULE_NAME
+          coverage report
         env:
           SECRET_KEY: secret
           DEBUG: true
