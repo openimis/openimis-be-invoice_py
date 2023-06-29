@@ -105,19 +105,14 @@ jobs:
       #    SITE_ROOT: api
       #    REMOTE_USER_AUTHENTICATION: True
 
-      - name: Install SonarScanner
-        run: |
-          # Install SonarScanner
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.6.2.2472-linux.zip
-          unzip sonar-scanner-cli-4.6.2.2472-linux.zip
-          export PATH="$PWD/sonar-scanner-4.6.2.2472-linux/bin:$PATH"
-
-      - name: SonarCloud Analysis
-        run: |
-          # Run SonarCloud analysis
-          sonar-scanner \
-            -Dsonar.projectKey=openimis-be-invoice_py \
-            -Dsonar.sources=.
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORGANIZATION: openimis-1
+      - name: SonarCloud
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v3
+            with:
+              fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          - name: SonarCloud Scan
+            uses: SonarSource/sonarcloud-github-action@master
+            env:
+              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+              SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
