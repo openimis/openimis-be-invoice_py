@@ -75,12 +75,9 @@ jobs:
         working-directory: ./openimis
         continue-on-error: true
         run: |
-          # Run Flake8
           flake8 . > flake8-report.txt
-
-      #- name: Check formatting with black
-      #  run: |
-      #    black --check .
+          pwd
+          ls -l
 
       - name: Django tests
         working-directory: ./openimis/openIMIS
