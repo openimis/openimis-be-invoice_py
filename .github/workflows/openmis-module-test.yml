@@ -107,13 +107,12 @@ jobs:
           SITE_ROOT: api
           REMOTE_USER_AUTHENTICATION: True
 
-      - name: Copy sonar-project.properties
-        run: cp ./openimis-be-invoice_py/sonar-project.properties ./sonar-project.properties
+      #- name: Copy sonar-project.properties
+      #  run: cp ./openimis-be-invoice_py/sonar-project.properties ./sonar-project.properties
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          with:
             projectBaseDir: ./openimis-be-invoice_py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
