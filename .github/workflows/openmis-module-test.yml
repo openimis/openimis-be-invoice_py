@@ -73,9 +73,8 @@ jobs:
           ACCEPT_EULA: Y
       - name: Run Flake8
         working-directory: ./openimis
-        #continue-on-error: true
-        run: |
-          flake8
+        continue-on-error: true
+        run: flake8 --format=flake8-txt --output-file=openimis/flake8-report.txt
 
 
       - name: Django tests
