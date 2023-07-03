@@ -76,7 +76,7 @@ jobs:
         continue-on-error: true
         run: |
           # Run Flake8
-          flake8 .
+          flake8 . > flake8-report.txt
 
       #- name: Check formatting with black
       #  run: |
@@ -92,6 +92,7 @@ jobs:
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
           coverage run manage.py test --keepdb $MODULE_NAME
+          coverage xml -o coverage.xml
           coverage report
         env:
           SECRET_KEY: secret
