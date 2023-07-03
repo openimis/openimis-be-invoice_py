@@ -75,8 +75,8 @@ jobs:
         working-directory: ./openimis
         continue-on-error: true
         run: |
-          flake8 . > flake8-report.txt
           pwd
+          flake8 . > flake8-report.txt
           ls -l
 
       - name: Django tests
