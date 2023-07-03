@@ -73,11 +73,10 @@ jobs:
           ACCEPT_EULA: Y
       - name: Run Flake8
         working-directory: ./openimis
-        continue-on-error: true
+        #continue-on-error: true
         run: |
-          pwd
           flake8 . > flake8-report.txt
-          ls -l
+
 
       - name: Django tests
         working-directory: ./openimis/openIMIS
