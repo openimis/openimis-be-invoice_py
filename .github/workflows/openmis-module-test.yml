@@ -22,6 +22,8 @@ jobs:
           - 1433:1433
         # needed because the mssql container does not provide a health check
         options: --health-interval=10s --health-timeout=3s --health-start-period=10s --health-retries=10 --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD} -Q 'SELECT 1' || exit 1"
+        volumes:
+          - ./sonar-project.properties:/opt/sonar-scanner/conf/sonar-scanner.properties
 
     steps:
       - name: Set up Python 3.8
