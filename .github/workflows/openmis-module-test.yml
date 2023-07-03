@@ -22,8 +22,6 @@ jobs:
           - 1433:1433
         # needed because the mssql container does not provide a health check
         options: --health-interval=10s --health-timeout=3s --health-start-period=10s --health-retries=10 --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P ${SA_PASSWORD} -Q 'SELECT 1' || exit 1"
-        volumes:
-          - ./sonar-project.properties:/opt/sonar-scanner/conf/sonar-scanner.properties
 
     steps:
       - name: Set up Python 3.8
@@ -111,6 +109,16 @@ jobs:
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
+        with:
+          extraProperties: |
+            sonar.projectKey=openimis_openimis-be-invoice_py
+            sonar.organization=openimis-1
+            sonar.projectName=openimis-be-invoice_py
+            sonar.projectVersion=1.0
+            sonar.python.version=3.8
+            sonar.sources=src
+            sonar.python.coverage.reportPaths=./openimis/openIMIS/coverage.xml
+            sonar.python.flake8.reportPaths=./openimis/flake8-report.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
