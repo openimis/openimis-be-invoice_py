@@ -110,7 +110,7 @@ jobs:
           name: coverage.xml
           path: ./openimis/coverage.xml
 
-sonarcloud:
+  sonarcloud:
     name: SonarCloud
     needs: run_test
     runs-on: ubuntu-latest
