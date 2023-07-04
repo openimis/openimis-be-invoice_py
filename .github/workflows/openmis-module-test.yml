@@ -80,6 +80,11 @@ jobs:
         with:
           name: flake8-report.txt
           path: ./openimis/flake8-report.txt
+
+#      - name: Check formatting with black
+#        run: |
+#          black --check .
+
       - name: Django tests
         working-directory: ./openimis/openIMIS
         continue-on-error: true
@@ -109,7 +114,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage.xml
-          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
+          path: ./openimis/openIMIS/coverage.xml
 
       - uses: actions/checkout@v3
         with:
