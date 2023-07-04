@@ -91,6 +91,8 @@ jobs:
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
           coverage xml -o coverage.xml
+          ls -l
+          pwd
           coverage run manage.py test --keepdb $MODULE_NAME &&
           coverage report
         env:
@@ -109,14 +111,12 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage.xml
-          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
+          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/coverage.xml
 
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/download-artifact@v3
-        with:
-          path: /github/workspace
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
