@@ -42,9 +42,11 @@ jobs:
           rm ./openimis -rf
           git clone --depth 1 --branch develop https://github.com/openimis/openimis-be_py.git ./openimis
       - name: copy current branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: './current-module'
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
       - name: Update the configuration
         working-directory: ./openimis
         run: |
@@ -116,9 +118,6 @@ jobs:
           name: coverage.xml
           path: ./openimis/openIMIS/coverage.xml
 
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/download-artifact@v3
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
