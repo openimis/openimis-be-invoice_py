@@ -94,6 +94,7 @@ jobs:
           ls -l
           ls -l ..
           ls -l ../..
+          ls -l ../../current-module
           pwd
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
@@ -128,7 +129,7 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          projectBaseDir: ./openimis/openIMIS
+          projectBaseDir: ./current-module
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
