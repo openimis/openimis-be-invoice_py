@@ -86,13 +86,11 @@ jobs:
         run: |
           export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
           python -V
+          coverage xml -o coverage.xml
           ls -l
           pwd
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
-          coverage xml -o coverage.xml
-          ls -l
-          pwd
           coverage run manage.py test --keepdb $MODULE_NAME &&
           coverage report
         env:
@@ -111,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage.xml
-          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/coverage.xml
+          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
 
       - uses: actions/checkout@v3
         with:
