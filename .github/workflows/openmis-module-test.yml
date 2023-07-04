@@ -126,5 +126,6 @@ jobs:
       - name: SonarCloud Scan
         working-directory: ./openimis/openIMIS
         uses: SonarSource/sonarcloud-github-action@master
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
