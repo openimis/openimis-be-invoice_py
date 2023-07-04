@@ -72,10 +72,14 @@ jobs:
           SA_PASSWORD: GitHub999
           ACCEPT_EULA: Y
       - name: Run Flake8
+        uses: actions/checkout@v3
         working-directory: ./openimis
         continue-on-error: true
-        run: flake8 --output-file=openimis/flake8-report.txt
-
+        run: flake8 --output-file=flake8-report.txt
+        uses: actions/upload-artifact@v3
+        with:
+          name: flake8-report.txt
+          path: ./openimis/flake8-report.txt
       - name: Django tests
         working-directory: ./openimis/openIMIS
         continue-on-error: true
@@ -88,7 +92,6 @@ jobs:
           coverage run manage.py test --keepdb $MODULE_NAME &&
           coverage xml -o coverage.xml
           coverage report
-          ls -l
         env:
           SECRET_KEY: secret
           DEBUG: true
@@ -101,7 +104,18 @@ jobs:
           #DEV_SERVER: true
           SITE_ROOT: api
           REMOTE_USER_AUTHENTICATION: True
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage.xml
+          path: ./openimis/coverage.xml
 
+sonarcloud:
+    name: SonarCloud
+    needs: run_test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
