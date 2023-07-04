@@ -86,12 +86,12 @@ jobs:
         run: |
           export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
           python -V
-          coverage xml -o coverage.xml
           ls -l
           pwd
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
           coverage run manage.py test --keepdb $MODULE_NAME &&
+          coverage xml -o coverage.xml
           coverage report
         env:
           SECRET_KEY: secret
