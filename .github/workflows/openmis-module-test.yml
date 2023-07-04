@@ -121,8 +121,6 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/download-artifact@v3
-        with:
-          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py
       - run: |
           ls -l /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py
           pwd
