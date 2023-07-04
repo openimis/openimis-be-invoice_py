@@ -109,12 +109,13 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: coverage.xml
-          path: ./openimis/openIMIS/coverage.xml
+          path: /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
 
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       - uses: actions/download-artifact@v3
+        working-directory: /github/workspace
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
