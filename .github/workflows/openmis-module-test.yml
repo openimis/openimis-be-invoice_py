@@ -126,9 +126,9 @@ jobs:
             #      - run: |
             #          ls -l /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py
             #          pwd
-      # - uses: actions/download-artifact@v3
-      #   with:
-      #     path: ./current-module
+      - uses: actions/download-artifact@v3
+        with:
+          path: ./current-module
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
