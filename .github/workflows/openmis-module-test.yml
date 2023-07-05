@@ -73,7 +73,6 @@ jobs:
           ACCEPT_EULA: Y
       - name: Run Flake8
         working-directory: ./openimis
-        # continue-on-error: true
         run: flake8 --format='%(path)s:%(row)d:%(col)d:%(code)s:%(text)s' --output-file=flake8-report.txt || true
       - name: Flake8 report artifact
         uses: actions/upload-artifact@v3
@@ -87,7 +86,6 @@ jobs:
 
       - name: Django tests
         working-directory: ./openimis/openIMIS
-        # continue-on-error: true
         run: |
           export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
           python -V
@@ -118,15 +116,6 @@ jobs:
         with:
           name: coverage.xml
           path: ./openimis/openIMIS/coverage.xml
-      - name: coverage ls
-        working-directory: ./openimis/openIMIS
-        # continue-on-error: true
-        run: |
-          ls -l
-          ls -l ..
-          ls -l ../..
-          ls -l ../../current-module
-          pwd
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
