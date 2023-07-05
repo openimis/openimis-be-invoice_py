@@ -73,8 +73,8 @@ jobs:
           ACCEPT_EULA: Y
       - name: Run Flake8
         working-directory: ./openimis
-        continue-on-error: true
-        run: flake8 --format='%(path)s:%(row)d:%(col)d:%(code)s:%(text)s' --output-file=flake8-report.txt
+        # continue-on-error: true
+        run: flake8 --format='%(path)s:%(row)d:%(col)d:%(code)s:%(text)s' --output-file=flake8-report.txt || true
       - name: Flake8 report artifact
         uses: actions/upload-artifact@v3
         with:
@@ -87,7 +87,7 @@ jobs:
 
       - name: Django tests
         working-directory: ./openimis/openIMIS
-        continue-on-error: true
+        # continue-on-error: true
         run: |
           export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
           python -V
@@ -118,14 +118,6 @@ jobs:
         with:
           name: coverage.xml
           path: ./openimis/openIMIS/coverage.xml
-
-            #- uses: actions/checkout@v3
-            #        with:
-            #          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-            #      - uses: actions/download-artifact@v3
-            #      - run: |
-            #          ls -l /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py
-            #          pwd
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
