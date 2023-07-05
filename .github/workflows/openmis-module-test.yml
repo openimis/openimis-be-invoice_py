@@ -116,6 +116,9 @@ jobs:
         with:
           name: coverage.xml
           path: ./openimis/openIMIS/coverage.xml
+      - name: read coverage.xml
+        working-directory: ./openimis/openIMIS
+        run: cat coverage.xml   
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
