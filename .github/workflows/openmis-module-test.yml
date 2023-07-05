@@ -74,7 +74,7 @@ jobs:
       - name: Run Flake8
         working-directory: ./openimis
         continue-on-error: true
-        run: flake8 --output-file=flake8-report.txt
+        run: flake8 --format='%(path)s:%(row)d:%(col)d:%(code)s:%(text)s' --output-file=flake8-report.txt
       - name: Flake8 report artifact
         uses: actions/upload-artifact@v3
         with:
