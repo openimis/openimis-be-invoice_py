@@ -96,7 +96,7 @@ jobs:
           pwd
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
-          coverage run --source=./openimis/openIMIS manage.py test --keepdb $MODULE_NAME || true
+          coverage run manage.py test --keepdb $MODULE_NAME || true
           coverage xml -o coverage.xml
           coverage report
         env:
