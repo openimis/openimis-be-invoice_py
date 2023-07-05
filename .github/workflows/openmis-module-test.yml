@@ -96,7 +96,7 @@ jobs:
           pwd
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
-          coverage run manage.py test --keepdb $MODULE_NAME || true
+          coverage run --source=./openimis/openIMIS manage.py test --keepdb $MODULE_NAME || true
           coverage xml -o coverage.xml
           coverage report
         env:
@@ -116,8 +116,6 @@ jobs:
         with:
           name: coverage.xml
           path: ./openimis/openIMIS/coverage.xml
-      # - name: Override Coverage Source Path for Sonar
-      #   run: sed -i "s/<source>\/home\/runner\/work\/openimis-be-invoice_py\/openimis-be-invoice_py<\/source>/<source>\/github\/workspace<\/source>/g" /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
