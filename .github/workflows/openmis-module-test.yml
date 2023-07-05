@@ -116,9 +116,8 @@ jobs:
         with:
           name: coverage.xml
           path: ./openimis/openIMIS/coverage.xml
-      - name: read coverage.xml
-        working-directory: ./openimis/openIMIS
-        run: cat coverage.xml   
+      - name: Override Coverage Source Path for Sonar
+        run: sed -i "s/<source>\/home\/runner\/work\/openimis-be-invoice_py<\/openimis-be-invoice_py>/<source>\/github\/workspace<\/source>/g" /home/runner/work/repo/path/to/coverage.xml 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
