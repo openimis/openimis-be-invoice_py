@@ -97,7 +97,7 @@ jobs:
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
           coverage run manage.py test --keepdb $MODULE_NAME || true
-          coverage xml -o coverage.xml
+          coverage xml -i coverage.xml
           coverage report
         env:
           SECRET_KEY: secret
