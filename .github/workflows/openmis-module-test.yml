@@ -90,10 +90,6 @@ jobs:
           export MODULE_NAME="$(echo $GITHUB_REPOSITORY | sed 's#^openimis/openimis-be-\(.*\)_py$#\1#')"
           python -V
           ls -l
-          ls -l ..
-          ls -l ../..
-          ls -l ../../current-module
-          pwd
           python manage.py migrate
           python init_test_db.py | grep . | uniq -c
           coverage run manage.py test --keepdb $MODULE_NAME || true
@@ -111,10 +107,6 @@ jobs:
           #DEV_SERVER: true
           SITE_ROOT: api
           REMOTE_USER_AUTHENTICATION: True
-      - name: Override Coverage Source Path for Sonar
-        run: sed -i 's|<source>/home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS</source>|<source>/github/workspace</source>|g' /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
-      - name: read coverage.xml
-        run: cat ./openimis/openIMIS/coverage.xml
       - name: Coverage results    
         uses: actions/upload-artifact@v3
         with:
