@@ -1,4 +1,5 @@
 import uuid
+from decimal import Decimal
 
 from core.models import MutationLog
 from invoice.models import (
@@ -127,10 +128,10 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': 'GQLCOD',
                             'codeTp': 'PAY_CODE',
-                            'amountReceived': "91.50",
+                            'amountReceived': str('91.50'),
                             'datePayment': '2022-04-12',
                             'reconciliationStatus': 'A_1',
-                            'fees': "12.00",
+                            'fees': str('12.00'),
                             'payerRef': 'payerRef',
         }}]}}}
         self.assertEqual(output, expected)
@@ -147,10 +148,10 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': payment.code_ext,
                             'codeTp': payment.code_tp,
-                            'amountReceived': "91.50",
+                            'amountReceived': str('91.50'),
                             'datePayment': '2022-04-11',
                             'reconciliationStatus': 'A_0',
-                            'fees': "12.00",
+                            'fees': str('12.00'),
                             'payerRef': payment.payer_ref,
                             'invoicePayments': {
                                 'totalCount': 1,
@@ -158,14 +159,15 @@ mutation {{
                                     {
                                         'node': {
                                             'subjectTypeName': 'invoice',
-                                            'fees': '12.00',
-                                            'amount': '91.50',
+                                            'fees': str('12.00'),
+                                            'amount': str('91.50'),
                                             'status': 'A_1'
                                         }
                                     }
                                 ]
                             }
         }}]}}}
+
         self.assertEqual(output, expected)
 
     def test_create_payment_mutation(self):
