@@ -34,8 +34,8 @@ query {{
                         {'node': {
                             'isDeleted': False,
                             'code': 'LineItem1',
-                            'amountNet': Decimal("89.5"),
-                            'amountTotal': Decimal("91.5"),
+                            'amountNet': "89.5",
+                            'amountTotal': "91.5",
                             'taxRate': None,
                             'lineId': F'{self.invoice_line_item.line.id}',
                             'lineType': self.invoice_line_item.line_type.id
