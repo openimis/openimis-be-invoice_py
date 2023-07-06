@@ -160,8 +160,8 @@ mutation {{
                                     {
                                         'node': {
                                             'subjectTypeName': 'invoice',
-                                            'fees': '12.00',
-                                            'amount': '91.50',
+                                            'fees': Decimal("12.0"),
+                                            'amount': Decimal("91.5"),
                                             'status': 'A_1'
                                         }
                                     }
