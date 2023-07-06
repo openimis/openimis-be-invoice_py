@@ -78,9 +78,9 @@ mutation {{
                     'edges': [
                         {'node': {
                             'isDeleted': False,
-                            'amount': Decimal("91.5"),
+                            'amount': 91.50,
                             'status': 'A_1',
-                            'fees':Decimal("12.0"),
+                            'fees':12.0,
                             'subjectTypeName': "invoice",
                             'subjectId': f"{invoice.id}",
                         }}]}}}
