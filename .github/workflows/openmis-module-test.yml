@@ -111,15 +111,15 @@ jobs:
           #DEV_SERVER: true
           SITE_ROOT: api
           REMOTE_USER_AUTHENTICATION: True
-      - name: Override Coverage Source Path for Sonar
-        run: sed -i 's|<source>/home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS</source>|<source>/github/workspace</source>|g' /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
+            #     - name: Override Coverage Source Path for Sonar
+            #       run: sed -i 's|<source>/home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS</source>|<source>/github/workspace</source>|g' /home/runner/work/openimis-be-invoice_py/openimis-be-invoice_py/openimis/openIMIS/coverage.xml
       - name: read coverage.xml
         run: cat ./openimis/openIMIS/coverage.xml
-      - name: Coverage results    
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage.xml
-          path: ./openimis/openIMIS/coverage.xml
+          #- name: Coverage results    
+          # uses: actions/upload-artifact@v3
+          #with:
+          #name: coverage.xml
+          #path: ./openimis/openIMIS/coverage.xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
