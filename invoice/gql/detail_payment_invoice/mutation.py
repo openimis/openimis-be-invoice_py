@@ -40,7 +40,7 @@ class CreateDetailPaymentInvoiceMutation(BaseHistoryModelCreateMutationMixin, Ba
     def _convert_content_type(cls, data):
         if "subject_type" in data:
             subject_type = data.pop('subject_type')
-            data['subject_type'] = ContentType.objects.get(model=subject_type)
+            data['subject_type'] = ContentType.objects.get(model__iexact=subject_type)
         return data
 
     @classmethod
