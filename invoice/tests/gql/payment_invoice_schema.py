@@ -1,7 +1,5 @@
 import uuid
 
-from decimal import Decimal
-
 from core.models import MutationLog
 from invoice.models import (
     Invoice,
@@ -129,10 +127,10 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': 'GQLCOD',
                             'codeTp': 'PAY_CODE',
-                            'amountReceived': Decimal("91.5"),
+                            'amountReceived': '91.5',
                             'datePayment': '2022-04-12',
                             'reconciliationStatus': 'A_1',
-                            'fees': Decimal("12.0"),
+                            'fees': '12.0',
                             'payerRef': 'payerRef',
         }}]}}}
         self.assertEqual(output, expected)
@@ -149,10 +147,10 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': payment.code_ext,
                             'codeTp': payment.code_tp,
-                            'amountReceived': Decimal("91.5"),
+                            'amountReceived': '91.5',
                             'datePayment': '2022-04-11',
                             'reconciliationStatus': 'A_0',
-                            'fees': Decimal("12.0"),
+                            'fees': '12.0',
                             'payerRef': payment.payer_ref,
                             'invoicePayments': {
                                 'totalCount': 1,
@@ -160,8 +158,8 @@ mutation {{
                                     {
                                         'node': {
                                             'subjectTypeName': 'invoice',
-                                            'fees': Decimal("12.0"),
-                                            'amount': Decimal("91.5"),
+                                            'fees': '12.0',
+                                            'amount': '91.5'),
                                             'status': 'A_1'
                                         }
                                     }
