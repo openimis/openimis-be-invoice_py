@@ -78,10 +78,10 @@ mutation {{
                     'edges': [
                         {'node': {
                             'isDeleted': False,
-                            'amount': "91.50",
+                            'amount': '91.50',
                             'status': 'A_1',
-                            'fees': "12.00",
-                            'subjectTypeName': "invoice",
+                            'fees': '12.00',
+                            'subjectTypeName': 'invoice',
                             'subjectId': f"{invoice.id}",
                         }}]}}}
         self.assertEqual(output, expected)
