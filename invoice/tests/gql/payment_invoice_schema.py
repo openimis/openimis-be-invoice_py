@@ -159,7 +159,7 @@ mutation {{
                                         'node': {
                                             'subjectTypeName': 'invoice',
                                             'fees': '12.0',
-                                            'amount': '91.5'),
+                                            'amount': '91.5',
                                             'status': 'A_1'
                                         }
                                     }
