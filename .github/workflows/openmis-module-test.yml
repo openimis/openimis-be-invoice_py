@@ -1,3 +1,4 @@
+# Test comment to test git actions pipeline
 name: Automated CI testing
 # This workflow run automatically for every commit on github it checks the syntax and launch the tests.
 # | grep . | uniq -c filters out empty lines and then groups consecutive lines together with the number of occurrences
@@ -11,7 +12,7 @@ on:
 
 jobs:
   run_test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     services:
       mssql:
         image: mcr.microsoft.com/mssql/server:2017-latest
