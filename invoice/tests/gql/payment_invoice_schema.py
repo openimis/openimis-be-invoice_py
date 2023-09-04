@@ -21,7 +21,7 @@ class PaymentInvoiceGQLTest(InvoiceGQLTestCase):
     search_for_payment_invoice_query = F'''
 query {{ 
 	paymentInvoice(codeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}", 
-	amountReceived: {DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}){{
+	amountReceived: "{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}"){{
     edges {{
       node {{
         isDeleted,
@@ -70,7 +70,7 @@ mutation {{
     search_for_payment_invoice_with_detail_query = F'''
 query {{ 
     paymentInvoice(codeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}", 
-    amountReceived: {DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}){{
+    amountReceived: "{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}"){{
     edges {{
         node {{
         isDeleted,
@@ -127,10 +127,10 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': 'GQLCOD',
                             'codeTp': 'PAY_CODE',
-                            'amountReceived': '91.5',
+                            'amountReceived': '91.50',
                             'datePayment': '2022-04-12',
                             'reconciliationStatus': 'A_1',
-                            'fees': '12.0',
+                            'fees': '12.00',
                             'payerRef': 'payerRef',
         }}]}}}
         self.assertEqual(output, expected)
@@ -147,10 +147,10 @@ mutation {{
                             'isDeleted': False,
                             'codeExt': payment.code_ext,
                             'codeTp': payment.code_tp,
-                            'amountReceived': '91.5',
+                            'amountReceived': '91.50',
                             'datePayment': '2022-04-11',
                             'reconciliationStatus': 'A_0',
-                            'fees': '12.0',
+                            'fees': '12.00',
                             'payerRef': payment.payer_ref,
                             'invoicePayments': {
                                 'totalCount': 1,
@@ -158,8 +158,8 @@ mutation {{
                                     {
                                         'node': {
                                             'subjectTypeName': 'invoice',
-                                            'fees': '12.0',
-                                            'amount': '91.5',
+                                            'fees': '12.00',
+                                            'amount': '91.50',
                                             'status': 'A_1'
                                         }
                                     }
