@@ -9,7 +9,7 @@ class InvoiceLineItemGQLTest(InvoiceGQLTestCase):
     search_for_invoice_query = F'''
 query {{ 
 	invoiceLineItem(invoice_Code:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}", 
-	amountTotal:{DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD['amount_total']}){{
+	amountTotal:"{DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD['amount_total']}"){{
     edges {{
       node {{
         isDeleted,
@@ -34,8 +34,8 @@ query {{
                         {'node': {
                             'isDeleted': False,
                             'code': 'LineItem1',
-                            'amountNet': "89.5",
-                            'amountTotal': "91.5",
+                            'amountNet': "89.50",
+                            'amountTotal': "91.50",
                             'taxRate': None,
                             'lineId': F'{self.invoice_line_item.line.id}',
                             'lineType': self.invoice_line_item.line_type.id
