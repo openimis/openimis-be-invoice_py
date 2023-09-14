@@ -23,6 +23,8 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
         CANCELLED = 3, _('cancelled')
         DELETED = 4, _('deleted')
         SUSPENDED = 5, _('suspended')
+        UNPAID = 6, _('unpaid')
+        RECONCILIATED = 7, _('reconciliated')
 
     thirdparty_type = models.ForeignKey(ContentType, models.DO_NOTHING,
                                           db_column='ThirdpartyType', null=True, unique=False)
