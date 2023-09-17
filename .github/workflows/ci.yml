@@ -2,6 +2,8 @@ name: Module CI
 on:
   pull_request:
   push:
+    - devlop
+    - main
   workflow_dispatch:
     inputs:
       comment:
