@@ -19,5 +19,5 @@ jobs:
     name: Default CI Flow
     uses: openimis/openimis-be_py/.github/workflows/ci_module.yml@sonar_update
     with:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_TOKEN: "${{ secrets.SONAR_TOKEN }}"
 
