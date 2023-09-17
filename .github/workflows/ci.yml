@@ -1,6 +1,7 @@
 name: Module CI
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
   push:
   workflow_dispatch:
     inputs:
