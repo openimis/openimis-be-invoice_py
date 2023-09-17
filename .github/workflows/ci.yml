@@ -12,4 +12,3 @@ on:
 jobs:
   call:
     uses: openimis/openimis-be_py/.github/workflows/ci_module.yml@sonar_update
-
