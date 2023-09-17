@@ -18,19 +18,12 @@ jobs:
   call:
     name: Default CI Flow
     uses: openimis/openimis-be_py/.github/workflows/ci_module.yml@sonar_update
-    env:
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    with:
       SONAR_PROJECT_KEY: openimis_openimis-be-invoice_py
       SONAR_ORGANIZATION: openimis-1
       SONAR_PROJECT_NAME: openimis-be-invoice_py
       SONAR_PROJECT_VERSION: 1.0
       SONAR_SOURCES: invoice
       SONAR_EXCLUSIONS: "**/migrations/**, **/static/**, **/media/**, **/tests/**"
-    secrets:
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    with:
-      SONAR_PROJECT_KEY: ${{ env.SONAR_PROJECT_KEY }}
-      SONAR_ORGANIZATION: ${{ env.SONAR_ORGANIZATION }}
-      SONAR_PROJECT_NAME: ${{ env.SONAR_PROJECT_NAME }}
-      SONAR_PROJECT_VERSION: ${{ env.SONAR_PROJECT_VERSION }}
-      SONAR_SOURCES: ${{ env.SONAR_SOURCES }}
-      SONAR_EXCLUSIONS: ${{ env.SONAR_EXCLUSIONS }}
