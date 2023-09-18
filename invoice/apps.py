@@ -89,44 +89,12 @@ class InvoiceConfig(AppConfig):
     gql_bill_event_delete_my_message_perms = None
     gql_bill_event_delete_all_message_perms = None
 
+    def __load_config(self, cfg):
+        for field in cfg:
+            if hasattr(InvoiceConfig, field):
+                setattr(InvoiceConfig, field, cfg[field])
+
     def ready(self):
         from core.models import ModuleConfiguration
         cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
-        self._configure_perms(cfg)
-
-    def _configure_perms(self, cfg):
-        InvoiceConfig.default_currency_code = cfg["default_currency_code"]
-        InvoiceConfig.gql_invoice_search_perms = cfg["gql_invoice_search_perms"]
-        InvoiceConfig.gql_invoice_create_perms = cfg["gql_invoice_create_perms"]
-        InvoiceConfig.gql_invoice_update_perms = cfg["gql_invoice_update_perms"]
-        InvoiceConfig.gql_invoice_delete_perms = cfg["gql_invoice_delete_perms"]
-        InvoiceConfig.gql_invoice_amend_perms = cfg["gql_invoice_amend_perms"]
-        InvoiceConfig.gql_invoice_payment_search_perms = cfg["gql_invoice_payment_search_perms"]
-        InvoiceConfig.gql_invoice_payment_create_perms = cfg["gql_invoice_payment_create_perms"]
-        InvoiceConfig.gql_invoice_payment_update_perms = cfg["gql_invoice_payment_update_perms"]
-        InvoiceConfig.gql_invoice_payment_delete_perms = cfg["gql_invoice_payment_delete_perms"]
-        InvoiceConfig.gql_invoice_payment_refund_perms = cfg["gql_invoice_payment_refund_perms"]
-        InvoiceConfig.gql_invoice_event_search_perms = cfg["gql_invoice_event_search_perms"]
-        InvoiceConfig.gql_invoice_event_create_perms = cfg["gql_invoice_event_create_perms"]
-        InvoiceConfig.gql_invoice_event_update_perms = cfg["gql_invoice_event_update_perms"]
-        InvoiceConfig.gql_invoice_event_delete_perms = cfg["gql_invoice_event_delete_perms"]
-        InvoiceConfig.gql_invoice_event_create_message_perms = cfg["gql_invoice_event_create_message_perms"]
-        InvoiceConfig.gql_invoice_event_delete_my_message_perms = cfg["gql_invoice_event_delete_my_message_perms"]
-        InvoiceConfig.gql_invoice_event_delete_all_message_perms = cfg["gql_invoice_event_delete_all_message_perms"]
-        InvoiceConfig.gql_bill_search_perms = cfg["gql_bill_search_perms"]
-        InvoiceConfig.gql_bill_create_perms = cfg["gql_bill_create_perms"]
-        InvoiceConfig.gql_bill_update_perms = cfg["gql_bill_update_perms"]
-        InvoiceConfig.gql_bill_delete_perms = cfg["gql_bill_delete_perms"]
-        InvoiceConfig.gql_bill_amend_perms = cfg["gql_bill_amend_perms"]
-        InvoiceConfig.gql_bill_payment_search_perms = cfg["gql_bill_payment_search_perms"]
-        InvoiceConfig.gql_bill_payment_create_perms = cfg["gql_bill_payment_create_perms"]
-        InvoiceConfig.gql_bill_payment_update_perms = cfg["gql_bill_payment_update_perms"]
-        InvoiceConfig.gql_bill_payment_delete_perms = cfg["gql_bill_payment_delete_perms"]
-        InvoiceConfig.gql_bill_payment_refund_perms = cfg["gql_bill_payment_refund_perms"]
-        InvoiceConfig.gql_bill_event_search_perms = cfg["gql_bill_event_search_perms"]
-        InvoiceConfig.gql_bill_event_create_perms = cfg["gql_bill_event_create_perms"]
-        InvoiceConfig.gql_bill_event_update_perms = cfg["gql_bill_event_update_perms"]
-        InvoiceConfig.gql_bill_event_delete_perms = cfg["gql_bill_event_delete_perms"]
-        InvoiceConfig.gql_bill_event_create_message_perms = cfg["gql_bill_event_create_message_perms"]
-        InvoiceConfig.gql_bill_event_delete_my_message_perms = cfg["gql_bill_event_delete_my_message_perms"]
-        InvoiceConfig.gql_bill_event_delete_all_message_perms = cfg["gql_bill_event_delete_all_message_perms"]
+        self.__load_config(cfg)
