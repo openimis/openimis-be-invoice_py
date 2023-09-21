@@ -84,7 +84,7 @@ class ServiceTestPaymentInvoice(TestCase):
                 DetailPaymentInvoice.DetailPaymentStatus.ACCEPTED
             )
             detail_payment_invoice = DetailPaymentInvoice.objects.filter(payment__code_ext=payment.code_ext).first()
-            self.assertEqual(detail_payment_invoice.subject.status, Invoice.Status.PAYED)
+            self.assertEqual(detail_payment_invoice.subject.status, Invoice.Status.PAID)
             self.assertEqual(detail_payment_invoice.status, DetailPaymentInvoice.DetailPaymentStatus.ACCEPTED)
             DetailPaymentInvoice.objects.filter(payment__code_ext=payment.code_ext).delete()
             PaymentInvoice.objects.filter(code_ext=payment.code_ext).delete()

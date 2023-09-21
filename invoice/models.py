@@ -19,7 +19,7 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     class Status(models.IntegerChoices):
         DRAFT = 0, _('draft')
         VALIDATED = 1, _('validated')
-        PAYED = 2, _('payed')
+        PAID = 2, _('paid')
         CANCELLED = 3, _('cancelled')
         DELETED = 4, _('deleted')
         SUSPENDED = 5, _('suspended')

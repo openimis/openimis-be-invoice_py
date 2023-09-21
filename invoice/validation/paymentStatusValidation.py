@@ -104,7 +104,7 @@ class InvoicePaymentReceiveStatusValidator(GenericPaymentStatusValidation):
 
 
 class InvoicePaymentRefundStatusValidator(GenericPaymentStatusValidation):
-    allowed_invoice_statuses = [Invoice.Status.PAYED]
+    allowed_invoice_statuses = [Invoice.Status.PAID]
     error_message_invalid_invoice = _(
         "Invoice %(invoice)s can't be refunded. Invoice has to be in PAYED status, currently it's %(invoice_status)s."
     )
@@ -117,7 +117,7 @@ class InvoicePaymentRefundStatusValidator(GenericPaymentStatusValidation):
 
 
 class InvoicePaymentCancelStatusValidator(GenericPaymentStatusValidation):
-    allowed_invoice_statuses = [Invoice.Status.PAYED]
+    allowed_invoice_statuses = [Invoice.Status.PAID]
 
     error_message_invalid_invoice = _(
         "Invoice %(invoice)s can't be canceled. Invoice has to be in PAYED status, currently it's %(invoice_status)s."

@@ -69,7 +69,7 @@ class PaymentInvoiceService(BaseService):
                 self._update_all_dependencies_for_payment(
                     payment_invoice,
                     payment_status,
-                    Invoice.Status.PAYED
+                    Invoice.Status.PAID
                 )
                 dict_repr = model_representation(payment_invoice)
                 return output_result_success(dict_representation=dict_repr)
