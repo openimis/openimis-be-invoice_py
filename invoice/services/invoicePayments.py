@@ -38,7 +38,7 @@ class InvoicePaymentsService(BaseService):
                 invoice_payment.status = payment_status
                 self.validation_class.validate_receive_payment(self.user, invoice_payment)
 
-                self._update_invoice_status(invoice_payment.invoice, Invoice.Status.PAYED)
+                self._update_invoice_status(invoice_payment.invoice, Invoice.Status.PAID)
 
                 invoice_payment.invoice.save(username=self.user.username)
                 return self.save_instance(invoice_payment)
