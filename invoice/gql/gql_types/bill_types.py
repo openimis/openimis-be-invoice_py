@@ -52,11 +52,18 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
             underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
         }
         if root.subject_type.name == "batch run":
-            location = Location.objects.filter(id=subject_object_dict['locationId'], validity_to__isnull=True)
-            location = location.values('code', 'name')
-            subject_object_dict['location'] = {
-                underscore_to_camel(k): v for k, v in location.first().items()
-            }
+            location = (Location.objects.filter(id=subject_object_dict['locationId'],
+                                                validity_to__isnull=True)
+                                        .values('code', 'name'))
+            if location:
+                subject_object_dict['location'] = {
+                    underscore_to_camel(k): v for k, v in location.first().items()
+                }
+            else:
+                subject_object_dict['location'] = {
+                    "code": "National",
+                    "name": ""
+                }
         subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
         return subject_object_dict
 

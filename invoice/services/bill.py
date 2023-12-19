@@ -65,7 +65,7 @@ class BillService(BaseService):
                     if result_bill_line["success"] is True:
                         bill_update["amount_net"] += float(result_bill_line["data"]["amount_net"])
                         bill_update["amount_total"] += float(result_bill_line["data"]["amount_total"])
-                        bill_update["amount_discount"] += 0 if result_bill_line["data"]["discount"] else result_bill_line["data"]["discount"]
+                        bill_update["amount_discount"] += float(result_bill_line["data"]["discount"]) if result_bill_line["data"]["discount"] else 0
                 generated_bill = bill_service.update(bill_update)
                 return generated_bill
 
