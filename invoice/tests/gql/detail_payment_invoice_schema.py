@@ -77,12 +77,12 @@ mutation {{
                 'detailPaymentInvoice': {
                     'edges': [
                         {'node': {
-                            'isDeleted': False,
                             'amount': '91.50',
-                            'status': 'A_1',
                             'fees': '12.00',
-                            'subjectTypeName': 'invoice',
+                            'isDeleted': False,
+                            'status': 'A_1',
                             'subjectId': f"{invoice.id}",
+                            'subjectTypeName': "invoice",
                         }}]}}}
         self.assertEqual(output, expected)
         InvoiceLineItem.objects.filter(id=invoice_item.id).delete()

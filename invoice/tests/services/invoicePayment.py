@@ -142,7 +142,7 @@ class ServiceTestInvoicePayments(TestCase):
     def test_payment_refunded(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
-            payment.invoice.status = Invoice.Status.PAYED
+            payment.invoice.status = Invoice.Status.PAID
             payment.status = InvoicePayment.PaymentStatus.ACCEPTED
 
             out = self.invoice_payment_service.payment_refunded(payment)
@@ -164,7 +164,7 @@ class ServiceTestInvoicePayments(TestCase):
             detail = [str(InvoicePaymentRefundStatusValidator.error_message_invalid_invoice
                           % {'invoice': self.invoice,
                              'invoice_status': self.invoice.status.label,
-                             'allowed_invoice': Invoice.Status.PAYED.label})]
+                             'allowed_invoice': Invoice.Status.PAID.label})]
             message = 'Failed to payment_refunded InvoicePayment'
             self._assert_output_invalid(out, message, detail)
             self.invoice.status = Invoice.Status.VALIDATED
@@ -173,7 +173,7 @@ class ServiceTestInvoicePayments(TestCase):
     def test_payment_refunded_invalid_payment_status(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
-            payment.invoice.status = Invoice.Status.PAYED
+            payment.invoice.status = Invoice.Status.PAID
             payment.status = InvoicePayment.PaymentStatus.REJECTED
 
             out = self.invoice_payment_service.payment_refunded(payment)
@@ -194,7 +194,7 @@ class ServiceTestInvoicePayments(TestCase):
             detail = [str(InvoicePaymentCancelStatusValidator.error_message_invalid_invoice
                           % {'invoice': self.invoice,
                              'invoice_status': self.invoice.status.label,
-                             'allowed_invoice': Invoice.Status.PAYED.label})]
+                             'allowed_invoice': Invoice.Status.PAID.label})]
             message = 'Failed to payment_refunded InvoicePayment'
             self._assert_output_invalid(out, message, detail)
             self.invoice.status = Invoice.Status.VALIDATED
@@ -203,7 +203,7 @@ class ServiceTestInvoicePayments(TestCase):
     def test_payment_cancel_invalid_payment_status(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
-            payment.invoice.status = Invoice.Status.PAYED
+            payment.invoice.status = Invoice.Status.PAID
             payment.status = InvoicePayment.PaymentStatus.REJECTED
 
             out = self.invoice_payment_service.payment_cancelled(payment)
@@ -217,7 +217,7 @@ class ServiceTestInvoicePayments(TestCase):
     def test_payment_cancelled(self):
         with transaction.atomic():
             payment = self._create_payment(self.BASE_TEST_INVOICE_PAYMENT_PAYLOAD)
-            payment.invoice.status = Invoice.Status.PAYED
+            payment.invoice.status = Invoice.Status.PAID
             payment.status = InvoicePayment.PaymentStatus.ACCEPTED
 
             out = self.invoice_payment_service.payment_cancelled(payment)

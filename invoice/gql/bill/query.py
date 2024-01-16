@@ -36,8 +36,6 @@ def patch_subjects(bills_df: DataFrame):
                 str(x['id']): F"{x['family__head_insuree__other_names']} {x['family__head_insuree__last_name']} ({x['family__head_insuree__chf_id']})" for x in subject_names
             }
             updated = bills_df['subject_type'] == subject
-            print(bills_df[updated])
-            print(bills_df[updated]['subject_id'])
             bills_df.loc[updated, 'subject_id'] = bills_df[updated]['subject_id'].apply(lambda x: names[x])
         bills_df.loc[bills_df['subject_type'] == subject, 'subject_class'] = model.__name__
         bills_df['subject_type'] = bills_df.pop('subject_class')

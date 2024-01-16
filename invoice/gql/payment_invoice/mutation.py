@@ -101,7 +101,7 @@ class CreatePaymentInvoiceWithDetailMutation(BaseHistoryModelCreateMutationMixin
 
     @classmethod
     def _convert_content_type(cls, subject_type):
-        return ContentType.objects.get(model=subject_type)
+        return ContentType.objects.get(model__iexact=subject_type)
 
     @classmethod
     def _validate_mutation(cls, user, **data):
