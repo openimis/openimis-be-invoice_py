@@ -101,21 +101,21 @@ class GenericInvoicePayment(GenericInvoiceQuerysetMixin, HistoryModel):
         REFUNDED = 2, _('refunded')
         CANCELLED = 3, _('cancelled')
 
-    code_tp = models.CharField(db_column='CodeTp', max_length=255, null=True)
-    code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
-    code_receipt = models.CharField(db_column='CodeReceipt', max_length=255, null=True)
+    code_tp = models.CharField(db_column='CodeTp', max_length=255, blank=True, null=True)
+    code_ext = models.CharField(db_column='CodeExt', max_length=255, blank=True, null=True)
+    code_receipt = models.CharField(db_column='CodeReceipt', max_length=255, blank=True, null=True)
 
-    label = models.CharField(db_column='Label', max_length=255, null=True)
+    label = models.CharField(db_column='Label', max_length=255,  blank=True, null=True)
 
     status = models.SmallIntegerField(db_column='Status', null=False, choices=PaymentStatus.choices)
 
-    amount_payed = models.DecimalField(db_column='AmountPayed', max_digits=18, decimal_places=2, null=True)
-    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2, null=True)
-    amount_received = models.DecimalField(db_column='AmountReceived', max_digits=18, decimal_places=2, null=True)
+    amount_payed = models.DecimalField(db_column='AmountPayed', max_digits=18, decimal_places=2,  blank=True, null=True)
+    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2,  blank=True, null=True)
+    amount_received = models.DecimalField(db_column='AmountReceived', max_digits=18, decimal_places=2,  blank=True, null=True)
 
-    date_payment = DateField(db_column='DatePayment', null=True)
+    date_payment = DateField(db_column='DatePayment',  blank=True, null=True)
 
-    payment_origin = models.CharField(db_column='PaymentOrigin', max_length=255, null=True)
+    payment_origin = models.CharField(db_column='PaymentOrigin', max_length=255,  blank=True, null=True)
 
     objects = GenericInvoiceManager()
 
@@ -131,7 +131,7 @@ class GenericInvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
         PAYMENT = 3, _('payment')
         PAYMENT_ERROR = 4, _('payment_error')
 
-    message = models.CharField(db_column='Message', max_length=500, null=True)
+    message = models.CharField(db_column='Message', max_length=500,  blank=True, null=True)
     event_type = models.SmallIntegerField(
         db_column='Status', null=False, choices=EventType.choices, default=EventType.MESSAGE)
 
@@ -143,11 +143,11 @@ class GenericInvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
 
 class Invoice(GenericInvoice):
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
-                                        db_column='SubjectType', null=True, related_name='subject_type', unique=False)
-    subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)  # object is referenced by uuid
+                                        db_column='SubjectType',  blank=True, null=True, related_name='subject_type', unique=False)
+    subject_id = models.CharField(db_column='SubjectId', max_length=255,  blank=True, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
-    date_invoice = DateField(db_column='DateInvoice', default=date.today, null=True)
+    date_invoice = DateField(db_column='DateInvoice', default=date.today,  blank=True, null=True)
 
     class Meta:
         managed = True
@@ -156,8 +156,8 @@ class Invoice(GenericInvoice):
 
 class InvoiceLineItem(GenericInvoiceLineItem):
     line_type = models.ForeignKey(
-        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type', unique=False)
-    line_id = models.CharField(db_column='LineId', max_length=255, null=True)  # object is referenced by uuid
+        ContentType, models.DO_NOTHING, db_column='LineType',  blank=True, null=True, related_name='line_type', unique=False)
+    line_id = models.CharField(db_column='LineId', max_length=255,  blank=True, null=True)  # object is referenced by uuid
     line = GenericForeignKey('line_type', 'line_id')
 
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="line_items")
@@ -199,8 +199,8 @@ class Bill(GenericInvoice):
 
 class BillItem(GenericInvoiceLineItem):
     line_type = models.ForeignKey(
-        ContentType, models.DO_NOTHING, db_column='LineType', null=True, related_name='line_type_bill', unique=False)
-    line_id = models.CharField(db_column='LineId', max_length=255, null=True)  # object is referenced by uuid
+        ContentType, models.DO_NOTHING, db_column='LineType',  blank=True, null=True, related_name='line_type_bill', unique=False)
+    line_id = models.CharField(db_column='LineId', max_length=255,  blank=True, null=True)  # object is referenced by uuid
     line = GenericForeignKey('line_type', 'line_id')
 
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="line_items_bill")
@@ -306,24 +306,24 @@ class PaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
         REFUNDED = 2, _('refunded')
         CANCELLED = 3, _('cancelled')
 
-    code_tp = models.CharField(db_column='CodeTp', max_length=255, null=True)
-    code_ext = models.CharField(db_column='CodeExt', max_length=255, null=True)
-    code_receipt = models.CharField(db_column='CodeReceipt', max_length=255, null=True)
+    code_tp = models.CharField(db_column='CodeTp', max_length=255,  blank=True, null=True)
+    code_ext = models.CharField(db_column='CodeExt', max_length=255,  blank=True, null=True)
+    code_receipt = models.CharField(db_column='CodeReceipt', max_length=255,  blank=True, null=True)
 
-    label = models.CharField(db_column='Label', max_length=255, null=True)
+    label = models.CharField(db_column='Label', max_length=255,  blank=True, null=True)
 
     reconciliation_status = models.SmallIntegerField(db_column='ReconciliationStatus', null=False,
                                                      choices=ReconciliationStatus.choices)
 
-    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2, null=True)
-    amount_received = models.DecimalField(db_column='AmountReceived', max_digits=18, decimal_places=2, null=True)
+    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2,  blank=True, null=True)
+    amount_received = models.DecimalField(db_column='AmountReceived', max_digits=18, decimal_places=2,  blank=True, null=True)
 
-    date_payment = DateField(db_column='DatePayment', null=True)
+    date_payment = DateField(db_column='DatePayment',  blank=True, null=True)
 
-    payment_origin = models.CharField(db_column='PaymentOrigin', max_length=255, null=True)
+    payment_origin = models.CharField(db_column='PaymentOrigin', max_length=255,  blank=True, null=True)
 
     payer_ref = models.CharField(db_column='PayerRef', max_length=255)
-    payer_name = models.CharField(db_column='PayerName', max_length=255, null=True)
+    payer_name = models.CharField(db_column='PayerName', max_length=255,  blank=True, null=True)
 
     objects = GenericInvoiceManager()
 
@@ -343,16 +343,16 @@ class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
                                 db_column='PaymentUUID', related_name="invoice_payments")
 
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING, db_column='SubjectType',
-                                     related_name='subject_type_payment', null=True, unique=False)
-    subject_id = models.CharField(db_column='SubjectId', max_length=255, null=True)
+                                     related_name='subject_type_payment',  blank=True, null=True, unique=False)
+    subject_id = models.CharField(db_column='SubjectId', max_length=255,  blank=True, null=True)
     subject = GenericForeignKey('subject_type', 'subject_id')
 
     status = models.SmallIntegerField(db_column='Status', null=False, choices=DetailPaymentStatus.choices)
-    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2, null=True)
-    amount = models.DecimalField(db_column='Amount', max_digits=18, decimal_places=2, null=True)
+    fees = models.DecimalField(db_column='Fees', max_digits=18, decimal_places=2,  blank=True, null=True)
+    amount = models.DecimalField(db_column='Amount', max_digits=18, decimal_places=2,  blank=True, null=True)
 
-    reconcilation_id = models.CharField(db_column='ReconcilationId', max_length=255, null=True)
-    reconcilation_date = models.DateField(db_column='ReconcilationDate', null=True)
+    reconcilation_id = models.CharField(db_column='ReconcilationId', max_length=255,  blank=True, null=True)
+    reconcilation_date = models.DateField(db_column='ReconcilationDate',  blank=True, null=True)
 
     objects = GenericInvoiceManager()
 
