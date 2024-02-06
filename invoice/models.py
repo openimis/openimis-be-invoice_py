@@ -71,7 +71,7 @@ class GenericInvoiceLineItem(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     code = models.CharField(db_column='Code', max_length=255, null=False)
 
     description = models.TextField(db_column='Description', blank=True, null=True)
-    details = models.JSONField(db_column='Details', null=True)
+    details = models.JSONField(db_column='Details', blank=True, null=True)
 
     ledger_account = models.CharField(db_column='LedgerAccount', max_length=255, blank=True, null=True)
 
