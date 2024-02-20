@@ -1,3 +1,4 @@
+import decimal
 from typing import Union, List
 
 from invoice.models import Bill, BillItem
@@ -9,7 +10,6 @@ from core.signals import *
 
 
 class BillService(BaseService):
-
     OBJECT_TYPE = Bill
 
     def __init__(self, user, validation_class: BillModelValidation = BillModelValidation):
@@ -55,17 +55,19 @@ class BillService(BaseService):
             if result_bill["success"] is True:
                 bill_update = {
                     "id": result_bill["data"]["id"],
-                    "amount_net": 0,
-                    "amount_total": 0,
-                    "amount_discount": 0
+                    "amount_net": decimal.Decimal(0),
+                    "amount_total": decimal.Decimal(0),
+                    "amount_discount": decimal.Decimal(0),
                 }
                 for bill_line_item in bill_line_items:
                     bill_line_item["bill_id"] = result_bill["data"]["id"]
                     result_bill_line = bill_line_item_service.create(bill_line_item)
                     if result_bill_line["success"] is True:
-                        bill_update["amount_net"] += float(result_bill_line["data"]["amount_net"])
-                        bill_update["amount_total"] += float(result_bill_line["data"]["amount_total"])
-                        bill_update["amount_discount"] += 0 if result_bill_line["data"]["discount"] else result_bill_line["data"]["discount"]
+                        bill_update["amount_net"] += decimal.Decimal(result_bill_line["data"]["amount_net"])
+                        bill_update["amount_total"] += decimal.Decimal(result_bill_line["data"]["amount_total"])
+                        bill_update["amount_discount"] += decimal.Decimal(0) \
+                            if not result_bill_line["data"]["discount"] \
+                            else decimal.Decimal(result_bill_line["data"]["discount"])
                 generated_bill = bill_service.update(bill_update)
                 return generated_bill
 
