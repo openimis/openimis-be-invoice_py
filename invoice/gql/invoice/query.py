@@ -38,8 +38,8 @@ class InvoiceQueryMixin:
             filters.append(Q(thirdparty_type__model=thirdparty_type))
 
         qs = Invoice.objects.filter(*filters)
-        if InvoiceConfig.invoice_legal_filter:
-            qs = InvoiceConfig.invoice_legal_filter(qs, info.context.user)
+        if InvoiceConfig.invoice_user_filter:
+            qs = InvoiceConfig.invoice_user_filter(qs, info.context.user)
 
         return gql_optimizer.query(qs, info)
 

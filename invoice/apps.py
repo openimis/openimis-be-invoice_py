@@ -49,8 +49,8 @@ DEFAULT_CONFIG = {
 
     # Functions of type Callable[[QuerySet, User], QuerySet], to be used as custom user filters for bills and invoices
     # To be specified as "module_name.submodule.function_name"
-    "bill_legal_filter_function": None,
-    "invoice_legal_filter_function": None,
+    "bill_user_filter_function": None,
+    "invoice_user_filter_function": None,
 }
 
 logger = logging.getLogger(__name__)
@@ -95,14 +95,14 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
     gql_bill_event_delete_my_message_perms = None
     gql_bill_event_delete_all_message_perms = None
 
-    bill_legal_filter = None
-    invoice_legal_filter = None
+    bill_user_filter = None
+    invoice_user_filter = None
 
     def ready(self):
         from core.models import ModuleConfiguration
         cfg = ModuleConfiguration.get_or_default(MODULE_NAME, DEFAULT_CONFIG)
         self._load_config_fields(cfg)
-        if cfg['bill_legal_filter_function']:
-            self._load_config_function('bill_legal_filter', cfg['bill_legal_filter_function'])
-        if cfg['invoice_legal_filter_function']:
-            self._load_config_function('invoice_legal_filter', cfg['invoice_legal_filter_function'])
+        if cfg['bill_user_filter_function']:
+            self._load_config_function('bill_user_filter', cfg['bill_user_filter_function'])
+        if cfg['invoice_user_filter_function']:
+            self._load_config_function('invoice_user_filter', cfg['invoice_user_filter_function'])

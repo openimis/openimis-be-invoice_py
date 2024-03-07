@@ -72,8 +72,8 @@ class BillQueryMixin(ExportableQueryMixin):
             filters.append(Q(thirdparty_type__model=thirdparty_type))
 
         qs = Bill.objects.filter(*filters)
-        if InvoiceConfig.bill_legal_filter:
-            qs = InvoiceConfig.bill_legal_filter(qs, info.context.user)
+        if InvoiceConfig.bill_user_filter:
+            qs = InvoiceConfig.bill_user_filter(qs, info.context.user)
 
         return gql_optimizer.query(qs, info)
 
