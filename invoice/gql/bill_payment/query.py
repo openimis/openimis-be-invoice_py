@@ -6,7 +6,7 @@ from core.schema import OrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.bill_types import BillPaymentGQLType
-from invoice.models import BillPayment
+from invoice.models import BillPayment, Bill
 import graphene_django_optimizer as gql_optimizer
 
 
@@ -28,12 +28,16 @@ class BillPaymentQueryMixin:
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
-        BillPaymentQueryMixin._check_permissions(info.context.user)
-        return gql_optimizer.query(BillPayment.objects.filter(*filters).all(), info)
+        bill_payment_qs = BillPayment.objects.filter(*filters)
+
+        if InvoiceConfig.bill_user_filter:
+            bill_qs = InvoiceConfig.bill_user_filter(Bill.objects.all(), info.context.user)
+            bill_payment_qs = bill_payment_qs.filter(bill__in=bill_qs)
+
+        return gql_optimizer.query(bill_payment_qs, info)
 
     @staticmethod
     def _check_permissions(user):
         if type(user) is AnonymousUser or not user.id or not user.has_perms(
                 InvoiceConfig.gql_bill_payment_search_perms):
             raise PermissionError("Unauthorized")
-

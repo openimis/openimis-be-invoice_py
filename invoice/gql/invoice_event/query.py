@@ -6,7 +6,7 @@ from core.schema import OrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.invoice_types import InvoiceEventGQLType
-from invoice.models import InvoiceEvent
+from invoice.models import InvoiceEvent, Invoice
 import graphene_django_optimizer as gql_optimizer
 
 
@@ -21,6 +21,7 @@ class InvoiceEventQueryMixin:
     )
 
     def resolve_invoice_event(self, info, **kwargs):
+        InvoiceEventQueryMixin._check_permissions(info.context.user)
         filters = []
         filters += append_validity_filter(**kwargs)
 
@@ -28,13 +29,16 @@ class InvoiceEventQueryMixin:
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
-        InvoiceEventQueryMixin._check_permissions(info.context.user)
-        return gql_optimizer.query(InvoiceEvent.objects.filter(*filters).all(), info)
+        invoice_event_qs = InvoiceEvent.objects.filter(*filters)
+
+        if InvoiceConfig.invoice_user_filter:
+            invoice_qs = InvoiceConfig.invoice_user_filter(Invoice.objects.all(), info.context.user)
+            invoice_event_qs = invoice_event_qs.filter(invoice__in=invoice_qs)
+
+        return gql_optimizer.query(invoice_event_qs, info)
 
     @staticmethod
     def _check_permissions(user):
         if type(user) is AnonymousUser or not user.id or not user.has_perms(
                 InvoiceConfig.gql_invoice_event_search_perms):
             raise PermissionError("Unauthorized")
-
-
