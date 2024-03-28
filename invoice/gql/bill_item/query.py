@@ -6,7 +6,7 @@ from core.schema import OrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.bill_types import BillItemGQLType
-from invoice.models import BillItem
+from invoice.models import BillItem, Bill
 import graphene_django_optimizer as gql_optimizer
 
 
@@ -21,6 +21,7 @@ class BillItemQueryMixin:
     )
 
     def resolve_bill_item(self, info, **kwargs):
+        BillItemQueryMixin._check_permissions(info.context.user)
         filters = []
         filters += append_validity_filter(**kwargs)
 
@@ -32,8 +33,13 @@ class BillItemQueryMixin:
         if line_type:
             filters.append(Q(line_type__model=line_type))
 
-        BillItemQueryMixin._check_permissions(info.context.user)
-        return gql_optimizer.query(BillItem.objects.filter(*filters).all(), info)
+        bill_li_qs = BillItem.objects.filter(*filters)
+
+        if InvoiceConfig.bill_user_filter:
+            bill_qs = InvoiceConfig.bill_user_filter(Bill.objects.all(), info.context.user)
+            bill_li_qs = bill_li_qs.filter(bill__in=bill_qs)
+
+        return gql_optimizer.query(bill_li_qs, info)
 
     @staticmethod
     def _check_permissions(user):
