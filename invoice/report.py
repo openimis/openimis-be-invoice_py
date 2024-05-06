@@ -9,6 +9,6 @@ report_definitions = [
         "description": "Bill detail",
         "module": "invoice",
         "python_query": bill_detail_query,
-        "permission": ["131217"],
+        "permission": ["131233"],
     },
 ]
