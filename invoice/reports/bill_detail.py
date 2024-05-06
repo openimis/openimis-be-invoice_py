@@ -2,7 +2,6 @@ import logging
 
 from django.apps import apps
 
-from core.utils import get_nhia_logo
 from invoice.models import Bill
 
 # If manually pasting from reportbro and you have test data, search and replace \" with \\"
@@ -79,27 +78,6 @@ template = """
       "spreadsheet_colspan": "",
       "spreadsheet_addEmptyRow": false,
       "spreadsheet_textWrap": false
-    },
-    {
-      "elementType": "image",
-      "id": 649,
-      "containerId": "0_header",
-      "x": 10,
-      "y": 0,
-      "width": 80,
-      "height": 80,
-      "source": "${nhia_logo}",
-      "image": "",
-      "imageFilename": "",
-      "horizontalAlignment": "left",
-      "verticalAlignment": "top",
-      "backgroundColor": "",
-      "printIf": "",
-      "removeEmptyElement": false,
-      "link": "",
-      "spreadsheet_hide": false,
-      "spreadsheet_column": "",
-      "spreadsheet_addEmptyRow": false
     },
     {
       "elementType": "line",
@@ -3812,18 +3790,6 @@ template = """
       "testData": ""
     },
     {
-      "id": 647,
-      "name": "nhia_logo",
-      "type": "image",
-      "arrayItemType": "string",
-      "eval": false,
-      "nullable": false,
-      "pattern": "",
-      "expression": "",
-      "showOnlyNameType": false,
-      "testData": ""
-    },
-    {
       "id": 648,
       "name": "requested_by",
       "type": "string",
@@ -4283,7 +4249,6 @@ def bill_detail_query(user, bill_uuid: None, **kwargs):
 
     report_data = {
         "header": [header],
-        "nhia_logo": get_nhia_logo(),
         "requested_by": f"{user.username} - {user.other_names} {user.last_name}",
         "total_amount": bill.amount_net
     }
