@@ -3,6 +3,7 @@ from policy.test_helpers import create_test_policy
 from product.test_helpers import create_test_product
 
 from core.forms import User
+from core.test_helpers import compare_dicts
 from django.test import TestCase
 
 from invoice.models import InvoiceLineItem
@@ -76,8 +77,8 @@ class ServiceTestInvoiceLineItems(TestCase):
             'details': {"test_int": 1, "test_txt": "some_str"},
             'ledger_account': 'account2',
             'quantity': 12,
-            'unit_price': 10,
-            'discount': 20,
+            'unit_price': 10.0,
+            'discount': 20.0,
             'tax_analysis': {'lines': [{'code': 'c', 'label': 'l', 'base': '0.1', 'amount': '1.00'}], 'total': '1.0'},
             'line_id': None,
             'line_type': None
@@ -123,7 +124,7 @@ class ServiceTestInvoiceLineItems(TestCase):
             expected_response['data']['line_type'] = line_item.line_type.id
             expected_response['data']['line_id'] = self.policy.pk
 
-            self.assertDictEqual(expected_response, response)
+            self.assertTrue(compare_dicts(expected_response, response))
             InvoiceLineItem.objects.filter(code=payload['code']).delete()
 
     def test_line_items_update(self):
@@ -150,7 +151,7 @@ class ServiceTestInvoiceLineItems(TestCase):
             expected_response['data']['line_type'] = line_item.line_type.id
             expected_response['data']['line_id'] = str(self.policy.pk)
 
-            self.assertDictEqual(expected_response, response)
+            self.assertTrue(compare_dicts(expected_response, response))
             InvoiceLineItem.objects.filter(code=update_payload['code']).delete()
 
     def test_line_items_delete(self):

@@ -21,6 +21,7 @@ class InvoiceQueryMixin:
     )
 
     def resolve_invoice(self, info, **kwargs):
+        InvoiceQueryMixin._check_permissions(info.context.user)
         filters = []
         filters += append_validity_filter(**kwargs)
 
@@ -36,14 +37,14 @@ class InvoiceQueryMixin:
         if thirdparty_type:
             filters.append(Q(thirdparty_type__model=thirdparty_type))
 
-        InvoiceQueryMixin._check_permissions(info.context.user)
-        return gql_optimizer.query(Invoice.objects.filter(*filters).all(), info)
+        qs = Invoice.objects.filter(*filters)
+        if InvoiceConfig.invoice_user_filter:
+            qs = InvoiceConfig.invoice_user_filter(qs, info.context.user)
+
+        return gql_optimizer.query(qs, info)
 
     @staticmethod
     def _check_permissions(user):
         if type(user) is AnonymousUser or not user.id or not user.has_perms(
                 InvoiceConfig.gql_invoice_search_perms):
             raise PermissionError("Unauthorized")
-
-
-

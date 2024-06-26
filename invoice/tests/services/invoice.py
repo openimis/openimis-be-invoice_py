@@ -6,6 +6,7 @@ from django.test import TestCase
 
 from contract.tests.helpers import create_test_contract
 from core.forms import User
+from core.test_helpers import compare_dicts
 from insuree.test_helpers import create_test_insuree
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment
 from invoice.services import InvoiceService
@@ -153,7 +154,7 @@ class ServiceTestInvoice(TestCase):
             expected_response['data']['subject_type'] = invoice.subject_type.id
             expected_response['data']['thirdparty_type'] = invoice.thirdparty_type.id
 
-            self.assertDictEqual(expected_response, response)
+            self.assertTrue(compare_dicts(expected_response, response))
             Invoice.objects.filter(code=payload['code']).delete()
 
     def test_invoice_update(self):
@@ -175,7 +176,7 @@ class ServiceTestInvoice(TestCase):
             invoice = Invoice.objects.filter(code=update_payload['code']).first()
 
             expected_response['data']['thirdparty_type'] = invoice.thirdparty_type.id
-            self.assertDictEqual(expected_response, response)
+            self.assertTrue(compare_dicts(expected_response, response))
 
             Invoice.objects.filter(code=update_payload['code']).delete()
 

@@ -6,7 +6,7 @@ from core.schema import OrderedDjangoFilterConnectionField
 from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.invoice_types import InvoiceLineItemGQLType
-from invoice.models import InvoiceLineItem
+from invoice.models import InvoiceLineItem, Invoice
 import graphene_django_optimizer as gql_optimizer
 
 
@@ -21,6 +21,7 @@ class InvoiceLineItemQueryMixin:
     )
 
     def resolve_invoice_line_item(self, info, **kwargs):
+        InvoiceLineItemQueryMixin._check_invoice_permissions(info.context.user)
         filters = []
         filters += append_validity_filter(**kwargs)
 
@@ -32,8 +33,13 @@ class InvoiceLineItemQueryMixin:
         if line_type:
             filters.append(Q(line_type__model=line_type))
 
-        InvoiceLineItemQueryMixin._check_invoice_permissions(info.context.user)
-        return gql_optimizer.query(InvoiceLineItem.objects.filter(*filters).all(), info)
+        invoice_li_qs = InvoiceLineItem.objects.filter(*filters)
+
+        if InvoiceConfig.invoice_user_filter:
+            invoice_qs = InvoiceConfig.invoice_user_filter(Invoice.objects.all(), info.context.user)
+            invoice_li_qs = invoice_li_qs.filter(invoice__in=invoice_qs)
+
+        return gql_optimizer.query(invoice_li_qs, info)
 
     @staticmethod
     def _check_invoice_permissions(user):
