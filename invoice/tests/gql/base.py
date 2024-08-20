@@ -27,7 +27,7 @@ class InvoiceGQLTestCase(TestCase):
         cls._graphene_setup()
 
         cls.maxDiff = None
-        if not User.objects.filter(username='admin_invoice').exists():
+        if not User.objects.filter(username='admin_invoice').first():
             User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
 
         cls.user = User.objects.filter(username='admin_invoice').first()
