@@ -52,12 +52,12 @@ query {{
             'result': None
         }
         mutation = self.create_invoice_mutation
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         signal_receiver_mock.assert_called_once_with(**_expected_call_args)
         pass
 
     def test_fetch_invoice_query(self):
-        output = self.graph_client.execute(self.search_for_invoice_query, context=self.BaseTestContext(self.user))
+        output = self.graph_client.execute(self.search_for_invoice_query, context=self.user_context.get_request())
         expected = \
             {'data': {
                 'invoice': {

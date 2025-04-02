@@ -116,9 +116,9 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_code=payment_code, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         output = self.graph_client.execute(self.search_for_payment_invoice_query,
-                                           context=self.BaseTestContext(self.user))
+                                           context=self.user_context.get_request())
         expected = \
             {'data': {
                 'paymentInvoice': {
@@ -138,7 +138,7 @@ mutation {{
     def test_fetch_payment_invoice_with_detail_query(self):
         payment = create_test_payment_invoice_with_details()
         output = self.graph_client.execute(self.search_for_payment_invoice_with_detail_query,
-                                           context=self.BaseTestContext(self.user))
+                                           context=self.user_context.get_request())
         expected = \
             {'data': {
                 'paymentInvoice': {
@@ -174,7 +174,7 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_code=payment_code, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         expected = PaymentInvoice.objects.get(code_ext=payment_code)
         mutation_log = MutationLog.objects.filter(client_mutation_id=mutation_client_id).first()
         obj = PaymentInvoiceMutation.objects.get(mutation_id=mutation_log.id).payment_invoice
@@ -188,7 +188,7 @@ mutation {{
         mutation = self.create_mutation_with_detail_str.format(
             payment_code=payment_code, mutation_id=mutation_client_id, invoice_uuid=invoice.id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         expected = PaymentInvoice.objects.get(code_ext=payment_code)
         mutation_log = MutationLog.objects.filter(client_mutation_id=mutation_client_id).first()
         obj = PaymentInvoiceMutation.objects.get(mutation_id=mutation_log.id).payment_invoice
@@ -204,11 +204,11 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_code=payment_code, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         expected = PaymentInvoice.objects.get(code_ext=payment_code)
         mutation_client_id = str(uuid.uuid4())
         mutation = self.delete_mutation_str.format(payment_uuid=expected.id, mutation_id=mutation_client_id)
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         # TODO: Currently deleted entries are not filtered by manager, only in GQL Query. Should we change this?
         payment = PaymentInvoice.objects.filter(code_ext=payment_code).all()
         mutation_ = PaymentInvoiceMutation.objects.filter(payment_invoice=payment[0]).all()
@@ -222,12 +222,12 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_code=payment_code, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
 
         created = PaymentInvoice.objects.get(code_ext=payment_code)
         mutation_client_id = str(uuid.uuid4())
         mutation = self.update_mutation_str.format(payment_uuid=created.id, mutation_id=mutation_client_id)
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
 
         expected_code_ext = "updExt"
         mutation_log = MutationLog.objects.filter(client_mutation_id=mutation_client_id).first()

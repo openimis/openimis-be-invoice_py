@@ -69,9 +69,9 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_uuid=payment.id, subject_uuid=invoice.id, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         output = self.graph_client.execute(self.search_for_detail_payment_invoice_query,
-                                           context=self.BaseTestContext(self.user))
+                                           context=self.user_context.get_request())
         expected = \
             {'data': {
                 'detailPaymentInvoice': {
@@ -94,7 +94,7 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_uuid=payment.id, subject_uuid=invoice.id, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         expected = DetailPaymentInvoice.objects.get(payment__id=payment.id)
         mutation_log = MutationLog.objects.filter(client_mutation_id=mutation_client_id).first()
         obj = DetailPaymentInvoiceMutation.objects.get(mutation_id=mutation_log.id).detail_payment_invoice
@@ -108,11 +108,11 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_uuid=payment.id, subject_uuid=invoice.id, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         expected = DetailPaymentInvoice.objects.get(payment__id=payment.id)
         mutation_client_id = str(uuid.uuid4())
         mutation = self.delete_mutation_str.format(payment_uuid=expected.id, mutation_id=mutation_client_id)
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
         # TODO: Currently deleted entries are not filtered by manager, only in GQL Query. Should we change this?
         detail_payment = DetailPaymentInvoice.objects.filter(payment__id=payment.id).all()
         mutation_ = DetailPaymentInvoiceMutation.objects.filter(detail_payment_invoice=detail_payment[0]).all()
@@ -128,12 +128,12 @@ mutation {{
         mutation = self.create_mutation_str.format(
             payment_uuid=payment.id, subject_uuid=invoice.id, mutation_id=mutation_client_id
         )
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
 
         created = DetailPaymentInvoice.objects.get(payment__id=payment.id)
         mutation_client_id = str(uuid.uuid4())
         mutation = self.update_mutation_str.format(detail_payment_uuid=created.id, mutation_id=mutation_client_id)
-        self.graph_client.execute(mutation, context=self.BaseTestContext(self.user))
+        self.graph_client.execute(mutation, context=self.user_context.get_request())
 
         expected_fees = "12.00"
         mutation_log = MutationLog.objects.filter(client_mutation_id=mutation_client_id).first()
