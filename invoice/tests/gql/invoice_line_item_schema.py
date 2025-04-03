@@ -26,7 +26,7 @@ query {{
 '''
 
     def test_fetch_invoice_query(self):
-        output = self.graph_client.execute(self.search_for_invoice_query, context=self.BaseTestContext(self.user))
+        output = self.graph_client.execute(self.search_for_invoice_query, context=self.user_context.get_request())
         expected = \
             {'data': {
                 'invoiceLineItem': {

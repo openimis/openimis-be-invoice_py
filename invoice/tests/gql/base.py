@@ -2,6 +2,7 @@ from graphene import Schema
 from graphene.test import Client
 from policy.test_helpers import create_test_policy
 from product.test_helpers import create_test_product
+from core.test_helpers import create_test_interactive_user
 
 from core.forms import User
 from django.test import TestCase
@@ -15,11 +16,9 @@ from invoice.tests.helpers import create_test_invoice, \
     create_test_invoice_line_item
 from invoice.tests.helpers.invoice_payment_helpers import create_test_invoice_payment
 
+from core.models.openimis_graphql_test_case import openIMISGraphQLTestCase, BaseTestContext
+class InvoiceGQLTestCase(openIMISGraphQLTestCase):
 
-class InvoiceGQLTestCase(TestCase):
-    class BaseTestContext:
-        def __init__(self, user):
-            self.user = user
 
     @classmethod
     def setUpClass(cls):
@@ -27,11 +26,8 @@ class InvoiceGQLTestCase(TestCase):
         cls._graphene_setup()
 
         cls.maxDiff = None
-        if not User.objects.filter(username='admin_invoice').first():
-            User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
-
-        cls.user = User.objects.filter(username='admin_invoice').first()
-
+        cls.user = create_test_interactive_user(username="admin_invoice")
+        cls.user_context = BaseTestContext(cls.user)
         cls.policy_holder = create_test_policy_holder()
         cls.contract = create_test_contract(cls.policy_holder)
         cls.insuree = create_test_insuree(with_family=True)
