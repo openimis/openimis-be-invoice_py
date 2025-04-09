@@ -11,8 +11,11 @@ from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.bill_types import BillGQLType
 from invoice.models import Bill
 import graphene_django_optimizer as gql_optimizer
-
-from policy.models import Policy
+from django.apps import apps
+try:
+    Policy = apps.get_model('policy','Policy')
+except:
+    Policy = {}
 
 
 def patch_subjects(bills_df: DataFrame):

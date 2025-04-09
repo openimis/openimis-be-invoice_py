@@ -4,7 +4,6 @@ import graphene
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 from graphql import GraphQLError
-from policy.apps import PolicyConfig
 
 from core.gql.gql_mutations.base_mutation import BaseMutation, BaseHistoryModelDeleteMutationMixin
 from core.schema import OpenIMISMutation
