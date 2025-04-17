@@ -2,9 +2,9 @@ import graphene
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from graphene_django import DjangoObjectType
+from django.apps import apps
 
 from core import prefix_filterset, ExtendedConnection
-from insuree.models import Insuree
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment, InvoiceEvent, InvoiceMutation, \
     InvoicePaymentMutation, InvoiceLineItemMutation, InvoiceEventMutation
@@ -43,6 +43,7 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
                 underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
             }
             if root.subject_type.name == "family":
+                Insuree = apps.get_model('insuree','Insuree')
                 insuree = Insuree.objects.filter(id=subject_object_dict['headInsureeId'], validity_to__isnull=True)
                 insuree = insuree.values('id', 'chf_id', 'uuid', 'last_name', 'other_names')
                 subject_object_dict['headInsuree'] = {
