@@ -245,7 +245,7 @@ class ServiceTestInvoice(TestCase):
             response = self.insuree_service.create(payload)
             invoice = Invoice.objects.filter(code=payload['code']).get()
             invoice.subject = None
-            invoice.save(username=self.user.username)
+            invoice.save(user=self.user)
             invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
 
             output = self.insuree_service.invoice_match_items(invoice)
@@ -264,9 +264,9 @@ class ServiceTestInvoice(TestCase):
             invoice = Invoice.objects.filter(code=payload['code']).get()
             invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
             invoice.subject = None
-            invoice.save(username=self.user.username)
+            invoice.save(user=self.user)
             invoice_line_item.line = None
-            invoice_line_item.save(username=self.user.username)
+            invoice_line_item.save(user=self.user)
 
             output = self.insuree_service.invoice_match_items(invoice)
             expected_output = {

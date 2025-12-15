@@ -35,7 +35,7 @@ class PaymentInvoiceService(BaseService):
         try:
             with transaction.atomic():
                 payment = PaymentInvoice(**payment_invoice)
-                payment.save(username=self.user.username)
+                payment.save(user=self.user)
                 payment_detail.payment = payment
                 payment_detail.subject = self._get_generic_object(
                     payment_detail.subject_id,
@@ -43,7 +43,7 @@ class PaymentInvoiceService(BaseService):
                 )
                 if 'reconciliation' in payment.json_ext:
                     payment_detail.reconcilation_id = payment.json_ext['reconciliation']['id']
-                payment_detail.save(username=self.user.username)
+                payment_detail.save(user=self.user)
                 dict_repr = model_representation(payment)
                 dict_repr['payment_detail_uuid'] = payment_detail.uuid
                 return output_result_success(dict_representation=dict_repr)
@@ -115,7 +115,7 @@ class PaymentInvoiceService(BaseService):
         for detail in detail_collection:
             if detail.status != status:
                 detail.status = status
-                detail.save(username=self.user.username)
+                detail.save(user=self.user)
 
     @classmethod
     def _get_generic_object(cls, subject_id, subject_type):

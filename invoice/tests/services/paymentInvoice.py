@@ -137,13 +137,13 @@ class ServiceTestPaymentInvoice(TestCase):
     def _create_payment(self, payment, payment_detail):
         payment = PaymentInvoice(**payment)
         payment.invoice = self.invoice
-        payment.save(username=self.user.username)
+        payment.save(user=self.user)
         payload_detail = DEFAULT_TEST_DETAIL_PAYMENT_INVOICE_PAYLOAD.copy()
         payload_detail['subject'] = self.invoice
         payload_detail['subject_type'] = ContentType.objects.get_for_model(self.invoice)
         payment_detail = DetailPaymentInvoice(**payload_detail)
         payment_detail.payment = payment
-        payment_detail.save(username=self.user.username)
+        payment_detail.save(user=self.user)
         return payment, payment_detail
 
     def _assert_output_valid(self, out, payment, expected):

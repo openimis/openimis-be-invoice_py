@@ -40,7 +40,7 @@ class InvoicePaymentsService(BaseService):
 
                 self._update_invoice_status(invoice_payment.invoice, Invoice.Status.PAID)
 
-                invoice_payment.invoice.save(username=self.user.username)
+                invoice_payment.invoice.save(user=self.user)
                 return self.save_instance(invoice_payment)
         except Exception as exc:
             return output_exception(model_name="InvoicePayment", method="payment_received", exception=exc)
@@ -52,7 +52,7 @@ class InvoicePaymentsService(BaseService):
                 self._update_payment_status(invoice_payment, InvoicePayment.PaymentStatus.REFUNDED)
                 self._update_invoice_status(invoice_payment.invoice, Invoice.Status.SUSPENDED)
 
-                invoice_payment.invoice.save(username=self.user.username)
+                invoice_payment.invoice.save(user=self.user)
                 return self.save_instance(invoice_payment)
         except Exception as exc:
             return output_exception(model_name="InvoicePayment", method="payment_refunded", exception=exc)
@@ -65,7 +65,7 @@ class InvoicePaymentsService(BaseService):
                 self._update_payment_status(invoice_payment.invoice, InvoicePayment.PaymentStatus.CANCELLED)
                 self._update_invoice_status(invoice_payment.invoice, Invoice.Status.SUSPENDED)
 
-                invoice_payment.invoice.save(username=self.user.username)
+                invoice_payment.invoice.save(user=self.user)
                 return self.save_instance(invoice_payment)
         except Exception as exc:
             return output_exception(model_name="InvoicePayment", method="payment_refunded", exception=exc)
