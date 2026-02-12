@@ -6,6 +6,7 @@ from policy.test_helpers import create_test_policy
 from product.test_helpers import create_test_product
 
 from core.forms import User
+from core.test_helpers import create_test_interactive_user
 from django.test import TestCase
 
 from invoice.models import Invoice, InvoicePayment
@@ -53,10 +54,9 @@ class ServiceTestInvoicePayments(TestCase):
     def setUpClass(cls):
         super(ServiceTestInvoicePayments, cls).setUpClass()
         cls.maxDiff = None
-        if not User.objects.filter(username='admin_invoice').exists():
-            User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+        
 
-        cls.user = User.objects.filter(username='admin_invoice').first()
+        cls.user = create_test_interactive_user(username='admin_invoice')
         cls.invoice_payment_service = InvoicePaymentsService(cls.user)
 
         cls.policy_holder = create_test_policy_holder()
@@ -79,7 +79,7 @@ class ServiceTestInvoicePayments(TestCase):
             payload['status'] = InvoicePayment.PaymentStatus.ACCEPTED
 
             payment = self._create_payment(payload)
-            payment.save(username=self.user.username)
+            payment.save(user=self.user)
 
             out = self.invoice_payment_service.ref_received(payment, 'code_ext1')
             expected = self.BASE_EXPECTED_SUCCESS_RESPONSE.copy()

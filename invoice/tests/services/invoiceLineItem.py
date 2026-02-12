@@ -93,7 +93,7 @@ class ServiceTestInvoiceLineItems(TestCase):
 
         cls.policy_holder = create_test_policy_holder()
         cls.contract = create_test_contract(cls.policy_holder)
-        cls.user = User.objects.filter(username='admin').first()
+        cls.user = User.objects.filter(username='Admin').first()
         cls.insuree = create_test_insuree(with_family=True)
         cls.line_item_service = InvoiceLineItemService(cls.user)
         cls.invoice = create_test_invoice(cls.contract, cls.insuree)
