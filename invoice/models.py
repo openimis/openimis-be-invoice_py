@@ -32,7 +32,7 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     thirdparty = GenericForeignKey('thirdparty_type', 'thirdparty_id')
 
     code_tp = models.CharField(db_column='CodeTp', max_length=255, blank=True, null=True)
-    code = models.CharField(db_column='Code', max_length=255, null=False)
+    code = models.CharField(db_column='Code', max_length=255, blank=True, default='')
     code_ext = models.CharField(db_column='CodeExt', max_length=255, blank=True, null=True)
 
     date_due = DateField(db_column='DateDue', blank=True, null=True)
