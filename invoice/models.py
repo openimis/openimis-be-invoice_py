@@ -192,6 +192,13 @@ class Bill(GenericInvoice):
 
     date_bill = DateField(db_column='DateBill', default=date.today,blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        result = super().save(*args, **kwargs)
+        if is_new:
+            self.refresh_from_db(fields=['code'])
+        return result
+
     class Meta:
         managed = True
         db_table = 'tblBill'

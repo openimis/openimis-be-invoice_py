@@ -29,10 +29,25 @@ class Migration(migrations.Migration):
         ),
         migrations.RunSQL(
             sql="""
-            ALTER TABLE "tblBill"
-            ALTER COLUMN "Code"
-            SET DEFAULT 'BIL-' || to_char(now(), 'YY') || '-' || lpad(nextval('bill_code_seq')::text, 7, '0');
+            CREATE OR REPLACE FUNCTION set_bill_code()
+            RETURNS TRIGGER AS $$
+            BEGIN
+                IF NEW."Code" IS NULL OR NEW."Code" = '' THEN
+                    NEW."Code" := 'BIL-' || to_char(now(), 'YY') || '-'
+                                  || lpad(nextval('bill_code_seq')::text, 10, '0');
+                END IF;
+                RETURN NEW;
+            END;
+            $$ LANGUAGE plpgsql;
+
+            DROP TRIGGER IF EXISTS bill_code_trigger ON "tblBill";
+            CREATE TRIGGER bill_code_trigger
+                BEFORE INSERT ON "tblBill"
+                FOR EACH ROW EXECUTE FUNCTION set_bill_code();
             """,
-            reverse_sql='ALTER TABLE "tblBill" ALTER COLUMN "Code" DROP DEFAULT;',
+            reverse_sql="""
+            DROP TRIGGER IF EXISTS bill_code_trigger ON "tblBill";
+            DROP FUNCTION IF EXISTS set_bill_code();
+            """,
         ),
     ]
