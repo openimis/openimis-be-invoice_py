@@ -34,7 +34,7 @@ class BillBulkTests(TestCase):
 
     def test_bulk_create_bill_items_success(self):
         """Verify that bulk_create_bill_items correctly persists multiple BillItem instances."""
-        bill = Bill.objects.create(
+        bill = Bill(
             code="PARENT_BILL",
             subject_type=None,
             subject_id=None,
@@ -43,6 +43,7 @@ class BillBulkTests(TestCase):
             user_updated=self.user,
             version=1
         )
+        bill.save(username=self.user.username)
         
         item_instances = []
         for i in range(10):
