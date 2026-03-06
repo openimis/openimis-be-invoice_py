@@ -197,6 +197,10 @@ class Bill(GenericInvoice):
         result = super().save(*args, **kwargs)
         if is_new:
             self.refresh_from_db(fields=['code'])
+            # Patch history record with DB-assigned code.
+            latest = self.history.filter(history_type='+').order_by('-history_date').values('history_id').first()
+            if latest:
+                self.history.model.objects.filter(history_id=latest['history_id']).update(code=self.code)
         return result
 
     class Meta:

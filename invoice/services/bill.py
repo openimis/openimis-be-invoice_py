@@ -84,18 +84,8 @@ class BillService(BaseService):
 
     @classmethod
     def bulk_create_bills(cls, bills):
-        """Bulk create Bill instances.
-
-        Args:
-            bills: list of Bill model instances with pre-assigned PKs and audit fields set.
-        """
         return Bill.objects.bulk_create(bills, batch_size=BULK_CREATE_BATCH_SIZE)
 
     @classmethod
     def bulk_create_bill_items(cls, bill_items):
-        """Bulk create BillItem instances.
-
-        Args:
-            bill_items: list of BillItem model instances with audit fields set.
-        """
         return BillItem.objects.bulk_create(bill_items, batch_size=BULK_CREATE_BATCH_SIZE)
