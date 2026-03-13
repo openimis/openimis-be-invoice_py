@@ -47,7 +47,7 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
                 insuree = Insuree.objects.filter(id=subject_object_dict['headInsureeId'], validity_to__isnull=True)
                 insuree = insuree.values('id', 'chf_id', 'uuid', 'last_name', 'other_names')
                 subject_object_dict['headInsuree'] = {
-                    underscore_to_camel(k): v for k, v in insuree.first().items()
+                    underscore_to_camel(k): v for k, v in (insuree.first() or {}).items()
                 }
             subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
             return subject_object_dict
