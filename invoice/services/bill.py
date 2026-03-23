@@ -84,7 +84,18 @@ class BillService(BaseService):
 
     @classmethod
     def bulk_create_bills(cls, bills):
-        return Bill.objects.bulk_create(bills, batch_size=BULK_CREATE_BATCH_SIZE)
+        created = Bill.objects.bulk_create(bills, batch_size=BULK_CREATE_BATCH_SIZE)
+        # Re-fetch codes assigned by DB trigger for rows that had empty codes.
+        empty_code_ids = [b.id for b in created if not b.code]
+        if empty_code_ids:
+            refreshed = {
+                b.id: b.code
+                for b in Bill.objects.filter(id__in=empty_code_ids).only('id', 'code')
+            }
+            for b in created:
+                if b.id in refreshed:
+                    b.code = refreshed[b.id]
+        return created
 
     @classmethod
     def bulk_create_bill_items(cls, bill_items):

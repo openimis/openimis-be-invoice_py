@@ -32,7 +32,7 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
     thirdparty = GenericForeignKey('thirdparty_type', 'thirdparty_id')
 
     code_tp = models.CharField(db_column='CodeTp', max_length=255, blank=True, null=True)
-    code = models.CharField(db_column='Code', max_length=255, blank=True, default='')
+    code = models.CharField(db_column='Code', max_length=255, null=False)
     code_ext = models.CharField(db_column='CodeExt', max_length=255, blank=True, null=True)
 
     date_due = DateField(db_column='DateDue', blank=True, null=True)
@@ -184,6 +184,8 @@ class InvoiceEvent(GenericInvoiceEvent):
 
 
 class Bill(GenericInvoice):
+    code = models.CharField(db_column='Code', max_length=255, blank=True, default='')
+
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
                                         db_column='SubjectType', null=True,blank=True, related_name='subject_type_bill',
                                      unique=False)
@@ -195,7 +197,7 @@ class Bill(GenericInvoice):
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         result = super().save(*args, **kwargs)
-        if is_new:
+        if is_new and not self.code:
             self.refresh_from_db(fields=['code'])
             # Patch history record with DB-assigned code.
             latest = self.history.filter(history_type='+').order_by('-history_date').values('history_id').first()
