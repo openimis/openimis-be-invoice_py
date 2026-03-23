@@ -5,6 +5,7 @@ from core.test_helpers import LogInHelper
 from invoice.models import Bill, BillItem
 from invoice.services import BillService
 
+
 class BillBulkTests(TestCase):
     @classmethod
     def setUpTestData(cls):
