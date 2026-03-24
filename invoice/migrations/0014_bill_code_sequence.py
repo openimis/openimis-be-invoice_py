@@ -158,6 +158,11 @@ def apply_bill_code_trigger(apps, schema_editor):
         _pg_apply(schema_editor)
     elif vendor == 'microsoft':
         _mssql_apply(schema_editor)
+    else:
+        raise RuntimeError(
+            f"Unsupported DB vendor '{vendor}' for bill code trigger migration; "
+            "only 'postgresql' and 'microsoft' are supported."
+        )
 
 
 def reverse_bill_code_trigger(apps, schema_editor):
@@ -166,6 +171,11 @@ def reverse_bill_code_trigger(apps, schema_editor):
         _pg_reverse(schema_editor)
     elif vendor == 'microsoft':
         _mssql_reverse(schema_editor)
+    else:
+        raise RuntimeError(
+            f"Unsupported DB vendor '{vendor}' for bill code trigger reverse migration; "
+            "only 'postgresql' and 'microsoft' are supported."
+        )
 
 
 class Migration(migrations.Migration):

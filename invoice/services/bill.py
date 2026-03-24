@@ -1,6 +1,8 @@
 import decimal
 from typing import Union, List
 
+from simple_history.utils import bulk_create_with_history
+
 from invoice.models import Bill, BillItem
 from core.services import BaseService
 from invoice.services.billLineItem import BillLineItemService
@@ -84,7 +86,7 @@ class BillService(BaseService):
 
     @classmethod
     def bulk_create_bills(cls, bills):
-        created = Bill.objects.bulk_create(bills, batch_size=BULK_CREATE_BATCH_SIZE)
+        created = bulk_create_with_history(bills, Bill, batch_size=BULK_CREATE_BATCH_SIZE)
         # Re-fetch codes assigned by DB trigger for rows that had empty codes.
         empty_code_ids = [b.id for b in created if not b.code]
         if empty_code_ids:
@@ -99,4 +101,4 @@ class BillService(BaseService):
 
     @classmethod
     def bulk_create_bill_items(cls, bill_items):
-        return BillItem.objects.bulk_create(bill_items, batch_size=BULK_CREATE_BATCH_SIZE)
+        return bulk_create_with_history(bill_items, BillItem, batch_size=BULK_CREATE_BATCH_SIZE)

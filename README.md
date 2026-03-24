@@ -1,4 +1,4 @@
-# openimis-be-invoice_payment_py
+# openimis-be-invoice_py
 
 OpenIMIS backend module for invoices, bills, and payments.
 
