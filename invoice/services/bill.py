@@ -87,16 +87,31 @@ class BillService(BaseService):
     @classmethod
     def bulk_create_bills(cls, bills):
         created = bulk_create_with_history(bills, Bill, batch_size=BULK_CREATE_BATCH_SIZE)
-        # Re-fetch codes assigned by DB trigger for rows that had empty codes.
-        empty_code_ids = [b.id for b in created if not b.code]
-        if empty_code_ids:
+        # Re-fetch codes assigned by DB trigger and patch history records.
+        # Chunked to stay under MSSQL's ~2100 parameter limit for IN clauses.
+        empty_code_bills = [b for b in created if not b.code]
+        history_model = Bill.history.model
+        for i in range(0, len(empty_code_bills), BULK_CREATE_BATCH_SIZE):
+            chunk = empty_code_bills[i:i + BULK_CREATE_BATCH_SIZE]
+            chunk_ids = [b.id for b in chunk]
             refreshed = {
                 b.id: b.code
-                for b in Bill.objects.filter(id__in=empty_code_ids).only('id', 'code')
+                for b in Bill.objects.filter(id__in=chunk_ids).only('id', 'code')
             }
-            for b in created:
+            for b in chunk:
                 if b.id in refreshed:
                     b.code = refreshed[b.id]
+            # Patch history creation records with DB-assigned codes.
+            history_records = list(history_model.objects.filter(
+                id__in=chunk_ids, history_type='+', code='',
+            ))
+            for h in history_records:
+                code = refreshed.get(h.id)
+                if code:
+                    h.code = code
+            updated_history = [h for h in history_records if h.code]
+            if updated_history:
+                history_model.objects.bulk_update(updated_history, ['code'])
         return created
 
     @classmethod
