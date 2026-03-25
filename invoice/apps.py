@@ -161,4 +161,4 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
             logger.info(f"Bill trigger updated after config change (pattern: {pattern})")
         except Exception as e:
             InvoiceConfig.bill_trigger_synced = False
-            logger.error(f"Failed to sync bill trigger after config change: {e}")
+            logger.error(f"Failed to sync bill trigger after config change: {e}", exc_info=True)

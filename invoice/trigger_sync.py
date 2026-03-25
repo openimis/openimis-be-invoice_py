@@ -64,9 +64,12 @@ def parse_pattern(pattern):
 
 
 def _seq_token_pad(token):
-    """Extract pad width from [SEQ:N], default 10."""
+    """Extract pad width from [SEQ:N], default 10. Range: 1-20."""
     m = re.match(r'\[SEQ(?::(\d+))?\]', token)
-    return int(m.group(1)) if m and m.group(1) else 10
+    pad = int(m.group(1)) if m and m.group(1) else 10
+    if pad < 1 or pad > 20:
+        raise ValueError(f"Sequence padding width must be between 1 and 20, got {pad}")
+    return pad
 
 
 def pattern_to_pg_expr(pattern, sequence_name):
