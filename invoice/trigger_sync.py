@@ -77,8 +77,11 @@ def pattern_to_pg_expr(pattern, sequence_name):
         if seg_type == 'literal':
             parts.append(f"'{value}'")
         elif value.startswith('[SEQ'):
-            pad = _seq_token_pad(value)
-            parts.append(f"lpad(nextval('{sequence_name}')::text, {pad}, '0')")
+            if ':' in value:
+                pad = _seq_token_pad(value)
+                parts.append(f"lpad(nextval('{sequence_name}')::text, {pad}, '0')")
+            else:
+                parts.append(f"nextval('{sequence_name}')::text")
         else:
             parts.append(_TOKEN_SQL['postgresql'][value])
     return ' || '.join(parts)
@@ -92,11 +95,14 @@ def pattern_to_mssql_expr(pattern, sequence_name):
         if seg_type == 'literal':
             parts.append(f"'{value}'")
         elif value.startswith('[SEQ'):
-            pad = _seq_token_pad(value)
-            zeros = '0' * pad
-            parts.append(
-                f"RIGHT('{zeros}' + CAST(NEXT VALUE FOR {sequence_name} AS VARCHAR(20)), {pad})"
-            )
+            if ':' in value:
+                pad = _seq_token_pad(value)
+                zeros = '0' * pad
+                parts.append(
+                    f"RIGHT('{zeros}' + CAST(NEXT VALUE FOR {sequence_name} AS VARCHAR(20)), {pad})"
+                )
+            else:
+                parts.append(f"CAST(NEXT VALUE FOR {sequence_name} AS VARCHAR(20))")
         else:
             parts.append(_TOKEN_SQL['microsoft'][value])
     return ' + '.join(parts)
