@@ -1,5 +1,5 @@
 import decimal
-from typing import Union, List
+from typing import Dict, List, Union
 
 from simple_history.utils import bulk_create_with_history
 

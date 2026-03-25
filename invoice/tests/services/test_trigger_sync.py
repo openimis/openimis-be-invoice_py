@@ -240,8 +240,8 @@ class TriggerSyncTests(TestCase):
             self.assertTrue(bill.code, "Bill code should be populated after bulk create")
             # Check history record has the same code
             history = Bill.history.filter(id=bill.id, history_type='+').first()
-            if history:
-                self.assertEqual(
-                    history.code, bill.code,
-                    f"History code {history.code!r} should match bill code {bill.code!r}"
+            self.assertIsNotNone(history, f"Expected history record for Bill {bill.id}")
+            self.assertEqual(
+                history.code, bill.code,
+                f"History code {history.code!r} should match bill code {bill.code!r}"
                 )
