@@ -4,6 +4,7 @@ from typing import Union, List
 from simple_history.utils import bulk_create_with_history
 
 from invoice.models import Bill, BillItem
+from invoice.trigger_sync import refresh_trigger_codes
 from core.services import BaseService
 from invoice.services.billLineItem import BillLineItemService
 from core.services.utils import get_generic_type
@@ -12,6 +13,7 @@ from core.signals import *
 
 
 BULK_CREATE_BATCH_SIZE = 500
+
 
 class BillService(BaseService):
     OBJECT_TYPE = Bill
@@ -87,32 +89,7 @@ class BillService(BaseService):
     @classmethod
     def bulk_create_bills(cls, bills):
         created = bulk_create_with_history(bills, Bill, batch_size=BULK_CREATE_BATCH_SIZE)
-        # Re-fetch codes assigned by DB trigger and patch history records.
-        # Chunked to stay under MSSQL's ~2100 parameter limit for IN clauses.
-        empty_code_bills = [b for b in created if not b.code]
-        history_model = Bill.history.model
-        for i in range(0, len(empty_code_bills), BULK_CREATE_BATCH_SIZE):
-            chunk = empty_code_bills[i:i + BULK_CREATE_BATCH_SIZE]
-            chunk_ids = [b.id for b in chunk]
-            refreshed = {
-                b.id: b.code
-                for b in Bill.objects.filter(id__in=chunk_ids).only('id', 'code')
-            }
-            for b in chunk:
-                if b.id in refreshed:
-                    b.code = refreshed[b.id]
-            # Patch history creation records with DB-assigned codes.
-            history_records = list(history_model.objects.filter(
-                id__in=chunk_ids, history_type='+', code='',
-            ))
-            for h in history_records:
-                code = refreshed.get(h.id)
-                if code:
-                    h.code = code
-            updated_history = [h for h in history_records if h.code]
-            if updated_history:
-                history_model.objects.bulk_update(updated_history, ['code'])
-        return created
+        return refresh_trigger_codes(created, Bill, batch_size=BULK_CREATE_BATCH_SIZE)
 
     @classmethod
     def bulk_create_bill_items(cls, bill_items):

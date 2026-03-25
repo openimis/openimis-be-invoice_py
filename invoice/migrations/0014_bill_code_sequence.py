@@ -45,12 +45,10 @@ def _pg_reverse(schema_editor):
 # ── MSSQL (SQL Server 2012+) ──────────────────────────────────────────────────
 
 def _mssql_apply(schema_editor):
-    # 1. Create sequence (idempotent)
     schema_editor.execute("""
         IF NOT EXISTS (SELECT 1 FROM sys.sequences WHERE object_id = OBJECT_ID('bill_code_seq'))
             EXEC('CREATE SEQUENCE bill_code_seq AS BIGINT START WITH 1 INCREMENT BY 1');
     """)
-    # 2. Advance sequence past the highest code already in the table
     schema_editor.execute("""
         DECLARE @max_val BIGINT = 0;
         SELECT @max_val = COALESCE(MAX(
@@ -67,14 +65,10 @@ def _mssql_apply(schema_editor):
         IF @max_val > 0
             EXEC(N'ALTER SEQUENCE bill_code_seq RESTART WITH ' + CAST(@max_val + 1 AS NVARCHAR(20)));
     """)
-    # 3. Drop old trigger if present (must precede CREATE TRIGGER)
     schema_editor.execute("""
         IF OBJECT_ID('bill_code_trigger', 'TR') IS NOT NULL
             DROP TRIGGER [bill_code_trigger];
     """)
-    # 4. Create trigger — must be first statement in its batch.
-    # INSTEAD OF INSERT intercepts the row before it lands on disk so we can
-    # substitute a generated code inline, avoiding a redundant post-INSERT UPDATE.
     schema_editor.execute("""
         CREATE TRIGGER [bill_code_trigger]
         ON [tblBill]
@@ -151,8 +145,6 @@ def _mssql_reverse(schema_editor):
             DROP SEQUENCE [bill_code_seq];
     """)
 
-
-# ── Migration entry point ─────────────────────────────────────────────────────
 
 def apply_bill_code_trigger(apps, schema_editor):
     vendor = schema_editor.connection.vendor
