@@ -184,6 +184,8 @@ class InvoiceEvent(GenericInvoiceEvent):
 
 
 class Bill(GenericInvoice):
+    code = models.CharField(db_column='Code', max_length=255, blank=True, default='')
+
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
                                         db_column='SubjectType', null=True,blank=True, related_name='subject_type_bill',
                                      unique=False)
@@ -191,6 +193,17 @@ class Bill(GenericInvoice):
     subject = GenericForeignKey('subject_type', 'subject_id')
 
     date_bill = DateField(db_column='DateBill', default=date.today,blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        result = super().save(*args, **kwargs)
+        if is_new and not self.code:
+            self.refresh_from_db(fields=['code'])
+            # Patch history record with DB-assigned code.
+            latest = self.history.filter(history_type='+').order_by('-history_date').values('history_id').first()
+            if latest:
+                self.history.model.objects.filter(history_id=latest['history_id']).update(code=self.code)
+        return result
 
     class Meta:
         managed = True

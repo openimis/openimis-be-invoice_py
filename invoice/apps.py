@@ -51,6 +51,7 @@ DEFAULT_CONFIG = {
     # To be specified as "module_name.submodule.function_name"
     "bill_user_filter_function": None,
     "invoice_user_filter_function": None,
+    "bill_code_pattern": "BIL-[YY]-[SEQ:10]",
 }
 
 logger = logging.getLogger(__name__)
@@ -97,6 +98,8 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
 
     bill_user_filter = None
     invoice_user_filter = None
+    bill_code_pattern = None
+    bill_trigger_synced = False
 
     def ready(self):
         from core.models import ModuleConfiguration
@@ -106,3 +109,56 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
             self._load_config_function('bill_user_filter', cfg['bill_user_filter_function'])
         if cfg['invoice_user_filter_function']:
             self._load_config_function('invoice_user_filter', cfg['invoice_user_filter_function'])
+        self._sync_bill_trigger()
+        self._connect_config_signal()
+
+    def _sync_bill_trigger(self):
+        try:
+            from invoice.models import Bill
+            from invoice.trigger_sync import sync_trigger
+            sync_trigger(
+                model=Bill,
+                sequence_name='bill_code_seq',
+                trigger_name='bill_code_trigger',
+                code_column='Code',
+                pattern=self.bill_code_pattern or DEFAULT_CONFIG['bill_code_pattern'],
+                pg_function_name='set_bill_code',
+            )
+            InvoiceConfig.bill_trigger_synced = True
+        except Exception as e:
+            InvoiceConfig.bill_trigger_synced = False
+            logger.error(f"Bill trigger sync failed: {e}", exc_info=True)
+
+    def _connect_config_signal(self):
+        from django.db.models.signals import post_save
+        from core.models import ModuleConfiguration
+        post_save.connect(
+            self._on_config_change, sender=ModuleConfiguration,
+            dispatch_uid='invoice.bill_code_trigger_sync',
+        )
+
+    @staticmethod
+    def _on_config_change(sender, instance, **kwargs):
+        import json
+        if instance.module != MODULE_NAME or instance.layer != 'be':
+            return
+        try:
+            cfg = json.loads(instance.config) if isinstance(instance.config, str) else instance.config
+            pattern = cfg.get('bill_code_pattern') or DEFAULT_CONFIG['bill_code_pattern']
+            from invoice.models import Bill
+            from invoice.trigger_sync import sync_trigger, validate_pattern
+            validate_pattern(pattern)
+            InvoiceConfig.bill_code_pattern = pattern
+            sync_trigger(
+                model=Bill,
+                sequence_name='bill_code_seq',
+                trigger_name='bill_code_trigger',
+                code_column='Code',
+                pattern=pattern,
+                pg_function_name='set_bill_code',
+            )
+            InvoiceConfig.bill_trigger_synced = True
+            logger.info(f"Bill trigger updated after config change (pattern: {pattern})")
+        except Exception as e:
+            InvoiceConfig.bill_trigger_synced = False
+            logger.error(f"Failed to sync bill trigger after config change: {e}", exc_info=True)
