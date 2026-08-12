@@ -17,7 +17,9 @@ class InvoiceQueryMixin:
         dateValidFrom__Gte=graphene.DateTime(),
         dateValidTo__Lte=graphene.DateTime(),
         applyDefaultValidityFilter=graphene.Boolean(),
-        client_mutation_id=graphene.String()
+        client_mutation_id=graphene.String(),
+        subject_type_filter=graphene.String(),
+        thirdparty_type_filter=graphene.String(),
     )
 
     def resolve_invoice(self, info, **kwargs):
@@ -29,11 +31,11 @@ class InvoiceQueryMixin:
         if client_mutation_id:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
-        subject_type = kwargs.get("subject_type", None)
+        subject_type = kwargs.pop("subject_type_filter", None)
         if subject_type:
             filters.append(Q(subject_type__model=subject_type))
 
-        thirdparty_type = kwargs.get("thirdparty_type", None)
+        thirdparty_type = kwargs.pop("thirdparty_type_filter", None)
         if thirdparty_type:
             filters.append(Q(thirdparty_type__model=thirdparty_type))
 
