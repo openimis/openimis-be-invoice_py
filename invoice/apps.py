@@ -110,6 +110,7 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
         if cfg['invoice_user_filter_function']:
             self._load_config_function('invoice_user_filter', cfg['invoice_user_filter_function'])
         self._sync_bill_trigger()
+        self._connect_migrate_signal()
         self._connect_config_signal()
 
     def _sync_bill_trigger(self):
@@ -128,6 +129,19 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
         except Exception as e:
             InvoiceConfig.bill_trigger_synced = False
             logger.error(f"Bill trigger sync failed: {e}", exc_info=True)
+
+    def _connect_migrate_signal(self):
+        # ready() runs before migrations, so on a fresh database the table the trigger
+        # attaches to does not exist yet. Re-sync once migrations have created it.
+        from django.db.models.signals import post_migrate
+        post_migrate.connect(
+            self._on_post_migrate, sender=self,
+            dispatch_uid='invoice.bill_code_trigger_post_migrate',
+        )
+
+    @staticmethod
+    def _on_post_migrate(sender, **kwargs):
+        sender._sync_bill_trigger()
 
     def _connect_config_signal(self):
         from django.db.models.signals import post_save
