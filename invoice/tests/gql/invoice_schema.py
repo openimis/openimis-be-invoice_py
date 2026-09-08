@@ -21,7 +21,11 @@ mutation {
 
     search_for_invoice_query = F'''
 query {{ 
-	invoice(code_Iexact:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}"){{
+	invoice(
+        code_Iexact:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}",
+        subjectTypeFilter: "contract",
+        thirdpartyTypeFilter: "insuree"
+    ){{
     edges {{
       node {{
         isDeleted,
@@ -54,12 +58,11 @@ query {{
         mutation = self.create_invoice_mutation
         self.graph_client.execute(mutation, context=self.user_context.get_request())
         signal_receiver_mock.assert_called_once_with(**_expected_call_args)
-        pass
 
     def test_fetch_invoice_query(self):
         output = self.graph_client.execute(self.search_for_invoice_query, context=self.user_context.get_request())
-        expected = \
-            {'data': {
+        expected = {
+            'data': {
                 'invoice': {
                     'edges': [
                         {'node': {
@@ -71,7 +74,11 @@ query {{
                             'thirdpartyType': self.invoice.thirdparty_type.id,
                             'subjectId': F'{self.invoice.subject.id}',
                             'subjectType': self.invoice.subject_type.id
-        }}]}}}
+                        }}
+                    ]
+                }
+            }
+        }
 
         self.assertEqual(output, expected)
 

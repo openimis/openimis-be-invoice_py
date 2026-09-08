@@ -5,7 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
 from insuree.test_helpers import create_test_insuree
-from core.forms import User
+from core.test_helpers import LogInHelper
 
 from invoice.models import Invoice
 
@@ -32,10 +32,7 @@ DEFAULT_TEST_INVOICE_PAYLOAD = {
 
 
 def __get_or_create_user():
-    user = User.objects.filter(username='admin_invoice').first()
-    if not user:
-        user = User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
-    return user
+    return LogInHelper().get_or_create_user_api(username='admin_invoice')
 
 
 def create_test_invoice(subject=None, thirdparty=None, user=None, **custom_props):
