@@ -1,6 +1,8 @@
 import logging
 
 from django.apps import AppConfig
+
+from core.bootstrap import rerun_after_migrate, skip_without_database
 from core.utils import ConfigUtilMixin
 
 MODULE_NAME = 'invoice'
@@ -113,35 +115,25 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
         self._connect_migrate_signal()
         self._connect_config_signal()
 
+    # ready() runs before migrations, so on a fresh database the table the trigger
+    # attaches to does not exist yet; _connect_migrate_signal retries it then.
+    @skip_without_database("bill code trigger sync", logger)
     def _sync_bill_trigger(self):
-        try:
-            from invoice.models import Bill
-            from invoice.trigger_sync import sync_trigger
-            sync_trigger(
-                model=Bill,
-                sequence_name='bill_code_seq',
-                trigger_name='bill_code_trigger',
-                code_column='Code',
-                pattern=self.bill_code_pattern or DEFAULT_CONFIG['bill_code_pattern'],
-                pg_function_name='set_bill_code',
-            )
-            InvoiceConfig.bill_trigger_synced = True
-        except Exception as e:
-            InvoiceConfig.bill_trigger_synced = False
-            logger.error(f"Bill trigger sync failed: {e}", exc_info=True)
+        InvoiceConfig.bill_trigger_synced = False
+        from invoice.models import Bill
+        from invoice.trigger_sync import sync_trigger
+        sync_trigger(
+            model=Bill,
+            sequence_name='bill_code_seq',
+            trigger_name='bill_code_trigger',
+            code_column='Code',
+            pattern=self.bill_code_pattern or DEFAULT_CONFIG['bill_code_pattern'],
+            pg_function_name='set_bill_code',
+        )
+        InvoiceConfig.bill_trigger_synced = True
 
     def _connect_migrate_signal(self):
-        # ready() runs before migrations, so on a fresh database the table the trigger
-        # attaches to does not exist yet. Re-sync once migrations have created it.
-        from django.db.models.signals import post_migrate
-        post_migrate.connect(
-            self._on_post_migrate, sender=self,
-            dispatch_uid='invoice.bill_code_trigger_post_migrate',
-        )
-
-    @staticmethod
-    def _on_post_migrate(sender, **kwargs):
-        sender._sync_bill_trigger()
+        rerun_after_migrate(self, self._sync_bill_trigger, "invoice.bill_code_trigger_post_migrate")
 
     def _connect_config_signal(self):
         from django.db.models.signals import post_save
