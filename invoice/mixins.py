@@ -15,14 +15,18 @@ class GenericInvoiceManager(HistoryModelManager):
 
 
 class GenericInvoiceQuerysetMixin:
+    """Soft-delete filtering; row security itself is the model's `row_scope`.
+
+    This sits ahead of the shared bases in the MRO, so it must hand the
+    queryset on rather than return it: swallowing it here left every invoice
+    model's declared scope unapplied.
+    """
 
     @classmethod
     def get_queryset(cls, queryset, user):
         queryset = cls.filter_queryset(queryset)
         if isinstance(user, ResolveInfo):
             user = user.context.user
-        if settings.ROW_SECURITY and user.is_anonymous:
-            return queryset.filter(id=-1)
-        if settings.ROW_SECURITY:
-            pass
-        return queryset
+        if settings.ROW_SECURITY and user is not None and user.is_anonymous:
+            return queryset.none()
+        return super().get_queryset(queryset, user)

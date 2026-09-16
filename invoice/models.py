@@ -9,6 +9,7 @@ from invoice.apps import InvoiceConfig
 from django.utils.translation import gettext as _
 # Create your models here.
 from invoice.mixins import GenericInvoiceQuerysetMixin, GenericInvoiceManager
+from core.models import GenericScope, ParentScope
 
 
 def get_default_currency():
@@ -142,6 +143,8 @@ class GenericInvoiceEvent(GenericInvoiceQuerysetMixin, HistoryModel):
 
 
 class Invoice(GenericInvoice):
+    row_scope = GenericScope("subject")
+
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
                                         db_column='SubjectType',  blank=True, null=True, related_name='subject_type', unique=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255,  blank=True, null=True)  # object is referenced by uuid
@@ -155,6 +158,8 @@ class Invoice(GenericInvoice):
 
 
 class InvoiceLineItem(GenericInvoiceLineItem):
+    row_scope = ParentScope("invoice")
+
     line_type = models.ForeignKey(
         ContentType, models.DO_NOTHING, db_column='LineType',  blank=True, null=True, related_name='line_type', unique=False)
     line_id = models.CharField(db_column='LineId', max_length=255,  blank=True, null=True)  # object is referenced by uuid
@@ -184,6 +189,8 @@ class InvoiceEvent(GenericInvoiceEvent):
 
 
 class Bill(GenericInvoice):
+    row_scope = GenericScope("subject")
+
     code = models.CharField(db_column='Code', max_length=255, blank=True, default='')
 
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
@@ -211,6 +218,8 @@ class Bill(GenericInvoice):
 
 
 class BillItem(GenericInvoiceLineItem):
+    row_scope = ParentScope("bill")
+
     line_type = models.ForeignKey(
         ContentType, models.DO_NOTHING, db_column='LineType',  blank=True, null=True, related_name='line_type_bill', unique=False)
     line_id = models.CharField(db_column='LineId', max_length=255,  blank=True, null=True)  # object is referenced by uuid
@@ -346,6 +355,8 @@ class PaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
 
 
 class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
+    row_scope = GenericScope("subject")
+
     class DetailPaymentStatus(models.IntegerChoices):
         REJECTED = 0, _('rejected')
         ACCEPTED = 1, _('accepted')

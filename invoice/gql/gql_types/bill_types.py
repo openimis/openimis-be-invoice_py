@@ -9,9 +9,10 @@ from invoice.models import Bill, \
     BillItem, BillEvent, BillPayment
 from invoice.utils import underscore_to_camel
 from location.models import Location
+from core.gql import ScopedQuerysetMixin
 
 
-class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class BillGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
     subject = graphene.JSONString()
     subject_type = graphene.Int()
     subject_type_name = graphene.String()
@@ -76,7 +77,7 @@ class BillGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
             return Bill.get_queryset(queryset, info)
 
 
-class BillItemGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class BillItemGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
     line_type = graphene.Int()
     line_type_name = graphene.String()
     line = graphene.JSONString()
