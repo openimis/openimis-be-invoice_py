@@ -3,51 +3,135 @@ import logging
 from django.apps import AppConfig
 
 from core.bootstrap import rerun_after_migrate, skip_without_database
+from core.rights_declaration import RightsDeclaration
 from core.utils import ConfigUtilMixin
 
 MODULE_NAME = 'invoice'
 
+
+# Rights, by entity then by action. Same structure as `core.apps.DJANGO_PERMS`.
+#
+# The module carries two symmetric families of documents - the invoice issued to a
+# third party (`invoice`, 1551xx) and the bill received (`bill`, 1561xx) - each with its
+# block of payments (1552xx / 1562xx) and its block of events (1553xx / 1563xx). The
+# entities are separate because the identifiers are: a role may read the invoices
+# without reading the bills.
+#
+# The `PaymentInvoice` / `DetailPaymentInvoice` models (the "new approach" payment
+# tables) have no block of their own: the code checks them with `invoicePayment`'s
+# rights (155201-155204). They are therefore not declared as a distinct entity, for
+# want of config keys that would belong to them - giving them a block presupposes
+# minting new identifiers, which is a catalogue decision.
+#
+# `app_label` is "invoice" for all ten models: Bill and PaymentInvoice live in
+# `invoice/models.py`, despite the table names `tblBill` / `tblPaymentInvoice`.
+DJANGO_PERMS = {
+    "invoice": {
+        "query": ("invoice.view_invoice", 155101),
+        "create": ("invoice.add_invoice", 155102),
+        "update": ("invoice.change_invoice", 155103),
+        "delete": ("invoice.delete_invoice", 155104),
+        # `amend` creates a new version of the invoice rather than modifying it: a
+        # business action, not an `update`.
+        "amend": ("invoice.amend_invoice", 155109),
+    },
+    "invoicePayment": {
+        "query": ("invoice.view_invoicepayment", 155201),
+        "create": ("invoice.add_invoicepayment", 155202),
+        "update": ("invoice.change_invoicepayment", 155203),
+        "delete": ("invoice.delete_invoicepayment", 155204),
+        # Rembourser n'est ni creer ni supprimer un paiement : identifiant propre.
+        "refund": ("invoice.refund_invoicepayment", 155206),
+    },
+    "invoiceEvent": {
+        "query": ("invoice.view_invoiceevent", 155301),
+        "create": ("invoice.add_invoiceevent", 155302),
+        "update": ("invoice.change_invoiceevent", 155303),
+        "delete": ("invoice.delete_invoiceevent", 155304),
+        # An event may be a system fact or a user message; the three "message"
+        # actions have their own identifiers because a role may comment on an invoice
+        # without being able to touch its event log, and because deleting *one's own*
+        # message and deleting *other people's* are not granted together.
+        "createMessage": ("invoice.create_message_invoiceevent", 155306),
+        "deleteMyMessage": ("invoice.delete_my_message_invoiceevent", 155307),
+        "deleteAllMessage": ("invoice.delete_all_message_invoiceevent", 155308),
+    },
+    "bill": {
+        "query": ("invoice.view_bill", 156101),
+        "create": ("invoice.add_bill", 156102),
+        "update": ("invoice.change_bill", 156103),
+        "delete": ("invoice.delete_bill", 156104),
+        "amend": ("invoice.amend_bill", 156109),
+    },
+    "billPayment": {
+        "query": ("invoice.view_billpayment", 156201),
+        "create": ("invoice.add_billpayment", 156202),
+        "update": ("invoice.change_billpayment", 156203),
+        "delete": ("invoice.delete_billpayment", 156204),
+        "refund": ("invoice.refund_billpayment", 156206),
+    },
+    "billEvent": {
+        "query": ("invoice.view_billevent", 156301),
+        "create": ("invoice.add_billevent", 156302),
+        "update": ("invoice.change_billevent", 156303),
+        "delete": ("invoice.delete_billevent", 156304),
+        "createMessage": ("invoice.create_message_billevent", 156306),
+        "deleteMyMessage": ("invoice.delete_my_message_billevent", 156307),
+        "deleteAllMessage": ("invoice.delete_all_message_billevent", 156308),
+    },
+}
+
+# The keys marked "dormant" are read nowhere in the assembly: the right is declared and
+# grantable to a role, but no check requires it today. We keep them - deployed roles
+# already carry them - without inventing a call site for them.
+_PERM_CFG = {
+    "gql_invoice_search_perms": ("invoice", "query"),
+    "gql_invoice_create_perms": ("invoice", "create"),
+    "gql_invoice_update_perms": ("invoice", "update"),
+    "gql_invoice_delete_perms": ("invoice", "delete"),
+    "gql_invoice_amend_perms": ("invoice", "amend"),  # dormante
+    "gql_invoice_payment_search_perms": ("invoicePayment", "query"),
+    "gql_invoice_payment_create_perms": ("invoicePayment", "create"),
+    "gql_invoice_payment_update_perms": ("invoicePayment", "update"),
+    "gql_invoice_payment_delete_perms": ("invoicePayment", "delete"),
+    "gql_invoice_payment_refund_perms": ("invoicePayment", "refund"),  # dormante
+    "gql_invoice_event_search_perms": ("invoiceEvent", "query"),
+    "gql_invoice_event_create_perms": ("invoiceEvent", "create"),  # dormante
+    "gql_invoice_event_update_perms": ("invoiceEvent", "update"),  # dormante
+    "gql_invoice_event_delete_perms": ("invoiceEvent", "delete"),  # dormante
+    "gql_invoice_event_create_message_perms": ("invoiceEvent", "createMessage"),
+    "gql_invoice_event_delete_my_message_perms": ("invoiceEvent", "deleteMyMessage"),
+    "gql_invoice_event_delete_all_message_perms": ("invoiceEvent", "deleteAllMessage"),  # dormante
+    "gql_bill_search_perms": ("bill", "query"),
+    "gql_bill_create_perms": ("bill", "create"),
+    "gql_bill_update_perms": ("bill", "update"),
+    "gql_bill_delete_perms": ("bill", "delete"),
+    "gql_bill_amend_perms": ("bill", "amend"),  # dormante
+    "gql_bill_payment_search_perms": ("billPayment", "query"),
+    "gql_bill_payment_create_perms": ("billPayment", "create"),
+    "gql_bill_payment_update_perms": ("billPayment", "update"),
+    "gql_bill_payment_delete_perms": ("billPayment", "delete"),
+    "gql_bill_payment_refund_perms": ("billPayment", "refund"),  # dormante
+    "gql_bill_event_search_perms": ("billEvent", "query"),
+    "gql_bill_event_create_perms": ("billEvent", "create"),  # dormante
+    "gql_bill_event_update_perms": ("billEvent", "update"),  # dormante
+    "gql_bill_event_delete_perms": ("billEvent", "delete"),  # dormante
+    "gql_bill_event_create_message_perms": ("billEvent", "createMessage"),
+    "gql_bill_event_delete_my_message_perms": ("billEvent", "deleteMyMessage"),
+    "gql_bill_event_delete_all_message_perms": ("billEvent", "deleteAllMessage"),  # dormante
+}
+
+RIGHTS = RightsDeclaration(MODULE_NAME, DJANGO_PERMS, _PERM_CFG)
+
+perms = RIGHTS.perms
+django_perms = RIGHTS.django_perm_names
+configured_perms = RIGHTS.configured
+require = RIGHTS.require
+
+
 DEFAULT_CONFIG = {
     "default_currency_code": "USD",
-    "gql_invoice_search_perms": ["155101"],
-    "gql_invoice_create_perms": ["155102"],
-    "gql_invoice_update_perms": ["155103"],
-    "gql_invoice_delete_perms": ["155104"],
-    "gql_invoice_amend_perms": ["155109"],
 
-    "gql_invoice_payment_search_perms": ["155201"],
-    "gql_invoice_payment_create_perms": ["155202"],
-    "gql_invoice_payment_update_perms": ["155203"],
-    "gql_invoice_payment_delete_perms": ["155204"],
-    "gql_invoice_payment_refund_perms": ["155206"],
-
-    "gql_invoice_event_search_perms": ["155301"],
-    "gql_invoice_event_create_perms": ["155302"],
-    "gql_invoice_event_update_perms": ["155303"],
-    "gql_invoice_event_delete_perms": ["155304"],
-    "gql_invoice_event_create_message_perms": ["155306"],
-    "gql_invoice_event_delete_my_message_perms": ["155307"],
-    "gql_invoice_event_delete_all_message_perms": ["155308"],
-
-    "gql_bill_search_perms": ["156101"],
-    "gql_bill_create_perms": ["156102"],
-    "gql_bill_update_perms": ["156103"],
-    "gql_bill_delete_perms": ["156104"],
-    "gql_bill_amend_perms": ["156109"],
-
-    "gql_bill_payment_search_perms": ["156201"],
-    "gql_bill_payment_create_perms": ["156202"],
-    "gql_bill_payment_update_perms": ["156203"],
-    "gql_bill_payment_delete_perms": ["156204"],
-    "gql_bill_payment_refund_perms": ["156206"],
-
-    "gql_bill_event_search_perms": ["156301"],
-    "gql_bill_event_create_perms": ["156302"],
-    "gql_bill_event_update_perms": ["156303"],
-    "gql_bill_event_delete_perms": ["156304"],
-    "gql_bill_event_create_message_perms": ["156306"],
-    "gql_bill_event_delete_my_message_perms": ["156307"],
-    "gql_bill_event_delete_all_message_perms": ["156308"],
 
     # Functions of type Callable[[QuerySet, User], QuerySet], to be used as custom user filters for bills and invoices
     # To be specified as "module_name.submodule.function_name"
@@ -63,40 +147,49 @@ class InvoiceConfig(AppConfig, ConfigUtilMixin):
     name = MODULE_NAME
 
     default_currency_code = None
-    gql_invoice_search_perms = None
-    gql_invoice_create_perms = None
-    gql_invoice_update_perms = None
-    gql_invoice_delete_perms = None
-    gql_invoice_amend_perms = None
-    gql_invoice_payment_search_perms = None
-    gql_invoice_payment_create_perms = None
-    gql_invoice_payment_update_perms = None
-    gql_invoice_payment_delete_perms = None
-    gql_invoice_payment_refund_perms = None
-    gql_invoice_event_search_perms = None
-    gql_invoice_event_create_perms = None
-    gql_invoice_event_update_perms = None
-    gql_invoice_event_delete_perms = None
-    gql_invoice_event_create_message_perms = None
-    gql_invoice_event_delete_my_message_perms = None
-    gql_invoice_event_delete_all_message_perms = None
-    gql_bill_search_perms = None
-    gql_bill_create_perms = None
-    gql_bill_update_perms = None
-    gql_bill_delete_perms = None
-    gql_bill_amend_perms = None
-    gql_bill_payment_search_perms = None
-    gql_bill_payment_create_perms = None
-    gql_bill_payment_update_perms = None
-    gql_bill_payment_delete_perms = None
-    gql_bill_payment_refund_perms = None
-    gql_bill_event_search_perms = None
-    gql_bill_event_create_perms = None
-    gql_bill_event_update_perms = None
-    gql_bill_event_delete_perms = None
-    gql_bill_event_create_message_perms = None
-    gql_bill_event_delete_my_message_perms = None
-    gql_bill_event_delete_all_message_perms = None
+    # Rights: constants derived from DJANGO_PERMS, no longer overridable. They go
+    # neither through DEFAULT_CFG nor through ready():
+    # `ModuleConfiguration.get_or_default` now ignores any `_perms` key stored in the
+    # database.
+    gql_invoice_search_perms = RIGHTS.perms("invoice", "query")
+    gql_invoice_create_perms = RIGHTS.perms("invoice", "create")
+    gql_invoice_update_perms = RIGHTS.perms("invoice", "update")
+    gql_invoice_delete_perms = RIGHTS.perms("invoice", "delete")
+    gql_invoice_amend_perms = RIGHTS.perms("invoice", "amend")
+
+    gql_invoice_payment_search_perms = RIGHTS.perms("invoicePayment", "query")
+    gql_invoice_payment_create_perms = RIGHTS.perms("invoicePayment", "create")
+    gql_invoice_payment_update_perms = RIGHTS.perms("invoicePayment", "update")
+    gql_invoice_payment_delete_perms = RIGHTS.perms("invoicePayment", "delete")
+    gql_invoice_payment_refund_perms = RIGHTS.perms("invoicePayment", "refund")
+
+    gql_invoice_event_search_perms = RIGHTS.perms("invoiceEvent", "query")
+    gql_invoice_event_create_perms = RIGHTS.perms("invoiceEvent", "create")
+    gql_invoice_event_update_perms = RIGHTS.perms("invoiceEvent", "update")
+    gql_invoice_event_delete_perms = RIGHTS.perms("invoiceEvent", "delete")
+    gql_invoice_event_create_message_perms = RIGHTS.perms("invoiceEvent", "createMessage")
+    gql_invoice_event_delete_my_message_perms = RIGHTS.perms("invoiceEvent", "deleteMyMessage")
+    gql_invoice_event_delete_all_message_perms = RIGHTS.perms("invoiceEvent", "deleteAllMessage")
+
+    gql_bill_search_perms = RIGHTS.perms("bill", "query")
+    gql_bill_create_perms = RIGHTS.perms("bill", "create")
+    gql_bill_update_perms = RIGHTS.perms("bill", "update")
+    gql_bill_delete_perms = RIGHTS.perms("bill", "delete")
+    gql_bill_amend_perms = RIGHTS.perms("bill", "amend")
+
+    gql_bill_payment_search_perms = RIGHTS.perms("billPayment", "query")
+    gql_bill_payment_create_perms = RIGHTS.perms("billPayment", "create")
+    gql_bill_payment_update_perms = RIGHTS.perms("billPayment", "update")
+    gql_bill_payment_delete_perms = RIGHTS.perms("billPayment", "delete")
+    gql_bill_payment_refund_perms = RIGHTS.perms("billPayment", "refund")
+
+    gql_bill_event_search_perms = RIGHTS.perms("billEvent", "query")
+    gql_bill_event_create_perms = RIGHTS.perms("billEvent", "create")
+    gql_bill_event_update_perms = RIGHTS.perms("billEvent", "update")
+    gql_bill_event_delete_perms = RIGHTS.perms("billEvent", "delete")
+    gql_bill_event_create_message_perms = RIGHTS.perms("billEvent", "createMessage")
+    gql_bill_event_delete_my_message_perms = RIGHTS.perms("billEvent", "deleteMyMessage")
+    gql_bill_event_delete_all_message_perms = RIGHTS.perms("billEvent", "deleteAllMessage")
 
     bill_user_filter = None
     invoice_user_filter = None

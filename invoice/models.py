@@ -152,6 +152,13 @@ class Invoice(GenericInvoice):
 
     date_invoice = DateField(db_column='DateInvoice', default=date.today,  blank=True, null=True)
 
+    # The single access point to the invoice's rights: the config is read at call
+    # time, because the `_perms` keys are only populated after `ready()`.
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("invoice", action)
+
     class Meta:
         managed = True
         db_table = 'tblInvoice'
@@ -167,6 +174,12 @@ class InvoiceLineItem(GenericInvoiceLineItem):
 
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="line_items")
 
+    # A sub-resource: a line has no rights of its own, and the GQL already checks it
+    # with `gql_invoice_search_perms`. Of the two FKs (`invoice`, `line_type`), only
+    # `invoice` denotes the owner - `line_type` points at the ContentType of the
+    # invoiced object (a policy item, for instance), not at the document.
+    scope_parent = "invoice"
+
     class Meta:
         managed = True
         db_table = 'tblInvoiceLineItem'
@@ -175,6 +188,13 @@ class InvoiceLineItem(GenericInvoiceLineItem):
 class InvoicePayment(GenericInvoicePayment):
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="payments")
 
+    # No `scope_parent` despite the FK to Invoice: the payment has its own block of
+    # rights (1552xx), which a role may hold without holding the invoice's.
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("invoicePayment", action)
+
     class Meta:
         managed = True
         db_table = 'tblInvoicePayment'
@@ -182,6 +202,13 @@ class InvoicePayment(GenericInvoicePayment):
 
 class InvoiceEvent(GenericInvoiceEvent):
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="events")
+
+    # Its own block of rights (1553xx), hence no `scope_parent`: commenting on an
+    # invoice and modifying an invoice are not granted together.
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("invoiceEvent", action)
 
     class Meta:
         managed = True
@@ -212,6 +239,11 @@ class Bill(GenericInvoice):
                 self.history.model.objects.filter(history_id=latest['history_id']).update(code=self.code)
         return result
 
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("bill", action)
+
     class Meta:
         managed = True
         db_table = 'tblBill'
@@ -227,6 +259,10 @@ class BillItem(GenericInvoiceLineItem):
 
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="line_items_bill")
 
+    # Symmetric with InvoiceLineItem: `bill` is the owner, `line_type` is not. The GQL
+    # already checks these lines with `gql_bill_search_perms`.
+    scope_parent = "bill"
+
     class Meta:
         managed = True
         db_table = 'tblBillLineItem'
@@ -235,6 +271,12 @@ class BillItem(GenericInvoiceLineItem):
 class BillPayment(GenericInvoicePayment):
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="payments_bill")
 
+    # Its own block of rights (1562xx): no `scope_parent`, as for InvoicePayment.
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("billPayment", action)
+
     class Meta:
         managed = True
         db_table = 'tblBillPayment'
@@ -242,6 +284,12 @@ class BillPayment(GenericInvoicePayment):
 
 class BillEvent(GenericInvoiceEvent):
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="events_bill")
+
+    # Its own block of rights (1563xx): no `scope_parent`, as for InvoiceEvent.
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("billEvent", action)
 
     class Meta:
         managed = True
@@ -349,6 +397,16 @@ class PaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
 
     objects = GenericInvoiceManager()
 
+    # An owned borrowing of `invoicePayment`'s rights (155201-155204): these tables
+    # are the rewrite of invoice payment, and that is already exactly what the
+    # mutations and queries of `gql/payment_invoice` check. Giving them a block of
+    # their own presupposes minting new identifiers and new config keys, which is a
+    # catalogue decision, not a conversion.
+    @classmethod
+    def get_rights(cls, action):
+        from invoice.apps import configured_perms
+        return configured_perms("invoicePayment", action)
+
     class Meta:
         managed = True
         db_table = "tblPaymentInvoice"
@@ -377,6 +435,11 @@ class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
 
     reconcilation_id = models.CharField(db_column='ReconcilationId', max_length=255,  blank=True, null=True)
     reconcilation_date = models.DateField(db_column='ReconcilationDate',  blank=True, null=True)
+
+    # The detail is a line of the payment: `payment` is the owner, `subject` (generic)
+    # denotes the invoice settled, not the document the line belongs to. The GQL
+    # already checks these lines with the payment's rights.
+    scope_parent = "payment"
 
     objects = GenericInvoiceManager()
 
