@@ -149,7 +149,7 @@ MODEL_BY_ENTITY = {
     "billEvent": BillEvent,
 }
 
-# Sous-ressource -> FK proprietaire -> modele parent attendu.
+# Sub-resource -> owning FK -> expected parent model.
 SUB_RESOURCES = {
     InvoiceLineItem: ("invoice", Invoice),
     BillItem: ("bill", Bill),

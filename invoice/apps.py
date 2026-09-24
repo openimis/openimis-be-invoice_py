@@ -89,36 +89,36 @@ _PERM_CFG = {
     "gql_invoice_create_perms": ("invoice", "create"),
     "gql_invoice_update_perms": ("invoice", "update"),
     "gql_invoice_delete_perms": ("invoice", "delete"),
-    "gql_invoice_amend_perms": ("invoice", "amend"),  # dormante
+    "gql_invoice_amend_perms": ("invoice", "amend"),  # dormant
     "gql_invoice_payment_search_perms": ("invoicePayment", "query"),
     "gql_invoice_payment_create_perms": ("invoicePayment", "create"),
     "gql_invoice_payment_update_perms": ("invoicePayment", "update"),
     "gql_invoice_payment_delete_perms": ("invoicePayment", "delete"),
-    "gql_invoice_payment_refund_perms": ("invoicePayment", "refund"),  # dormante
+    "gql_invoice_payment_refund_perms": ("invoicePayment", "refund"),  # dormant
     "gql_invoice_event_search_perms": ("invoiceEvent", "query"),
-    "gql_invoice_event_create_perms": ("invoiceEvent", "create"),  # dormante
-    "gql_invoice_event_update_perms": ("invoiceEvent", "update"),  # dormante
-    "gql_invoice_event_delete_perms": ("invoiceEvent", "delete"),  # dormante
+    "gql_invoice_event_create_perms": ("invoiceEvent", "create"),  # dormant
+    "gql_invoice_event_update_perms": ("invoiceEvent", "update"),  # dormant
+    "gql_invoice_event_delete_perms": ("invoiceEvent", "delete"),  # dormant
     "gql_invoice_event_create_message_perms": ("invoiceEvent", "createMessage"),
     "gql_invoice_event_delete_my_message_perms": ("invoiceEvent", "deleteMyMessage"),
-    "gql_invoice_event_delete_all_message_perms": ("invoiceEvent", "deleteAllMessage"),  # dormante
+    "gql_invoice_event_delete_all_message_perms": ("invoiceEvent", "deleteAllMessage"),  # dormant
     "gql_bill_search_perms": ("bill", "query"),
     "gql_bill_create_perms": ("bill", "create"),
     "gql_bill_update_perms": ("bill", "update"),
     "gql_bill_delete_perms": ("bill", "delete"),
-    "gql_bill_amend_perms": ("bill", "amend"),  # dormante
+    "gql_bill_amend_perms": ("bill", "amend"),  # dormant
     "gql_bill_payment_search_perms": ("billPayment", "query"),
     "gql_bill_payment_create_perms": ("billPayment", "create"),
     "gql_bill_payment_update_perms": ("billPayment", "update"),
     "gql_bill_payment_delete_perms": ("billPayment", "delete"),
-    "gql_bill_payment_refund_perms": ("billPayment", "refund"),  # dormante
+    "gql_bill_payment_refund_perms": ("billPayment", "refund"),  # dormant
     "gql_bill_event_search_perms": ("billEvent", "query"),
-    "gql_bill_event_create_perms": ("billEvent", "create"),  # dormante
-    "gql_bill_event_update_perms": ("billEvent", "update"),  # dormante
-    "gql_bill_event_delete_perms": ("billEvent", "delete"),  # dormante
+    "gql_bill_event_create_perms": ("billEvent", "create"),  # dormant
+    "gql_bill_event_update_perms": ("billEvent", "update"),  # dormant
+    "gql_bill_event_delete_perms": ("billEvent", "delete"),  # dormant
     "gql_bill_event_create_message_perms": ("billEvent", "createMessage"),
     "gql_bill_event_delete_my_message_perms": ("billEvent", "deleteMyMessage"),
-    "gql_bill_event_delete_all_message_perms": ("billEvent", "deleteAllMessage"),  # dormante
+    "gql_bill_event_delete_all_message_perms": ("billEvent", "deleteAllMessage"),  # dormant
 }
 
 RIGHTS = RightsDeclaration(MODULE_NAME, DJANGO_PERMS, _PERM_CFG)
