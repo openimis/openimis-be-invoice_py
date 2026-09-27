@@ -9,9 +9,10 @@ from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment, InvoiceEvent, InvoiceMutation, \
     InvoicePaymentMutation, InvoiceLineItemMutation, InvoiceEventMutation
 from invoice.utils import underscore_to_camel
+from core.gql import ScopedQuerysetMixin
 
 
-class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class InvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
     subject = graphene.JSONString()
     subject_type = graphene.Int()
     subject_type_name = graphene.String()
@@ -78,7 +79,7 @@ class InvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
             return Invoice.get_queryset(queryset, info)
 
 
-class InvoiceLineItemGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class InvoiceLineItemGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
     line = graphene.JSONString()
     line_type = graphene.Int()
     line_type_name = graphene.String()

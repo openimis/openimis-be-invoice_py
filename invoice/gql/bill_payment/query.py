@@ -21,6 +21,10 @@ class BillPaymentQueryMixin:
     )
 
     def resolve_bill_payment(self, info, **kwargs):
+        # The helper had existed from the start without being called: so the query
+        # required no right at all. Its neighbour resolve_invoice_line_item does call
+        # its own.
+        BillPaymentQueryMixin._check_permissions(info.context.user)
         filters = []
         filters += append_validity_filter(**kwargs)
 

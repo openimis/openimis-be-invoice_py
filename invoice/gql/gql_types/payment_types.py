@@ -11,6 +11,7 @@ from invoice.models import PaymentInvoice, DetailPaymentInvoice
 from invoice.utils import underscore_to_camel
 from django.utils.translation import gettext as _
 from django.core.exceptions import PermissionDenied
+from core.gql import ScopedQuerysetMixin
 
 
 class PaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
@@ -29,7 +30,7 @@ class PaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
             return PaymentInvoice.get_queryset(queryset, info)
 
 
-class DetailPaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class DetailPaymentInvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
 
     subject_type = graphene.Int()
     def resolve_subject_type(root, info):
