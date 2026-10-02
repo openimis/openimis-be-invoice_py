@@ -1,12 +1,18 @@
 import decimal
-from typing import Union, List
+from typing import Dict, List, Union
+
+from simple_history.utils import bulk_create_with_history
 
 from invoice.models import Bill, BillItem
+from invoice.trigger_sync import refresh_trigger_codes
 from core.services import BaseService
 from invoice.services.billLineItem import BillLineItemService
 from core.services.utils import get_generic_type
 from invoice.validation.bill import BillModelValidation, BillItemStatus
 from core.signals import *
+
+
+BULK_CREATE_BATCH_SIZE = 500
 
 
 class BillService(BaseService):
@@ -79,3 +85,12 @@ class BillService(BaseService):
             bill_data['thirdparty_type'] = get_generic_type(bill_data['thirdparty_type'])
 
         return bill_data
+
+    @classmethod
+    def bulk_create_bills(cls, bills):
+        created = bulk_create_with_history(bills, Bill, batch_size=BULK_CREATE_BATCH_SIZE)
+        return refresh_trigger_codes(created, Bill, batch_size=BULK_CREATE_BATCH_SIZE)
+
+    @classmethod
+    def bulk_create_bill_items(cls, bill_items):
+        return bulk_create_with_history(bill_items, BillItem, batch_size=BULK_CREATE_BATCH_SIZE)
