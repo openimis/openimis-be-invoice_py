@@ -8,7 +8,7 @@ from core import prefix_filterset, ExtendedConnection
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment, InvoiceEvent, InvoiceMutation, \
     InvoicePaymentMutation, InvoiceLineItemMutation, InvoiceEventMutation
-from invoice.utils import underscore_to_camel
+from invoice.utils import subject_summary, underscore_to_camel
 from core.gql import ScopedQuerysetMixin
 
 
@@ -38,31 +38,19 @@ class InvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLType
 
     def resolve_subject(root, info):
         if root.subject:
-            subject_object_dict = root.subject.__dict__
-            subject_object_dict.pop('_state', None)
-            subject_object_dict = {
-                underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
-            }
+            subject_object_dict = subject_summary(root.subject)
             if root.subject_type.name == "family":
-                Insuree = apps.get_model('insuree','Insuree')
-                insuree = Insuree.objects.filter(id=subject_object_dict['headInsureeId'], validity_to__isnull=True)
+                Insuree = apps.get_model('insuree', 'Insuree')
+                insuree = Insuree.objects.filter(id=root.subject.head_insuree_id, validity_to__isnull=True)
                 insuree = insuree.values('id', 'chf_id', 'uuid', 'last_name', 'other_names')
                 subject_object_dict['headInsuree'] = {
                     underscore_to_camel(k): v for k, v in (insuree.first() or {}).items()
                 }
-            subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
-            return subject_object_dict
+            return json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
 
     def resolve_thirdparty(root, info):
         if root.thirdparty:
-            thirdparty_object_dict = root.thirdparty.__dict__
-
-            thirdparty_object_dict.pop('_state', None)
-            thirdparty_object_dict = {
-                underscore_to_camel(k): v for k, v in list(thirdparty_object_dict.items())
-            }
-            thirdparty_object_dict = json.dumps(thirdparty_object_dict, cls=DjangoJSONEncoder)
-            return thirdparty_object_dict
+            return json.dumps(subject_summary(root.thirdparty), cls=DjangoJSONEncoder)
 
     class Meta:
         model = Invoice
@@ -73,10 +61,6 @@ class InvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLType
         }
 
         connection_class = ExtendedConnection
-
-        @classmethod
-        def get_queryset(cls, queryset, info):
-            return Invoice.get_queryset(queryset, info)
 
 
 class InvoiceLineItemGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
@@ -114,12 +98,8 @@ class InvoiceLineItemGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilte
 
         connection_class = ExtendedConnection
 
-        @classmethod
-        def get_queryset(cls, queryset, info):
-            return InvoiceLineItem.get_queryset(queryset, info)
 
-
-class InvoicePaymentGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class InvoicePaymentGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
     class Meta:
         model = InvoicePayment
         interfaces = (graphene.relay.Node,)
@@ -130,12 +110,8 @@ class InvoicePaymentGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
 
         connection_class = ExtendedConnection
 
-        @classmethod
-        def get_queryset(cls, queryset, info):
-            return InvoicePayment.get_queryset(queryset, info)
 
-
-class InvoiceEventGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class InvoiceEventGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
     class Meta:
         model = InvoiceEvent
         interfaces = (graphene.relay.Node,)
@@ -145,10 +121,6 @@ class InvoiceEventGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
         }
 
         connection_class = ExtendedConnection
-
-        @classmethod
-        def get_queryset(cls, queryset, info):
-            return InvoiceEvent.get_queryset(queryset, info)
 
 
 class InvoiceMutationGQLType(DjangoObjectType):

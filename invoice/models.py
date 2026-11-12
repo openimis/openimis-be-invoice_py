@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
@@ -186,6 +187,9 @@ class InvoiceLineItem(GenericInvoiceLineItem):
 
 
 class InvoicePayment(GenericInvoicePayment):
+    # Rows: as restricted as the invoice they belong to. Rights stay their own (below).
+    row_scope = ParentScope("invoice")
+
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="payments")
 
     # No `scope_parent` despite the FK to Invoice: the payment has its own block of
@@ -201,6 +205,9 @@ class InvoicePayment(GenericInvoicePayment):
 
 
 class InvoiceEvent(GenericInvoiceEvent):
+    # Rows: as restricted as the invoice they belong to. Rights stay their own (below).
+    row_scope = ParentScope("invoice")
+
     invoice = models.ForeignKey(Invoice, models.DO_NOTHING, db_column='InvoiceId', related_name="events")
 
     # Its own block of rights (1553xx), hence no `scope_parent`: commenting on an
@@ -269,6 +276,9 @@ class BillItem(GenericInvoiceLineItem):
 
 
 class BillPayment(GenericInvoicePayment):
+    # Rows: as restricted as the bill they belong to. Rights stay their own (below).
+    row_scope = ParentScope("bill")
+
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="payments_bill")
 
     # Its own block of rights (1562xx): no `scope_parent`, as for InvoicePayment.
@@ -283,6 +293,9 @@ class BillPayment(GenericInvoicePayment):
 
 
 class BillEvent(GenericInvoiceEvent):
+    # Rows: as restricted as the bill they belong to. Rights stay their own (below).
+    row_scope = ParentScope("bill")
+
     bill = models.ForeignKey(Bill, models.DO_NOTHING, db_column='BillId', related_name="events_bill")
 
     # Its own block of rights (1563xx): no `scope_parent`, as for InvoiceEvent.
@@ -406,6 +419,24 @@ class PaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
     def get_rights(cls, action):
         from invoice.apps import configured_perms
         return configured_perms("invoicePayment", action)
+
+    @classmethod
+    def get_queryset(cls, queryset, user=None):
+        """Payments the user may see: those paying at least one visible detail.
+
+        A payment has no owner of its own. What it pays is held by its
+        DetailPaymentInvoice rows, whose subject (an invoice, a bill or one of
+        their lines) carries the row security. No scope can express a reverse
+        relation, hence the override. A payment with no detail yet has nothing
+        to narrow it by and stays visible, like a null subject in GenericScope.
+        """
+        queryset = super().get_queryset(queryset, user)
+        details = DetailPaymentInvoice.objects.all()
+        visible = DetailPaymentInvoice.get_queryset(details, user)
+        return queryset.filter(
+            Q(id__in=visible.values("payment_id"))
+            | ~Q(id__in=details.values("payment_id"))
+        )
 
     class Meta:
         managed = True
