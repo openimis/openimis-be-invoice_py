@@ -8,13 +8,13 @@ from core import prefix_filterset, ExtendedConnection
 from invoice.apps import InvoiceConfig
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import PaymentInvoice, DetailPaymentInvoice
-from invoice.utils import underscore_to_camel
+from invoice.utils import subject_summary
 from django.utils.translation import gettext as _
 from django.core.exceptions import PermissionDenied
 from core.gql import ScopedQuerysetMixin
 
 
-class PaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
+class PaymentInvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
 
     class Meta:
         model = PaymentInvoice
@@ -24,10 +24,6 @@ class PaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
         }
 
         connection_class = ExtendedConnection
-
-        @classmethod
-        def get_queryset(cls, queryset, info):
-            return PaymentInvoice.get_queryset(queryset, info)
 
 
 class DetailPaymentInvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
@@ -48,13 +44,8 @@ class DetailPaymentInvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, Generic
     def resolve_subject(root, info):
         if not info.context.user.has_perms(InvoiceConfig.gql_invoice_payment_search_perms):
             raise PermissionDenied(_("unauthorized"))
-        subject_object_dict = root.subject.__dict__
-        subject_object_dict.pop('_state', None)
-        subject_object_dict = {
-            underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
-        }
-        subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
-        return subject_object_dict
+        if root.subject:
+            return json.dumps(subject_summary(root.subject), cls=DjangoJSONEncoder)
 
     class Meta:
         model = DetailPaymentInvoice
@@ -65,7 +56,3 @@ class DetailPaymentInvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, Generic
         }
 
         connection_class = ExtendedConnection
-
-        @classmethod
-        def get_queryset(cls, queryset, info):
-            return DetailPaymentInvoice.get_queryset(queryset, info)
