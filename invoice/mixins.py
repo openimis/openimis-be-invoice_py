@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.db import models
 from graphql import ResolveInfo
 
 from core.models import HistoryModelManager
@@ -29,7 +28,8 @@ class GenericInvoiceQuerysetMixin:
     """
 
     @classmethod
-    def get_queryset(cls, queryset, user):
+    def get_queryset(cls, queryset, user, *, validity=None, audits=None):
+        queryset = cls.apply_row_filters(queryset, validity, audits)
         if isinstance(user, ResolveInfo):
             user = user.context.user
         if settings.ROW_SECURITY and user is not None and user.is_anonymous:

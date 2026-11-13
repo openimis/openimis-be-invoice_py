@@ -4,8 +4,6 @@ from policy.test_helpers import create_test_policy
 from product.test_helpers import create_test_product
 from core.test_helpers import create_test_interactive_user
 
-from core.forms import User
-from django.test import TestCase
 
 from contract.tests.helpers import create_test_contract
 from policyholder.tests.helpers import create_test_policy_holder
@@ -17,8 +15,9 @@ from invoice.tests.helpers import create_test_invoice, \
 from invoice.tests.helpers.invoice_payment_helpers import create_test_invoice_payment
 
 from core.models.openimis_graphql_test_case import openIMISGraphQLTestCase, BaseTestContext
-class InvoiceGQLTestCase(openIMISGraphQLTestCase):
 
+
+class InvoiceGQLTestCase(openIMISGraphQLTestCase):
 
     @classmethod
     def setUpClass(cls):

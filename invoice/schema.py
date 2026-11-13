@@ -96,7 +96,7 @@ def _on_mutation_log(mutation_model, model, obj_type, sender, **kwargs):
     impacted = model.objects.filter(uuid__in=uuids).all()
     for item in impacted:
         mutation_model.objects.create(
-            **{obj_type: item, 'mutation_id':kwargs['mutation_log_id']}
+            **{obj_type: item, 'mutation_id': kwargs['mutation_log_id']}
         )
     return []
 

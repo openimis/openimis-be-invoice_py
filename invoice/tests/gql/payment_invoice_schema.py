@@ -19,9 +19,9 @@ from invoice.tests.helpers import (
 class PaymentInvoiceGQLTest(InvoiceGQLTestCase):
 
     search_for_payment_invoice_query = F'''
-query {{ 
-	paymentInvoice(codeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}", 
-	amountReceived: "{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}"){{
+query {{
+    paymentInvoice(codeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}",
+    amountReceived: "{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}"){{
     edges {{
       node {{
         isDeleted,
@@ -38,10 +38,10 @@ query {{
 }}
 '''
 
-    create_mutation_str = '''  
+    create_mutation_str = '''
 mutation {{
-  createPaymentInvoice(input:{{reconciliationStatus: 1, codeExt:"{payment_code}", codeTp:"PAY_CODE", codeReceipt:"gqlRec", 
-  label:"gql label", fees: "12.00", amountReceived: "91.50", payerRef: "payerRef", 
+  createPaymentInvoice(input:{{reconciliationStatus: 1, codeExt:"{payment_code}", codeTp:"PAY_CODE", codeReceipt:"gqlRec",
+  label:"gql label", fees: "12.00", amountReceived: "91.50", payerRef: "payerRef",
   datePayment:"2022-04-12", clientMutationId: "{mutation_id}"}}) {{
     internalId
     clientMutationId
@@ -49,7 +49,7 @@ mutation {{
 }}
 '''
 
-    delete_mutation_str = '''  
+    delete_mutation_str = '''
 mutation {{
   deletePaymentInvoice(input:{{uuids:["{payment_uuid}"], clientMutationId: "{mutation_id}"}}) {{
     internalId
@@ -58,9 +58,9 @@ mutation {{
 }}
 '''
 
-    update_mutation_str = '''  
+    update_mutation_str = '''
 mutation {{
-	updatePaymentInvoice(input:{{id:"{payment_uuid}", codeExt:"updExt", payerRef: "payerRef", clientMutationId: "{mutation_id}"}}){{
+    updatePaymentInvoice(input:{{id:"{payment_uuid}", codeExt:"updExt", payerRef: "payerRef", clientMutationId: "{mutation_id}"}}){{
     internalId
     clientMutationId
   }}
@@ -68,8 +68,8 @@ mutation {{
 '''
 
     search_for_payment_invoice_with_detail_query = F'''
-query {{ 
-    paymentInvoice(codeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}", 
+query {{
+    paymentInvoice(codeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}",
     amountReceived: "{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['amount_received']}"){{
     edges {{
         node {{
@@ -98,11 +98,11 @@ query {{
 }}
 '''
 
-    create_mutation_with_detail_str = '''  
+    create_mutation_with_detail_str = '''
 mutation {{
     createPaymentWithDetailInvoice(input:{{status: 1, subjectId: "{invoice_uuid}", subjectType: "invoice"
-    reconciliationStatus: 1, codeExt:"{payment_code}", codeTp:"PAY_CODE", codeReceipt:"gqlRec", 
-    label:"gql label", fees: "12.00", amountReceived: "91.50", payerRef: "payerRef", 
+    reconciliationStatus: 1, codeExt:"{payment_code}", codeTp:"PAY_CODE", codeReceipt:"gqlRec",
+    label:"gql label", fees: "12.00", amountReceived: "91.50", payerRef: "payerRef",
     datePayment:"2022-04-12", clientMutationId: "{mutation_id}"}}) {{
         internalId
         clientMutationId
@@ -132,7 +132,7 @@ mutation {{
                             'reconciliationStatus': 'A_1',
                             'fees': '12.00',
                             'payerRef': 'payerRef',
-        }}]}}}
+                        }}]}}}
         self.assertEqual(output, expected)
 
     def test_fetch_payment_invoice_with_detail_query(self):
@@ -165,7 +165,7 @@ mutation {{
                                     }
                                 ]
                             }
-        }}]}}}
+                        }}]}}}
         self.assertEqual(output, expected)
 
     def test_create_payment_mutation(self):

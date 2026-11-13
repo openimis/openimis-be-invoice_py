@@ -1,4 +1,3 @@
-from decimal import Decimal
 
 from invoice.tests.gql.base import InvoiceGQLTestCase
 from invoice.tests.helpers import DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD, DEFAULT_TEST_INVOICE_PAYLOAD
@@ -7,9 +6,9 @@ from invoice.tests.helpers import DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD, DEFAUL
 class InvoiceLineItemGQLTest(InvoiceGQLTestCase):
 
     search_for_invoice_query = F'''
-query {{ 
-	invoiceLineItem(invoice_Code:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}", 
-	amountTotal:"{DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD['amount_total']}"){{
+query {{
+    invoiceLineItem(invoice_Code:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}",
+    amountTotal:"{DEFAULT_TEST_INVOICE_LINE_ITEM_PAYLOAD['amount_total']}"){{
     edges {{
       node {{
         isDeleted,

@@ -45,7 +45,7 @@ class InvoiceLineItemService(BaseService):
             elif isinstance(details, str):
                 try:
                     data = json.loads(details)
-                except JSONDecodeError as e:
+                except JSONDecodeError:
                     logger.exception("Failed to parse invoice line item "
                                      f"details {details}, conent will be saved in text"
                                      f"field")

@@ -2,8 +2,8 @@ import graphene
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ValidationError
 
-from core.gql.gql_mutations.base_mutation import BaseMutation, BaseCreateMutationMixin, BaseUpdateMutationMixin, \
-    BaseHistoryModelCreateMutationMixin, BaseHistoryModelUpdateMutationMixin, BaseHistoryModelDeleteMutationMixin
+from core.gql.gql_mutations.base_mutation import BaseMutation, BaseHistoryModelCreateMutationMixin, BaseHistoryModelUpdateMutationMixin, \
+    BaseHistoryModelDeleteMutationMixin
 from core.schema import OpenIMISMutation
 from invoice.apps import InvoiceConfig
 from invoice.gql.input_types import CreatePaymentInputType, UpdatePaymentInputType

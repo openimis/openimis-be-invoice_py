@@ -11,9 +11,9 @@ from invoice.tests.helpers import DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD, DEFAULT_
 class InvoicePaymentGQLTest(InvoiceGQLTestCase):
 
     search_for_invoice_payment_query = F'''
-query {{ 
-	invoicePayment(invoice_Code:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}", 
-	amountPayed: {DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['amount_payed']}){{
+query {{
+    invoicePayment(invoice_Code:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}",
+    amountPayed: {DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['amount_payed']}){{
     edges {{
       node {{
         isDeleted,
@@ -31,10 +31,10 @@ query {{
 }}
 '''
 
-    create_mutation_str = '''  
+    create_mutation_str = '''
 mutation {{
-  createInvoicePayment(input:{{status: 1, codeExt:"{payment_code}", codeTp:"gqlTp", codeReceipt:"gqlRec", 
-  label:"gql label", invoiceId:"{invoice_id}", amountPayed: "10.0", fees: "10.0", amountReceived: "20.0", 
+  createInvoicePayment(input:{{status: 1, codeExt:"{payment_code}", codeTp:"gqlTp", codeReceipt:"gqlRec",
+  label:"gql label", invoiceId:"{invoice_id}", amountPayed: "10.0", fees: "10.0", amountReceived: "20.0",
   datePayment:"2021-10-10", clientMutationId: "{mutation_id}"}}) {{
     internalId
     clientMutationId
@@ -42,7 +42,7 @@ mutation {{
 }}
 '''
 
-    delete_mutation_str = '''  
+    delete_mutation_str = '''
 mutation {{
   deleteInvoicePayment(input:{{uuids:["{payment_uuid}"], clientMutationId: "{mutation_id}"}}) {{
     internalId
@@ -51,9 +51,9 @@ mutation {{
 }}
 '''
 
-    update_mutation_str = '''  
+    update_mutation_str = '''
 mutation {{
-	updateInvoicePayment(input:{{id:"{payment_uuid}", codeExt:"updExt", clientMutationId: "{mutation_id}"}}){{
+    updateInvoicePayment(input:{{id:"{payment_uuid}", codeExt:"updExt", clientMutationId: "{mutation_id}"}}){{
     internalId
     clientMutationId
   }}
@@ -76,7 +76,7 @@ mutation {{
                             'datePayment': '2021-10-10',
                             'status': 'A_1',
                             'fees': f"{DEFAULT_TEST_INVOICE_PAYMENT_PAYLOAD['fees']}",
-        }}]}}}
+                        }}]}}}
         self.assertEqual(output, expected)
 
     @skip("This is related to old payment approach model - depreceated")

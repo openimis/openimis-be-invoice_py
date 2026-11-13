@@ -33,18 +33,21 @@ class PaymentInvoiceGQLType(DjangoObjectType, GenericFilterGQLTypeMixin):
 class DetailPaymentInvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMixin):
 
     subject_type = graphene.Int()
+
     def resolve_subject_type(root, info):
         if not info.context.user.has_perms(InvoiceConfig.gql_invoice_payment_search_perms):
             raise PermissionDenied(_("unauthorized"))
         return root.subject_type.id
 
     subject_type_name = graphene.String()
+
     def resolve_subject_type_name(root, info):
         if not info.context.user.has_perms(InvoiceConfig.gql_invoice_payment_search_perms):
             raise PermissionDenied(_("unauthorized"))
         return root.subject_type.name
 
     subject = graphene.JSONString()
+
     def resolve_subject(root, info):
         if not info.context.user.has_perms(InvoiceConfig.gql_invoice_payment_search_perms):
             raise PermissionDenied(_("unauthorized"))

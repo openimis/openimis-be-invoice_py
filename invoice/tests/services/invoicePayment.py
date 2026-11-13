@@ -5,7 +5,6 @@ from unittest import skip
 from policy.test_helpers import create_test_policy
 from product.test_helpers import create_test_product
 
-from core.forms import User
 from core.test_helpers import create_test_interactive_user
 from django.test import TestCase
 
@@ -54,7 +53,6 @@ class ServiceTestInvoicePayments(TestCase):
     def setUpClass(cls):
         super(ServiceTestInvoicePayments, cls).setUpClass()
         cls.maxDiff = None
-        
 
         cls.user = create_test_interactive_user(username='admin_invoice')
         cls.invoice_payment_service = InvoicePaymentsService(cls.user)
@@ -102,7 +100,7 @@ class ServiceTestInvoicePayments(TestCase):
             payload['amount_payed'] = 2.0
             payment = self._create_payment(payload)
             out = self.invoice_payment_service.payment_received(payment, InvoicePayment.PaymentStatus.ACCEPTED)
-            detail = [str(InvoicePaymentModelValidation.AMOUNT_PAYED_NOT_MATCHING_ITEMS \
+            detail = [str(InvoicePaymentModelValidation.AMOUNT_PAYED_NOT_MATCHING_ITEMS
                           % {'invoice': self.invoice, 'expected': 91.5, 'payed': 2.0})]
             message = 'Failed to payment_received InvoicePayment'
             self._assert_output_invalid(out, message, detail)
@@ -115,7 +113,7 @@ class ServiceTestInvoicePayments(TestCase):
             payment = self._create_payment(payload)
             payment.invoice.status = Invoice.Status.CANCELLED
             out = self.invoice_payment_service.payment_received(payment, InvoicePayment.PaymentStatus.ACCEPTED)
-            detail = [str(InvoicePaymentReceiveStatusValidator.error_message_invalid_invoice \
+            detail = [str(InvoicePaymentReceiveStatusValidator.error_message_invalid_invoice
                           % {'invoice': self.invoice, 'allowed_invoice': 'draft, validated',
                              'invoice_status': self.invoice.status.label})]
             message = 'Failed to payment_received InvoicePayment'

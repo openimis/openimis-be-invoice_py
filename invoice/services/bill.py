@@ -9,7 +9,7 @@ from core.services import BaseService
 from invoice.services.billLineItem import BillLineItemService
 from core.services.utils import get_generic_type
 from invoice.validation.bill import BillModelValidation, BillItemStatus
-from core.signals import *
+from core.signals import register_service_signal
 
 
 BULK_CREATE_BATCH_SIZE = 500

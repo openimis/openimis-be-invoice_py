@@ -1,14 +1,13 @@
 import graphene
 from django.utils.translation import gettext as _
 from django.contrib.auth.models import AnonymousUser
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 
 from core.gql.gql_mutations.base_mutation import BaseHistoryModelCreateMutationMixin, BaseMutation, \
-    BaseHistoryModelUpdateMutationMixin, BaseHistoryModelDeleteMutationMixin
+    BaseHistoryModelDeleteMutationMixin
 from core.schema import OpenIMISMutation
 from invoice.apps import InvoiceConfig
-from invoice.gql.input_types import CreateBillEventType, UpdateBillEventType
+from invoice.gql.input_types import CreateBillEventType
 from invoice.models import BillEvent, BillEventMutation
 
 
@@ -57,7 +56,7 @@ class DeleteUserBillEventMutation(BaseHistoryModelDeleteMutationMixin, BaseMutat
         not_created_by_user = objs_.filter(~Q(user_created=user))
         if not_created_by_user.exists():
             raise PermissionError(
-                _(F"User is not creator of bill events: %(events)s, events can't be deleted.")
+                _("User is not creator of bill events: %(events)s, events can't be deleted.")
                 % {'events': str(not_created_by_user.values_list('uuid', flat=True))}
             )
 

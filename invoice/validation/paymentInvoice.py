@@ -4,8 +4,8 @@ from django.utils.translation import gettext as _
 from core.validation import BaseModelValidation, UniqueCodeValidationMixin, ObjectExistsValidationMixin
 from invoice.models import PaymentInvoice
 from invoice.utils import resolve_payment_details
-from invoice.validation.paymentStatusValidation import InvoicePaymentReceiveStatusValidator, \
-    InvoicePaymentRefundStatusValidator, InvoicePaymentCancelStatusValidator
+from invoice.validation.paymentStatusValidation import InvoicePaymentRefundStatusValidator, \
+    InvoicePaymentCancelStatusValidator
 
 
 class PaymentInvoiceModelValidation(BaseModelValidation, UniqueCodeValidationMixin, ObjectExistsValidationMixin):

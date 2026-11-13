@@ -16,12 +16,12 @@ mutation {
     internalId
     clientMutationId
   }
-}    
+}
 '''
 
     search_for_invoice_query = F'''
-query {{ 
-	invoice(
+query {{
+    invoice(
         code_Iexact:"{DEFAULT_TEST_INVOICE_PAYLOAD['code']}",
         subjectTypeFilter: "contract",
         thirdpartyTypeFilter: "insuree"
