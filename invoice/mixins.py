@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.db import models
 from graphql import ResolveInfo
 
 from core.models import HistoryModelManager

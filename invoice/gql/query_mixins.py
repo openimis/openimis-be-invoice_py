@@ -1,10 +1,10 @@
-from invoice.gql.invoice import InvoiceQueryMixin
-from invoice.gql.invoice_line_item import InvoiceLineItemQueryMixin
-from invoice.gql.invoice_payment import InvoicePaymentQueryMixin
-from invoice.gql.invoice_event import InvoiceEventQueryMixin
-from invoice.gql.bill import BillQueryMixin
-from invoice.gql.bill_item import BillItemQueryMixin
-from invoice.gql.bill_payment import BillPaymentQueryMixin
-from invoice.gql.bill_event import BillEventQueryMixin
-from invoice.gql.payment_invoice import PaymentInvoiceQueryMixin
-from invoice.gql.detail_payment_invoice import DetailPaymentInvoiceQueryMixin
+from invoice.gql.invoice import InvoiceQueryMixin  # noqa: F401
+from invoice.gql.invoice_line_item import InvoiceLineItemQueryMixin  # noqa: F401
+from invoice.gql.invoice_payment import InvoicePaymentQueryMixin  # noqa: F401
+from invoice.gql.invoice_event import InvoiceEventQueryMixin  # noqa: F401
+from invoice.gql.bill import BillQueryMixin  # noqa: F401
+from invoice.gql.bill_item import BillItemQueryMixin  # noqa: F401
+from invoice.gql.bill_payment import BillPaymentQueryMixin  # noqa: F401
+from invoice.gql.bill_event import BillEventQueryMixin  # noqa: F401
+from invoice.gql.payment_invoice import PaymentInvoiceQueryMixin  # noqa: F401
+from invoice.gql.detail_payment_invoice import DetailPaymentInvoiceQueryMixin  # noqa: F401

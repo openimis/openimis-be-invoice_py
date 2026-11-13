@@ -89,7 +89,7 @@ class ServiceTestInvoiceLineItems(TestCase):
     def setUpClass(cls):
         super(ServiceTestInvoiceLineItems, cls).setUpClass()
         if not User.objects.filter(username='admin_invoice').exists():
-            User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+            User.objects.create_superuser(username='admin_invoice', password='S\\/pe®Pąßw0rd™')
 
         cls.policy_holder = create_test_policy_holder()
         cls.contract = create_test_contract(cls.policy_holder)

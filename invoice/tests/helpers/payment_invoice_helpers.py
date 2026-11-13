@@ -45,5 +45,5 @@ def create_test_payment_invoice_with_details(invoice=None, user=None, **custom_p
 def __get_or_create_user():
     user = User.objects.filter(username='admin_invoice').first()
     if not user:
-        user = User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+        user = User.objects.create_superuser(username='admin_invoice', password='S\\/pe®Pąßw0rd™')
     return user

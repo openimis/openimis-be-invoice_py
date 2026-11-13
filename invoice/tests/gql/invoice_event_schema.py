@@ -5,10 +5,7 @@ from invoice.models import InvoiceEventMutation, InvoiceEvent
 from invoice.tests.gql.base import InvoiceGQLTestCase
 
 
-
-
 class InvoiceEventGQLTest(InvoiceGQLTestCase):
-
 
     search_for_message = '''
     query {{
@@ -22,10 +19,10 @@ class InvoiceEventGQLTest(InvoiceGQLTestCase):
 }}
 '''
 
-    create_mutation_str = '''  
+    create_mutation_str = '''
 mutation {{
   createInvoiceEventMessage(input:{{invoiceId: "{invoice_id}", message:"Some message with type", eventType: 0, clientMutationId: "{mutation_id}"}}) {{
-    internalId, 
+    internalId,
     clientMutationId
   }}
 }}
@@ -46,7 +43,7 @@ mutation {{
                     'edges': [
                         {'node': {
                             'message': 'Some message with type'
-        }}]}}}
+                        }}]}}}
         self.assertEqual(output, expected)
 
     def test_create_payment_mutation(self):

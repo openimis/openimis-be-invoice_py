@@ -16,8 +16,8 @@ from invoice.tests.helpers import (
 
 class DetailPaymentInvoiceGQLTest(InvoiceGQLTestCase):
     search_for_detail_payment_invoice_query = F'''
-query {{ 
-	detailPaymentInvoice(payment_CodeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}"){{
+query {{
+    detailPaymentInvoice(payment_CodeTp_Iexact:"{DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD['code_tp']}"){{
     edges {{
       node {{
         isDeleted,
@@ -32,10 +32,10 @@ query {{
 }}
 '''
 
-    create_mutation_str = '''  
+    create_mutation_str = '''
 mutation {{
-  createDetailPaymentInvoice(input:{{status: 1, fees: "12.00", amount: "91.50", 
-  paymentId: "{payment_uuid}", subjectType: "invoice", subjectId: "{subject_uuid}", 
+  createDetailPaymentInvoice(input:{{status: 1, fees: "12.00", amount: "91.50",
+  paymentId: "{payment_uuid}", subjectType: "invoice", subjectId: "{subject_uuid}",
   clientMutationId: "{mutation_id}"}}) {{
     internalId
     clientMutationId
@@ -43,7 +43,7 @@ mutation {{
 }}
 '''
 
-    delete_mutation_str = '''  
+    delete_mutation_str = '''
 mutation {{
   deleteDetailPaymentInvoice(input:{{uuids:["{payment_uuid}"], clientMutationId: "{mutation_id}"}}) {{
     internalId
@@ -52,10 +52,10 @@ mutation {{
 }}
 '''
 
-    update_mutation_str = '''  
+    update_mutation_str = '''
 mutation {{
-	updateDetailPaymentInvoice(input:{{id:"{detail_payment_uuid}", 
-	  status: 1, fees: "12.00", amount: "91.50", 
+    updateDetailPaymentInvoice(input:{{id:"{detail_payment_uuid}",
+      status: 1, fees: "12.00", amount: "91.50",
       clientMutationId: "{mutation_id}"}}){{
     internalId
     clientMutationId

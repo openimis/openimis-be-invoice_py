@@ -13,8 +13,8 @@ from invoice.models import Bill
 import graphene_django_optimizer as gql_optimizer
 from django.apps import apps
 try:
-    Policy = apps.get_model('policy','Policy')
-except:
+    Policy = apps.get_model('policy', 'Policy')
+except BaseException:
     Policy = {}
 
 

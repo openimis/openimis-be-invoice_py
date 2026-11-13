@@ -1,1 +1,1 @@
-from invoice.gql.bill_item.query import BillItemQueryMixin
+from invoice.gql.bill_item.query import BillItemQueryMixin  # noqa: F401
