@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from graphql import ResolveInfo
+from graphql import GraphQLResolveInfo
 
 from core.models import HistoryModelManager
 
@@ -30,7 +30,7 @@ class GenericInvoiceQuerysetMixin:
 
     @classmethod
     def get_queryset(cls, queryset, user):
-        if isinstance(user, ResolveInfo):
+        if isinstance(user, GraphQLResolveInfo):
             user = user.context.user
         if settings.ROW_SECURITY and user is not None and user.is_anonymous:
             return queryset.none()
