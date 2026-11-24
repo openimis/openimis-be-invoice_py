@@ -9,6 +9,7 @@ from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.payment_types import DetailPaymentInvoiceGQLType
 from invoice.models import DetailPaymentInvoice
+from invoice.gql.gfk_outputs import prefetch_gfk_outputs
 
 
 class DetailPaymentInvoiceQueryMixin:
@@ -30,7 +31,8 @@ class DetailPaymentInvoiceQueryMixin:
             filters.append(Q(mutations__mutation__client_mutation_id=client_mutation_id))
 
         DetailPaymentInvoiceQueryMixin._check_permissions(info.context.user)
-        return gql_optimizer.query(DetailPaymentInvoice.objects.filter(*filters).all(), info)
+        return prefetch_gfk_outputs(
+            gql_optimizer.query(DetailPaymentInvoice.objects.filter(*filters).all(), info), info, 'subject')
 
     @staticmethod
     def _check_permissions(user):

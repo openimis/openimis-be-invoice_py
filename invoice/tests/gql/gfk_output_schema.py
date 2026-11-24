@@ -27,6 +27,7 @@ from invoice.utils import underscore_to_camel
 
 PREFIX = "GFK3343-"
 ROWS = 6
+FEW = 3
 
 
 def _legacy_json(obj, **extra):
@@ -61,9 +62,10 @@ class GenericForeignKeyOutputTest(InvoiceGQLTestCase):
         product = create_test_product("GFK3343", custom_props={"insurance_period": 12})
         policy = create_test_policy(product=product, insuree=heads[2])
 
-        # Two rows share each family, so a prefetched target is reused across rows.
-        invoice_subjects = [families[0], families[0], contract, families[1], families[1], families[2]]
-        bill_subjects = [families[0], families[0], batch_run, batch_run, contract, families[1]]
+        # The first FEW rows already hold every subject type, so a longer page adds rows
+        # only. Rows 0 and 2 share a family, so a prefetched target is reused across rows.
+        invoice_subjects = [families[0], contract, families[0], families[1], families[1], families[2]]
+        bill_subjects = [families[0], batch_run, contract, families[0], batch_run, families[1]]
         for i in range(ROWS):
             invoice = create_test_invoice(
                 invoice_subjects[i], thirdparty, cls.user, code=f"{PREFIX}{i}", code_ext=f"{PREFIX}{i}")
@@ -84,11 +86,11 @@ class GenericForeignKeyOutputTest(InvoiceGQLTestCase):
         return len(ctx), data
 
     def _assert_constant(self, template):
-        few, data = self._count_queries(template % 2)
-        self.assertEqual(len(next(iter(data.values()))['edges']), 2)
+        few, data = self._count_queries(template % FEW)
+        self.assertEqual(len(next(iter(data.values()))['edges']), FEW)
         many, data = self._count_queries(template % ROWS)
         self.assertEqual(len(next(iter(data.values()))['edges']), ROWS)
-        self.assertEqual(few, many, f"{few} queries for 2 rows, {many} for {ROWS}")
+        self.assertEqual(few, many, f"{few} queries for {FEW} rows, {many} for {ROWS}")
 
     INVOICE = '{ invoice(first: %%d, code_Istartswith: "%s", orderBy: ["code"]) { edges { node {' \
               ' code subject subjectTypeName thirdparty thirdpartyTypeName } } } }' % PREFIX
@@ -158,7 +160,7 @@ class GenericForeignKeyOutputTest(InvoiceGQLTestCase):
 
     def test_rows_sharing_a_subject_both_return_it(self):
         edges = self._execute(self.INVOICE % ROWS)['invoice']['edges']
-        shared = [_load(e['node']['subject']) for e in edges[:2]]
+        shared = [_load(edges[i]['node']['subject']) for i in (0, 2)]
         family_type = ContentType.objects.get(app_label='insuree', model='family')
         self.assertTrue(Invoice.objects.filter(code=f"{PREFIX}0", subject_type=family_type).exists())
         self.assertEqual(shared[0], shared[1])

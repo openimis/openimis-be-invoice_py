@@ -10,6 +10,7 @@ from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.bill_types import BillGQLType
 from invoice.models import Bill
+from invoice.gql.gfk_outputs import prefetch_gfk_outputs
 import graphene_django_optimizer as gql_optimizer
 from django.apps import apps
 try:
@@ -80,7 +81,7 @@ class BillQueryMixin(ExportableQueryMixin):
         if InvoiceConfig.bill_user_filter:
             qs = InvoiceConfig.bill_user_filter(qs, info.context.user)
 
-        return gql_optimizer.query(qs, info)
+        return prefetch_gfk_outputs(gql_optimizer.query(qs, info), info, 'subject', 'thirdparty')
 
     @staticmethod
     def _check_permissions(user):
