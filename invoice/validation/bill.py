@@ -57,7 +57,7 @@ class BillModelValidation(BaseInvoiceValidation):
     @classmethod
     def _validate_history_business_model(cls, subject: HistoryBusinessModel) -> bool:
         return cls._validate_history_model(subject) \
-               and (subject.date_valid_to is None or subject.date_valid_to >= date.today())
+            and (subject.date_valid_to is None or subject.date_valid_to >= date.today())
 
     @classmethod
     def _invoice_validate_base_versioned_model(cls, subject: BaseVersionedModel) -> bool:

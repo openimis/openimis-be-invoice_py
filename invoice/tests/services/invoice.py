@@ -114,7 +114,7 @@ class ServiceTestInvoice(TestCase):
     def setUpClass(cls):
         super(ServiceTestInvoice, cls).setUpClass()
         if not User.objects.filter(username='admin_invoice').exists():
-            User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+            User.objects.create_superuser(username='admin_invoice', password='S\\/pe®Pąßw0rd™')
 
         InvoiceLineItem.objects \
             .filter(invoice__code=cls.BASE_TEST_INVOICE_PAYLOAD['code']).delete()
@@ -225,7 +225,7 @@ class ServiceTestInvoice(TestCase):
     def test_invoice_match_items_subject_id(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
-            response = self.insuree_service.create(payload)
+            self.insuree_service.create(payload)
             invoice = Invoice.objects.filter(code=payload['code']).get()
             invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
 
@@ -242,7 +242,7 @@ class ServiceTestInvoice(TestCase):
     def test_invoice_match_items_no_subject_valid_line_item(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
-            response = self.insuree_service.create(payload)
+            self.insuree_service.create(payload)
             invoice = Invoice.objects.filter(code=payload['code']).get()
             invoice.subject = None
             invoice.save(user=self.user)
@@ -260,7 +260,7 @@ class ServiceTestInvoice(TestCase):
     def test_invoice_match_items_no_subject_id_invalid_no_line_item(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
-            response = self.insuree_service.create(payload)
+            self.insuree_service.create(payload)
             invoice = Invoice.objects.filter(code=payload['code']).get()
             invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
             invoice.subject = None
@@ -280,7 +280,7 @@ class ServiceTestInvoice(TestCase):
     def test_invoice_match_items_subject_id_invalid_outdated_item(self):
         with transaction.atomic():
             payload = self.BASE_TEST_INVOICE_PAYLOAD.copy()
-            response = self.insuree_service.create(payload)
+            self.insuree_service.create(payload)
             invoice = Invoice.objects.filter(code=payload['code']).get()
             invoice_line_item = create_test_invoice_line_item(invoice=invoice, line_item=self.policy, user=self.user)
             invoice_line_item.line.validity_to = datetime.now() - timedelta(days=1)

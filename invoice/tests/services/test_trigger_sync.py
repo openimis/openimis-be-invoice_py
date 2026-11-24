@@ -244,4 +244,4 @@ class TriggerSyncTests(TestCase):
             self.assertEqual(
                 history.code, bill.code,
                 f"History code {history.code!r} should match bill code {bill.code!r}"
-                )
+            )

@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from policy.test_helpers import create_test_policy
 from product.models import Product
 from product.test_helpers import create_test_product
@@ -6,7 +5,7 @@ from product.test_helpers import create_test_product
 from insuree.test_helpers import create_test_insuree
 from core.forms import User
 
-from invoice.models import Bill, BillItem
+from invoice.models import BillItem
 from invoice.tests.helpers import create_test_bill
 from invoice.tests.helpers.default_test_data import DEFAULT_TEST_BILL_LINE_ITEM_PAYLOAD
 
@@ -29,7 +28,7 @@ def create_test_bill_line_item(bill=None, line_item=None, user=None, **custom_pr
 def __get_or_create_user():
     user = User.objects.filter(username='admin_invoice').first()
     if not user:
-        user = User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+        user = User.objects.create_superuser(username='admin_invoice', password='S\\/pe®Pąßw0rd™')
     return user
 
 

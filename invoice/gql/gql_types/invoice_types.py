@@ -44,7 +44,7 @@ class InvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLType
                 underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
             }
             if root.subject_type.name == "family":
-                Insuree = apps.get_model('insuree','Insuree')
+                Insuree = apps.get_model('insuree', 'Insuree')
                 insuree = Insuree.objects.filter(id=subject_object_dict['headInsureeId'], validity_to__isnull=True)
                 insuree = insuree.values('id', 'chf_id', 'uuid', 'last_name', 'other_names')
                 subject_object_dict['headInsuree'] = {

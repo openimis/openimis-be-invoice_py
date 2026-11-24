@@ -7,7 +7,7 @@ from core.services.utils import (
     output_result_success,
     model_representation
 )
-from core.signals import *
+from core.signals import register_service_signal
 from invoice.models import (
     Bill,
     PaymentInvoice,

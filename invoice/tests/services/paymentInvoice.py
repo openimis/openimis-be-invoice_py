@@ -41,7 +41,7 @@ class ServiceTestPaymentInvoice(TestCase):
         super(ServiceTestPaymentInvoice, cls).setUpClass()
         cls.maxDiff = None
         if not User.objects.filter(username='admin_invoice').exists():
-            User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+            User.objects.create_superuser(username='admin_invoice', password='S\\/pe®Pąßw0rd™')
 
         cls.user = User.objects.filter(username='admin_invoice').first()
         cls.payment_invoice_service = PaymentInvoiceService(cls.user)
@@ -65,7 +65,7 @@ class ServiceTestPaymentInvoice(TestCase):
                 DEFAULT_TEST_PAYMENT_INVOICE_PAYLOAD,
                 DEFAULT_TEST_DETAIL_PAYMENT_INVOICE_PAYLOAD
             )
-            out = self.payment_invoice_service.ref_received(payment, 'code_ext1')
+            self.payment_invoice_service.ref_received(payment, 'code_ext1')
             expected = self.BASE_EXPECTED_SUCCESS_RESPONSE.copy()
             expected['data']['code_ext'] = 'code_ext1'
             payment_invoice = PaymentInvoice.objects.filter(code_ext=payment.code_ext).first()
@@ -101,7 +101,7 @@ class ServiceTestPaymentInvoice(TestCase):
                 payment,
                 DetailPaymentInvoice.DetailPaymentStatus.ACCEPTED
             )
-            detail = [str(PaymentInvoiceModelValidation.AMOUNT_PAYED_NOT_MATCHING_ITEMS \
+            detail = [str(PaymentInvoiceModelValidation.AMOUNT_PAYED_NOT_MATCHING_ITEMS
                           % {'payment_invoice': payment, 'expected': 91.5, 'payed': 2.0})]
             message = 'Failed to payment_received PaymentInvoice'
             self._assert_output_invalid(out, message, detail)

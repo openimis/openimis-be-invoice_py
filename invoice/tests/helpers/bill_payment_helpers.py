@@ -20,5 +20,5 @@ def create_test_bill_payment(bill=None, user=None, **custom_props):
 def __get_or_create_user():
     user = User.objects.filter(username='admin_invoice').first()
     if not user:
-        user = User.objects.create_superuser(username='admin_invoice', password='S\/pe®Pąßw0rd™')
+        user = User.objects.create_superuser(username='admin_invoice', password='S\\/pe®Pąßw0rd™')
     return user

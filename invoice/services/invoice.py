@@ -1,11 +1,11 @@
-from typing import Union, List
+from typing import Dict, List, Union
 
 from invoice.models import Invoice, InvoiceLineItem
 from core.services import BaseService
 from core.services.utils import get_generic_type
 from invoice.services.invoiceLineItem import InvoiceLineItemService
 from invoice.validation.invoice import InvoiceModelValidation, InvoiceItemStatus
-from core.signals import *
+from core.signals import register_service_signal
 
 
 class InvoiceService(BaseService):
@@ -47,7 +47,6 @@ class InvoiceService(BaseService):
         It sends the invoice_creation_from_calculation signal which should inform the
         relevant calculation rule that invoices need to be generated.
         """
-        pass
 
     def _evaluate_generic_types(self, invoice_data):
         if 'subject_type' in invoice_data.keys():

@@ -1,2 +1,1 @@
-from invoice.gql.invoice_event.query import InvoiceEventQueryMixin
-
+from invoice.gql.invoice_event.query import InvoiceEventQueryMixin  # noqa: F401

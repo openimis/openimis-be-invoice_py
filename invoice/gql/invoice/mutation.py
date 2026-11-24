@@ -73,4 +73,3 @@ class GenerateTimeframeInvoices(BaseMutation):
     class Input(OpenIMISMutation.Input):
         date_from = graphene.Date(required=False)
         date_to = graphene.Date(required=False)
-
