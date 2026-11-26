@@ -7,6 +7,7 @@ from core.utils import append_validity_filter
 from invoice.apps import InvoiceConfig
 from invoice.gql.gql_types.invoice_types import InvoiceLineItemGQLType
 from invoice.models import InvoiceLineItem, Invoice
+from invoice.gql.gfk_outputs import prefetch_gfk_outputs
 import graphene_django_optimizer as gql_optimizer
 
 
@@ -39,7 +40,7 @@ class InvoiceLineItemQueryMixin:
             invoice_qs = InvoiceConfig.invoice_user_filter(Invoice.objects.all(), info.context.user)
             invoice_li_qs = invoice_li_qs.filter(invoice__in=invoice_qs)
 
-        return gql_optimizer.query(invoice_li_qs, info)
+        return prefetch_gfk_outputs(gql_optimizer.query(invoice_li_qs, info), info, 'line')
 
     @staticmethod
     def _check_invoice_permissions(user):

@@ -2,13 +2,12 @@ import graphene
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from graphene_django import DjangoObjectType
-from django.apps import apps
 
 from core import prefix_filterset, ExtendedConnection
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Invoice, InvoiceLineItem, InvoicePayment, InvoiceEvent, InvoiceMutation, \
     InvoicePaymentMutation, InvoiceLineItemMutation, InvoiceEventMutation
-from invoice.utils import underscore_to_camel
+from invoice.gql.gfk_outputs import target_dict
 from core.gql import ScopedQuerysetMixin
 
 
@@ -38,29 +37,19 @@ class InvoiceGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLType
 
     def resolve_subject(root, info):
         if root.subject:
-            subject_object_dict = root.subject.__dict__
-            subject_object_dict.pop('_state', None)
-            subject_object_dict = {
-                underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
-            }
+            subject_object_dict = target_dict(root.subject)
             if root.subject_type.name == "family":
-                Insuree = apps.get_model('insuree', 'Insuree')
-                insuree = Insuree.objects.filter(id=subject_object_dict['headInsureeId'], validity_to__isnull=True)
-                insuree = insuree.values('id', 'chf_id', 'uuid', 'last_name', 'other_names')
+                head = root.subject.head_insuree
                 subject_object_dict['headInsuree'] = {
-                    underscore_to_camel(k): v for k, v in (insuree.first() or {}).items()
-                }
+                    'id': head.id, 'chfId': head.chf_id, 'uuid': head.uuid,
+                    'lastName': head.last_name, 'otherNames': head.other_names,
+                } if head and head.validity_to is None else {}
             subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
             return subject_object_dict
 
     def resolve_thirdparty(root, info):
         if root.thirdparty:
-            thirdparty_object_dict = root.thirdparty.__dict__
-
-            thirdparty_object_dict.pop('_state', None)
-            thirdparty_object_dict = {
-                underscore_to_camel(k): v for k, v in list(thirdparty_object_dict.items())
-            }
+            thirdparty_object_dict = target_dict(root.thirdparty)
             thirdparty_object_dict = json.dumps(thirdparty_object_dict, cls=DjangoJSONEncoder)
             return thirdparty_object_dict
 
@@ -94,13 +83,7 @@ class InvoiceLineItemGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilte
 
     def resolve_line(root, info):
         if root.line:
-            line_object_dict = root.line.__dict__
-            line_object_dict.pop('_state', None)
-            key_values = list(line_object_dict.items())
-            line_object_dict.clear()
-            for k, v in key_values:
-                new_key = underscore_to_camel(k)
-                line_object_dict[new_key] = v
+            line_object_dict = target_dict(root.line)
             line_object_dict = json.dumps(line_object_dict, cls=DjangoJSONEncoder)
             return line_object_dict
 

@@ -7,8 +7,7 @@ from core import prefix_filterset, ExtendedConnection
 from invoice.gql.filter_mixin import GenericFilterGQLTypeMixin
 from invoice.models import Bill, \
     BillItem, BillEvent, BillPayment
-from invoice.utils import underscore_to_camel
-from location.models import Location
+from invoice.gql.gfk_outputs import target_dict
 from core.gql import ScopedQuerysetMixin
 
 
@@ -38,27 +37,18 @@ class BillGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTypeMix
 
     def resolve_subject(root, info):
         if root.subject:
-            subject_object_dict = root.subject.__dict__
-            subject_object_dict.pop('_state', None)
-            subject_object_dict = {
-                underscore_to_camel(k): v for k, v in list(subject_object_dict.items())
-            }
+            subject_object_dict = target_dict(root.subject)
             if root.subject_type.name == "batch run" and subject_object_dict.get('locationId', None):
-                location = Location.objects.filter(id=subject_object_dict['locationId'], validity_to__isnull=True)
-                location = location.values('code', 'name')
-                subject_object_dict['location'] = {
-                    underscore_to_camel(k): v for k, v in location.first().items()
-                }
+                location = root.subject.location
+                subject_object_dict['location'] = (
+                    {'code': location.code, 'name': location.name} if location.validity_to is None else None
+                )
             subject_object_dict = json.dumps(subject_object_dict, cls=DjangoJSONEncoder)
             return subject_object_dict
 
     def resolve_thirdparty(root, info):
         if root.thirdparty:
-            thirdparty_object_dict = root.thirdparty.__dict__
-            thirdparty_object_dict.pop('_state', None)
-            thirdparty_object_dict = {
-                underscore_to_camel(k): v for k, v in list(thirdparty_object_dict.items())
-            }
+            thirdparty_object_dict = target_dict(root.thirdparty)
             thirdparty_object_dict = json.dumps(thirdparty_object_dict, cls=DjangoJSONEncoder)
             return thirdparty_object_dict
 
@@ -92,13 +82,7 @@ class BillItemGQLType(ScopedQuerysetMixin, DjangoObjectType, GenericFilterGQLTyp
 
     def resolve_line(root, info):
         if root.line:
-            line_object_dict = root.line.__dict__
-            line_object_dict.pop('_state', None)
-            key_values = list(line_object_dict.items())
-            line_object_dict.clear()
-            for k, v in key_values:
-                new_key = underscore_to_camel(k)
-                line_object_dict[new_key] = v
+            line_object_dict = target_dict(root.line)
             line_object_dict = json.dumps(line_object_dict, cls=DjangoJSONEncoder)
             return line_object_dict
 
