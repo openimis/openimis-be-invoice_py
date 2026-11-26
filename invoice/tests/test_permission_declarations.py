@@ -17,10 +17,9 @@ The module carries six entities, two symmetric families of three: the invoice is
 identifier is shared between them, and the test below verifies it.
 """
 
-import json
-import os
-
 from django.test import TestCase
+
+from core.utils import build_permissions_map
 
 from invoice.apps import (
     DJANGO_PERMS,
@@ -157,21 +156,6 @@ SUB_RESOURCES = {
 }
 
 
-def _permissions_map():
-    """`permissions_map.json` lives in the assembly, not in the package."""
-    from django.conf import settings
-
-    candidates = [
-        os.path.join(str(settings.BASE_DIR), "permissions_map.json"),
-        os.path.join(os.path.dirname(str(settings.BASE_DIR)), "permissions_map.json"),
-    ]
-    for path in candidates:
-        if os.path.exists(path):
-            with open(path) as handle:
-                return json.load(handle)
-    return None
-
-
 class InvoicePermissionDeclarationTestCase(TestCase):
     def test_right_ids_unchanged(self):
         self.assertEqual(
@@ -253,9 +237,7 @@ class InvoicePermissionDeclarationTestCase(TestCase):
                 self.assertEqual(getattr(InvoiceConfig, key), EXPECTED_RIGHTS[key])
 
     def test_ids_match_permissions_map(self):
-        mapping = _permissions_map()
-        if mapping is None:
-            self.skipTest("permissions_map.json absent de cet assemblage")
+        mapping = build_permissions_map()
         actual = {name: mapping.get(name) for name in EXPECTED_MAP_ENTRIES}
         self.assertEqual(actual, EXPECTED_MAP_ENTRIES)
 
