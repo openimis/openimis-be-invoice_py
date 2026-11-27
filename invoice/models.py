@@ -28,7 +28,7 @@ class GenericInvoice(GenericInvoiceQuerysetMixin, HistoryBusinessModel):
         RECONCILIATED = 7, _('reconciliated')
 
     thirdparty_type = models.ForeignKey(ContentType, models.DO_NOTHING,
-                                        db_column='ThirdpartyType', blank=True, null=True, unique=False)
+                                        db_column='ThirdpartyType', blank=True, null=True, unique=False, db_index=False)
     thirdparty_id = models.CharField(db_column='ThirdpartyId', max_length=255, blank=True, null=True)  # object is referenced by uuid
     thirdparty = GenericForeignKey('thirdparty_type', 'thirdparty_id')
 
@@ -146,7 +146,7 @@ class Invoice(GenericInvoice):
     row_scope = GenericScope("subject")
 
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
-                                     db_column='SubjectType', blank=True, null=True, related_name='subject_type', unique=False)
+                                     db_column='SubjectType', blank=True, null=True, related_name='subject_type', unique=False, db_index=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255, blank=True, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
@@ -162,13 +162,18 @@ class Invoice(GenericInvoice):
     class Meta:
         managed = True
         db_table = 'tblInvoice'
+        # Rows are looked up by their GenericForeignKey target (OP-3342).
+        indexes = [
+            models.Index(fields=['subject_type', 'subject_id'], name='invoice_subject_gfk_idx'),
+            models.Index(fields=['thirdparty_type', 'thirdparty_id'], name='invoice_thirdparty_gfk_idx'),
+        ]
 
 
 class InvoiceLineItem(GenericInvoiceLineItem):
     row_scope = ParentScope("invoice")
 
     line_type = models.ForeignKey(
-        ContentType, models.DO_NOTHING, db_column='LineType', blank=True, null=True, related_name='line_type', unique=False)
+        ContentType, models.DO_NOTHING, db_column='LineType', blank=True, null=True, related_name='line_type', unique=False, db_index=False)
     line_id = models.CharField(db_column='LineId', max_length=255, blank=True, null=True)  # object is referenced by uuid
     line = GenericForeignKey('line_type', 'line_id')
 
@@ -183,6 +188,10 @@ class InvoiceLineItem(GenericInvoiceLineItem):
     class Meta:
         managed = True
         db_table = 'tblInvoiceLineItem'
+        # Rows are looked up by their GenericForeignKey target (OP-3342).
+        indexes = [
+            models.Index(fields=['line_type', 'line_id'], name='invoice_line_gfk_idx'),
+        ]
 
 
 class InvoicePayment(GenericInvoicePayment):
@@ -222,7 +231,7 @@ class Bill(GenericInvoice):
 
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING,
                                      db_column='SubjectType', null=True, blank=True, related_name='subject_type_bill',
-                                     unique=False)
+                                     unique=False, db_index=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255, blank=True, null=True)  # object is referenced by uuid
     subject = GenericForeignKey('subject_type', 'subject_id')
 
@@ -247,13 +256,18 @@ class Bill(GenericInvoice):
     class Meta:
         managed = True
         db_table = 'tblBill'
+        # Rows are looked up by their GenericForeignKey target (OP-3342).
+        indexes = [
+            models.Index(fields=['subject_type', 'subject_id'], name='bill_subject_gfk_idx'),
+            models.Index(fields=['thirdparty_type', 'thirdparty_id'], name='bill_thirdparty_gfk_idx'),
+        ]
 
 
 class BillItem(GenericInvoiceLineItem):
     row_scope = ParentScope("bill")
 
     line_type = models.ForeignKey(
-        ContentType, models.DO_NOTHING, db_column='LineType', blank=True, null=True, related_name='line_type_bill', unique=False)
+        ContentType, models.DO_NOTHING, db_column='LineType', blank=True, null=True, related_name='line_type_bill', unique=False, db_index=False)
     line_id = models.CharField(db_column='LineId', max_length=255, blank=True, null=True)  # object is referenced by uuid
     line = GenericForeignKey('line_type', 'line_id')
 
@@ -266,6 +280,10 @@ class BillItem(GenericInvoiceLineItem):
     class Meta:
         managed = True
         db_table = 'tblBillLineItem'
+        # Rows are looked up by their GenericForeignKey target (OP-3342).
+        indexes = [
+            models.Index(fields=['line_type', 'line_id'], name='bill_line_gfk_idx'),
+        ]
 
 
 class BillPayment(GenericInvoicePayment):
@@ -425,7 +443,7 @@ class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
                                 db_column='PaymentUUID', related_name="invoice_payments")
 
     subject_type = models.ForeignKey(ContentType, models.DO_NOTHING, db_column='SubjectType',
-                                     related_name='subject_type_payment', blank=True, null=True, unique=False)
+                                     related_name='subject_type_payment', blank=True, null=True, unique=False, db_index=False)
     subject_id = models.CharField(db_column='SubjectId', max_length=255, blank=True, null=True)
     subject = GenericForeignKey('subject_type', 'subject_id')
 
@@ -446,6 +464,10 @@ class DetailPaymentInvoice(GenericInvoiceQuerysetMixin, HistoryModel):
     class Meta:
         managed = True
         db_table = "tblDetailPaymentInvoice"
+        # Rows are looked up by their GenericForeignKey target (OP-3342).
+        indexes = [
+            models.Index(fields=['subject_type', 'subject_id'], name='detail_payment_subject_gfk_idx'),
+        ]
 
 
 class PaymentInvoiceMutation(UUIDModel, ObjectMutation):
