@@ -12,6 +12,9 @@ setup(
     version='1.0.0',
     packages=find_packages(),
     include_package_data=True,
+    # The .po catalogues ship with the package; the assembly compiles them
+    # (manage.py compilemessages) once the modules are installed.
+    package_data={'invoice': ['locale/*/LC_MESSAGES/*.po']},
     license='GNU AGPL v3',
     description='The openIMIS Backend Invoice Payment reference module.',
     long_description=README,
